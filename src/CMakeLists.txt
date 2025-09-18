@@ -11,3 +11,4 @@ add_library(cf2_lib
 
 add_executable(cf2 main.cpp)
 target_link_libraries(cf2 PRIVATE cf2_lib)
+

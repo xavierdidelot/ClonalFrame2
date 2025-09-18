@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 4.0)
 project(cf2)
+include(CTest)
 
 set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(src)
-#enable_testing()
-#add_subdirectory(tests)
+enable_testing()
+add_subdirectory(tests)
