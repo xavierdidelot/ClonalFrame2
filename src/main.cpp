@@ -2,23 +2,19 @@
 
 #include "Move.h"
 #include "Param.h"
+#include "Alignment.h"
 
 int main() {
-    auto lang = "C++";
     auto *p = new Param();
     auto *m = new Move(0.5);
+    auto *a = new Alignment("test.fasta");
     p->set_alpha(1);
     p->set_beta(2);
     p->set_gamma(3);
-    std::cout << "Hello and welcome to " << lang << "!\n";
-
-    for (int i = 1; i <= 5; i++) {
-        std::cout << "i = " << i << std::endl;
-    }
-
     m->action(p);
     p->print();
     delete p;
     delete m;
+    delete a;
     return 0;
 }
