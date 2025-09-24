@@ -6,7 +6,7 @@ add_library(cf2_lib
         Alignment.cpp
         Alignment.h)
 
-add_executable(cf2 main.cpp)
+add_executable(ClonalFrame2 main.cpp)
 find_package(GSL REQUIRED)
-target_link_libraries(cf2 cf2_lib GSL::gsl GSL::gslcblas)
+target_link_libraries(ClonalFrame2 cf2_lib GSL::gsl GSL::gslcblas)
 

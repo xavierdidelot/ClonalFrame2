@@ -24,6 +24,7 @@ Alignment::Alignment(string filename) {
     while (true) {
         getline(file,line);
         if (file.eof()) break;
+        if (line.empty()) continue;
         if (line.at(0)=='#') continue;
         if (line.at(0)=='>') {n++;continue;}
         if (n==1) l=l+line.length();
@@ -37,6 +38,7 @@ Alignment::Alignment(string filename) {
     while (true) {
         getline(file,line);
         if (file.eof()) break;
+        if (line.empty()) continue;
         if (line.at(0)=='#') continue;
         if (line.at(0)=='>') {l=0;n++;continue;}
         for (int i=0;i<line.length();i++) {

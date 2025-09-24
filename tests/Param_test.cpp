@@ -1,5 +1,5 @@
 #include "../src/Param.h"
-#include <assert.h>
+#include <cassert>
 
 int main() {
     auto *p = new Param();
