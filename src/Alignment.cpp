@@ -5,6 +5,7 @@
 #include "Alignment.h"
 
 #include <iostream>
+#include <regex>
 
 Alignment::~Alignment() {
     delete(data);
@@ -33,16 +34,18 @@ Alignment::Alignment(string filename) {
     file.seekg(0);
     cout<<n<<" "<<l<<endl;
     data=gsl_matrix_char_calloc(n,l);
+    names=vector<string>(n);
     n=-1;
     l=0;
+    regex reg("[> ]");
     while (true) {
         getline(file,line);
         if (file.eof()) break;
         if (line.empty()) continue;
         if (line.at(0)=='#') continue;
-        if (line.at(0)=='>') {l=0;n++;continue;}
+        if (line.at(0)=='>') {l=0;n++;setName(n,regex_replace(line,reg,""));continue;}
         for (int i=0;i<line.length();i++) {
-            gsl_matrix_char_set(data,n,l++,standardise(line[i++]));
+            gsl_matrix_char_set(data,n,l++,standardise(line[i]));
         }
     }
     file.close();
@@ -81,4 +84,28 @@ int Alignment::getN() {
 
 int Alignment::getL() {
     return(data->size2);
+}
+
+void Alignment::write(string filename) {
+    ofstream file;
+    file.open(filename);
+    if (file.is_open()==false) {
+        cout<<"Error opening file "<<filename<<endl;
+        exit(1);
+    }
+    for (int i=0;i<data->size1;i++) {
+        file<<">"<<names[i]<<endl;
+        for (int j=0;j<data->size2;j++) {
+            file<<getData(i,j);
+        }
+        file<<endl;
+    }
+}
+
+string Alignment::getName(int i) {
+    return names[i];
+}
+
+void Alignment::setName(int i, string s) {
+    names[i]=s;
 }

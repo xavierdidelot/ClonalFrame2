@@ -13,19 +13,18 @@ using namespace std;
 class Alignment {
 public:
     ~Alignment();
-
     Alignment(string filename);
-
     char standardise(char in);
-
     char getData(int i, int j);
-
     int getN();
-
     int getL();
+    void write(string filename);
+    string getName(int i);
+    void setName(int i,string s);
 
 private:
     gsl_matrix_char* data;
+    vector<string> names;
 };
 
 
