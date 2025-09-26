@@ -7,7 +7,6 @@
 
 #include <string>
 #include <fstream>
-#include <gsl/gsl_matrix.h>
 using namespace std;
 
 class Alignment {
@@ -15,15 +14,16 @@ public:
     ~Alignment();
     Alignment(string filename);
     char standardise(char in);
-    char getData(int i, int j);
-    int getN();
-    int getL();
+    inline char getData(int i, int j) {return data[i][j];}
+    inline int getN() {return N;}
+    inline int getL() {return L;}
     void write(string filename);
-    string getName(int i);
-    void setName(int i,string s);
+    string getName(int i) {return names[i];}
 
 private:
-    gsl_matrix_char* data;
+    int N;
+    int L;
+    vector<string> data;
     vector<string> names;
 };
 
