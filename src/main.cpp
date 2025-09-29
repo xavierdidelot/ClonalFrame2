@@ -21,10 +21,6 @@ bool verbose=false;
 
 int main(int argc, char *argv[]) {
     srand(time(nullptr));
-    auto * p=new Param();//TEST LEAK
-    p->set_alpha(0);
-    int * x=(int *)malloc(1000);
-    x[1]=1;
     int burn=10000,nbit=10000,thin=10;
     int c;
     while ((c = getopt (argc, argv, "x:y:z:s:v")) != -1)

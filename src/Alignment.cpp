@@ -33,8 +33,8 @@ Alignment::Alignment(string filename) {
     file.clear();
     file.seekg(0);
     cout<<n<<" "<<l<<endl;
-    N=n;
-    L=l;
+    this->n=n;
+    this->l=l;
     data=vector<string>(n);
     for (int i=0;i<n;i++) {string s(l,'*');data.push_back(s);}
     names=vector<string>(n);
@@ -84,10 +84,10 @@ void Alignment::write(string filename) {
         cout<<"Error opening file "<<filename<<endl;
         exit(1);
     }
-    for (int i=0;i<N;i++) {
+    for (int i=0;i<n;i++) {
         file<<">"<<names[i]<<endl;
-        for (int j=0;j<L;j++) {
-            file<<getData(i,j);
+        for (int j=0;j<l;j++) {
+            file<<get_data(i,j);
         }
         file<<endl;
     }

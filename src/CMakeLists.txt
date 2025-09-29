@@ -4,7 +4,11 @@ add_library(cf2_lib
         Move.cpp
         Move.h
         Alignment.cpp
-        Alignment.h)
+        Alignment.h
+        Tree.cpp
+        Tree.h
+        Node.cpp
+        Node.h)
 
 add_executable(ClonalFrame2 main.cpp)
 find_package(GSL REQUIRED)

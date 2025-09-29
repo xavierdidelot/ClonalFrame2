@@ -15,15 +15,15 @@ public:
     ~Alignment();
     Alignment(string filename);
     char standardise(char in);
-    inline char getData(int i, int j) {return data[i][j];}
-    inline int getN() {return N;}
-    inline int getL() {return L;}
+    inline char get_data(int i, int j) {return data[i][j];}
+    inline int get_n() {return n;}
+    inline int get_l() {return l;}
     void write(string filename);
-    string getName(int i) {return names[i];}
+    string get_name(int i) {return names[i];}
 
 private:
-    int N;
-    int L;
+    int n;
+    int l;
     vector<string> data;
     vector<string> names;
 };
