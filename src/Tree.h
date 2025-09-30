@@ -19,6 +19,7 @@ public:
     ~Tree();
     int get_n();
     void write(string filename);
+    bool check_structure();
 private:
     int n;
     Node* from_root_1;

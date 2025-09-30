@@ -11,6 +11,7 @@ Tree::Tree() {
 
 Tree::Tree(int n) {
     this->n=n;
+    nodes=vector<Node*>();
     for (int i = 0; i < n; i++) {
         Node * node = new Node();
         node->set_name("seq"+std::to_string(i));
@@ -19,16 +20,16 @@ Tree::Tree(int n) {
     }
     from_root_1 = nodes[0];
     from_root_2 = nodes[1];
-    from_root_3 = nodes[2];
+    from_root_3 = nodes[n-1];
 
-    for (int i = 3; i < n; i++) {
+    for (int i = n-2; i >= 2; i--) {
         Node * node = new Node();
         nodes.push_back(node);
         node->set_left(nodes[i]);
+        nodes[i]->set_father(node);
         node->set_dist_father(1.0);
-        node->set_dist_left(1.0);
-        node->set_dist_right(1.0);
         node->set_right(from_root_3);
+        from_root_3->set_father(node);
         from_root_3=node;
     }
 
@@ -55,4 +56,16 @@ void Tree::write(string filename) {
         exit(1);
     }
     file<<to_string()<<endl;
+}
+
+bool Tree::check_structure() {
+    if (this->n*2-3 - nodes.size()!=0) return false;
+    if (from_root_1->get_father()!=NULL) return false;
+    if (from_root_2->get_father()!=NULL) return false;
+    if (from_root_3->get_father()!=NULL) return false;
+    for (int i=0; i<nodes.size(); i++) {
+        if (nodes[i]->get_left ()!=NULL && nodes[i]->get_left ()->get_father()!=nodes[i]) return false;
+        if (nodes[i]->get_right()!=NULL && nodes[i]->get_right()->get_father()!=nodes[i]) return false;
+    }
+    return true;
 }

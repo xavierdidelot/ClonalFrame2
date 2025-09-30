@@ -37,22 +37,6 @@ void Node::set_father(Node *father) {
     this->father = father;
 }
 
-double Node::get_dist_left() {
-    return dist_left;
-}
-
-void Node::set_dist_left(double dist_left) {
-    this->dist_left = dist_left;
-}
-
-double Node::get_dist_right() {
-    return dist_right;
-}
-
-void Node::set_dist_right(double dist_right) {
-    this->dist_right = dist_right;
-}
-
 double Node::get_dist_father() {
     return dist_father;
 }
@@ -62,8 +46,6 @@ Node::Node() {
     right = NULL;
     father = NULL;
     dist_father = 0;
-    dist_left = 0;
-    dist_father = 0;
     name = "";
 }
 
@@ -72,8 +54,8 @@ Node::~Node() {
 
 string Node::to_string() {
     if (left == NULL) return name;
-    return("("+ left ->to_string()+":"+std::to_string(dist_left )+","+
-                right->to_string()+":"+std::to_string(dist_right)+")");
+    return("("+ left ->to_string()+":"+std::to_string(left ->get_dist_father())+","+
+                right->to_string()+":"+std::to_string(right->get_dist_father())+")");
 }
 
 void Node::set_dist_father(double dist_father) {

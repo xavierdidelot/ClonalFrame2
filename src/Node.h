@@ -18,10 +18,6 @@ public:
     void set_right(Node *right);
     Node * get_father();
     void set_father(Node *father);
-    double get_dist_left();
-    void set_dist_left(double dist_left);
-    double get_dist_right();
-    void set_dist_right(double dist_right);
     double get_dist_father();
     void set_dist_father(double dist_father);
     Node();
@@ -33,8 +29,6 @@ private:
     Node *left;
     Node *right;
     Node *father;
-    double dist_left;
-    double dist_right;
     double dist_father;
 };
 
