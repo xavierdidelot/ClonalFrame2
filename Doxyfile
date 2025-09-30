@@ -1,0 +1,10 @@
+# Doxyfile - Minimal configuration for Doxygen
+
+# Project information
+PROJECT_NAME           = "ClonalFrame2"
+PROJECT_BRIEF          = "This is a brief description of ClonalFrame2"
+OUTPUT_DIRECTORY       = docs
+INPUT                  = src
+RECURSIVE              = YES
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO

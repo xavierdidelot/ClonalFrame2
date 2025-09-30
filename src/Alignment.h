@@ -10,18 +10,29 @@
 #include <vector>
 using namespace std;
 
+/**
+ * @class Alignment
+ * @brief Class representing an alignment
+ */
 class Alignment {
 public:
+    ///Destructor of alignment
     ~Alignment();
+    ///Constructor of alignment from a fasta file
     Alignment(string filename);
-    char standardise(char in);
-    inline char get_data(int i, int j) {return data[i][j];}
-    inline int get_n() {return n;}
-    inline int get_l() {return l;}
+    ///Return data for genome i position j
+    char get_data(int i, int j);
+    ///Return number of genomes in alignment
+    int get_n();
+    ///Return length of the alignment
+    int get_l();
+    ///Write alignment into a fasta file
     void write(string filename);
-    string get_name(int i) {return names[i];}
+    ///Return name of the i-th genome
+    string get_name(int i);
 
 private:
+    char standardise(char in);
     int n;
     int l;
     vector<string> data;

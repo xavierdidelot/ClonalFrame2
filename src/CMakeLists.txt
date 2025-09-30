@@ -1,8 +1,4 @@
 add_library(cf2_lib
-        Param.cpp
-        Param.h
-        Move.cpp
-        Move.h
         Alignment.cpp
         Alignment.h
         Tree.cpp

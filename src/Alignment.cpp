@@ -54,6 +54,12 @@ Alignment::Alignment(string filename) {
     file.close();
 }
 
+char Alignment::get_data(int i, int j) {return data[i][j];}
+
+int Alignment::get_n() {return n;}
+
+int Alignment::get_l() {return l;}
+
 char Alignment::standardise(char in) {
     switch (in) {
         case 'a':
@@ -92,3 +98,5 @@ void Alignment::write(string filename) {
         file<<endl;
     }
 }
+
+string Alignment::get_name(int i) {return names[i];}

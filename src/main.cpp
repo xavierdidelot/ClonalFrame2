@@ -1,8 +1,6 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "Move.h"
-#include "Param.h"
 #include "Alignment.h"
 
 static string help=
