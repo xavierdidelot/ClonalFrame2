@@ -1,7 +1,10 @@
 #include <iostream>
 #include <unistd.h>
+#include <thread>
+#include <chrono>
 
 #include "Alignment.h"
+#include "Tree.h"
 
 static string help=
     R"(Usage: ClonalFrame2 [OPTIONS] inputfile outputfile
@@ -18,7 +21,10 @@ static string help=
 bool verbose=false;
 
 int main(int argc, char *argv[]) {
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Pause for profiling
     srand(time(nullptr));
+    auto * tr=new Tree(10);//CREATE A LEAK
+    cout<<tr->to_string()<<endl;
     int burn=10000,nbit=10000,thin=10;
     int c;
     while ((c = getopt (argc, argv, "x:y:z:s:v")) != -1)
@@ -41,6 +47,8 @@ int main(int argc, char *argv[]) {
         string inputfile=string(argv[optind++]);
         string outfile =string(argv[optind++]);
         auto * a = new Alignment(inputfile);
+        auto * t = new Tree(a->get_n());
+        cout << t->to_string() << endl;
         delete(a);
         return 0;
 }

@@ -10,6 +10,4 @@ make
 
 ## Usage
 
-```
-ClonalFrame2 input.fas
-```
+<iframe src="usage.md" width="100%" height="300"></iframe>
