@@ -10,4 +10,6 @@ make
 
 ## Usage
 
-{% include usage.md %}
+```
+ClonalFrame2 [OPTIONS] inputfile outputfile
+```
