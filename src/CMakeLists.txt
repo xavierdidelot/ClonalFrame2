@@ -7,6 +7,6 @@ add_library(cf2_lib
         Node.h)
 
 add_executable(ClonalFrame2 main.cpp)
-find_package(GSL REQUIRED)
-target_link_libraries(ClonalFrame2 cf2_lib GSL::gsl GSL::gslcblas)
+#find_package(GSL REQUIRED)
+target_link_libraries(ClonalFrame2 cf2_lib)# GSL::gsl GSL::gslcblas)
 

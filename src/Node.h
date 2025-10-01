@@ -6,6 +6,8 @@
 #define CLONALFRAME2_NODE_H
 
 #include <string>
+#include "RNGGlobal.h"
+
 using namespace std;
 
 /**
@@ -34,15 +36,20 @@ public:
     double get_dist_father();
     ///Set distance to father
     void set_dist_father(double dist_father);
+    ///Return sequence
+    string * get_seq();
     ///Constructor for a new node
     Node();
     ///Destructor for a node
     ~Node();
     ///Return a newick string for this node and its children
     string to_string();
+    ///Add mutations
+    void add_mutations(string * above,double theta);
 
 private:
     string name;
+    string *seq;
     Node *left;
     Node *right;
     Node *father;

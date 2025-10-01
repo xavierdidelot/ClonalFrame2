@@ -58,6 +58,16 @@ string Node::to_string() {
                 right->to_string()+":"+std::to_string(right->get_dist_father())+")");
 }
 
+void Node::add_mutations(string * above, double theta) {
+    seq=new string(*above);
+    if (left!= NULL) left ->add_mutations(seq,theta);
+    if (right!=NULL) right->add_mutations(seq,theta);
+}
+
 void Node::set_dist_father(double dist_father) {
     this->dist_father = dist_father;
+}
+
+string * Node::get_seq() {
+    return seq;
 }

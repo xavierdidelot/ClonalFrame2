@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include "Tree.h"
 using namespace std;
 
 /**
@@ -20,6 +21,10 @@ public:
     ~Alignment();
     ///Constructor of alignment from a fasta file
     Alignment(string filename);
+    ///Constructor of non-polymorphic alignment of n genomes of length l
+    Alignment(int n,int l);
+    ///Constructor of alignment
+    Alignment(Tree * t);
     ///Return data for genome i position j
     char get_data(int i, int j);
     ///Return number of genomes in alignment

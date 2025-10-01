@@ -54,6 +54,27 @@ Alignment::Alignment(string filename) {
     file.close();
 }
 
+Alignment::Alignment(int n, int l) {
+    this->n=n;
+    this->l=l;
+    data=vector<string>();
+    for (int i=0;i<n;i++) {
+        string s(l,'A');
+        data.push_back(s);
+    }
+}
+
+Alignment::Alignment(Tree *t) {
+    n=t->get_n();
+    names=vector<string>();
+    data=vector<string>();
+    for (int i=0;i<n;i++) {
+        names.push_back(t->get_node(i)->get_name());
+        data.push_back(*(t->get_node(i)->get_seq()));
+    }
+    l=data[0].length();
+}
+
 char Alignment::get_data(int i, int j) {return data[i][j];}
 
 int Alignment::get_n() {return n;}

@@ -1,10 +1,9 @@
 #include <iostream>
 #include <unistd.h>
-#include <thread>
-#include <chrono>
 
 #include "Alignment.h"
 #include "Tree.h"
+#include "RNGGlobal.h"
 
 static string help=
     R"(Usage: ClonalFrame2 [OPTIONS] inputfile outputfile
@@ -21,10 +20,6 @@ static string help=
 bool verbose=false;
 
 int main(int argc, char *argv[]) {
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // Pause for profiling
-    srand(time(nullptr));
-    auto * tr=new Tree(10);//CREATE A LEAK
-    cout<<tr->to_string()<<endl;
     int burn=10000,nbit=10000,thin=10;
     int c;
     while ((c = getopt (argc, argv, "x:y:z:s:v")) != -1)
@@ -33,7 +28,7 @@ int main(int argc, char *argv[]) {
         case('x'):burn=atoi(optarg);break;
         case('y'):nbit=atoi(optarg);break;
         case('z'):thin=atoi(optarg);break;
-        case('s'):srand(atoi(optarg));break;
+        case('s'):setSeed(atoi(optarg));break;
         case('v'):verbose=true;break;
         case '?':cout<<"Unknown option."<<endl;return 1;
         default:
@@ -47,8 +42,9 @@ int main(int argc, char *argv[]) {
         string inputfile=string(argv[optind++]);
         string outfile =string(argv[optind++]);
         auto * a = new Alignment(inputfile);
-        auto * t = new Tree(a->get_n());
-        cout << t->to_string() << endl;
+        //auto * t = new Tree(a);//TODO NJ
+        //cout << t->to_string() << endl;
+        //delete(t);
         delete(a);
         return 0;
 }
