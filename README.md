@@ -10,4 +10,4 @@ make
 
 ## Usage
 
-<iframe src="usage.md" width="100%" height="300"></iframe>
+{% include usage.md %}
