@@ -22,8 +22,10 @@ class Tree {
 public:
     ///Constructor for an empty tree
     Tree();
-    ///Constructor for a tree with n leaves and deterministic structure
+    ///Constructor for a deterministic tree with n leaves
     Tree(int n);
+    ///Constructor for a random tree with n leaves
+    Tree(int n,double avg_bra_len);
     ///Constructor for a tree from an alignment
     Tree(Alignment * a);
     ///Return the tree as a newick string

@@ -7,5 +7,6 @@ var searchData=
   ['get_5fleft_4',['get_left',['../class_node.html#afb4e015619e702a028f72b27aa448fd0',1,'Node']]],
   ['get_5fn_5',['get_n',['../class_alignment.html#a21a5a7b27ce1220e747db61db3a14c49',1,'Alignment::get_n()'],['../class_tree.html#a220ce16673a69e64c73b87e8718dd24c',1,'Tree::get_n()']]],
   ['get_5fname_6',['get_name',['../class_alignment.html#a61d525ba266d4705bc437d58d0807323',1,'Alignment::get_name()'],['../class_node.html#a81e9f5e01dea4e47abf7a911b5bc5296',1,'Node::get_name()']]],
-  ['get_5fright_7',['get_right',['../class_node.html#a0e75ae3e296dbb74dcd528b5f584c9ff',1,'Node']]]
+  ['get_5fright_7',['get_right',['../class_node.html#a0e75ae3e296dbb74dcd528b5f584c9ff',1,'Node']]],
+  ['get_5fseq_8',['get_seq',['../class_node.html#ab79c01b859c94e082db57d14a982a3ab',1,'Node']]]
 ];

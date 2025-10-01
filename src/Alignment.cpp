@@ -7,6 +7,8 @@
 #include <iostream>
 #include <regex>
 
+const char * lets="ACGT";
+
 Alignment::~Alignment() {
 
 }

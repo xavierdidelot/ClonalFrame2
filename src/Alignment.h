@@ -11,6 +11,8 @@
 #include "Tree.h"
 using namespace std;
 
+extern const char * lets;
+
 /**
  * @class Alignment
  * @brief Class representing an alignment

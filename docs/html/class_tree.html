@@ -105,7 +105,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ad376a7c639d857312f5de2ef47482f68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for an empty tree. <br /></td></tr>
 <tr class="memitem:a1f457ab572f8c14493a57d37940e0bd4" id="r_a1f457ab572f8c14493a57d37940e0bd4"><td class="memItemLeft" align="right" valign="top"><a id="a1f457ab572f8c14493a57d37940e0bd4" name="a1f457ab572f8c14493a57d37940e0bd4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Tree</b> (int n)</td></tr>
-<tr class="memdesc:a1f457ab572f8c14493a57d37940e0bd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for a tree with n leaves and deterministic structure. <br /></td></tr>
+<tr class="memdesc:a1f457ab572f8c14493a57d37940e0bd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for a deterministic tree with n leaves. <br /></td></tr>
+<tr class="memitem:ad113e12b01d71dd26b815182c1a0959f" id="r_ad113e12b01d71dd26b815182c1a0959f"><td class="memItemLeft" align="right" valign="top"><a id="ad113e12b01d71dd26b815182c1a0959f" name="ad113e12b01d71dd26b815182c1a0959f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Tree</b> (int n, double avg_bra_len)</td></tr>
+<tr class="memdesc:ad113e12b01d71dd26b815182c1a0959f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for a random tree with n leaves. <br /></td></tr>
+<tr class="memitem:afdc023bc57eff3ed398492463a371ef4" id="r_afdc023bc57eff3ed398492463a371ef4"><td class="memItemLeft" align="right" valign="top"><a id="afdc023bc57eff3ed398492463a371ef4" name="afdc023bc57eff3ed398492463a371ef4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Tree</b> (<a class="el" href="class_alignment.html">Alignment</a> *a)</td></tr>
+<tr class="memdesc:afdc023bc57eff3ed398492463a371ef4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for a tree from an alignment. <br /></td></tr>
 <tr class="memitem:af9f500f3ae4668babc62ca3598ed1815" id="r_af9f500f3ae4668babc62ca3598ed1815"><td class="memItemLeft" align="right" valign="top"><a id="af9f500f3ae4668babc62ca3598ed1815" name="af9f500f3ae4668babc62ca3598ed1815"></a>
 string&#160;</td><td class="memItemRight" valign="bottom"><b>to_string</b> ()</td></tr>
 <tr class="memdesc:af9f500f3ae4668babc62ca3598ed1815"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the tree as a newick string. <br /></td></tr>
@@ -115,12 +121,17 @@ string&#160;</td><td class="memItemRight" valign="bottom"><b>to_string</b> ()</t
 <tr class="memitem:a220ce16673a69e64c73b87e8718dd24c" id="r_a220ce16673a69e64c73b87e8718dd24c"><td class="memItemLeft" align="right" valign="top"><a id="a220ce16673a69e64c73b87e8718dd24c" name="a220ce16673a69e64c73b87e8718dd24c"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>get_n</b> ()</td></tr>
 <tr class="memdesc:a220ce16673a69e64c73b87e8718dd24c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return number of leaves in the tree. <br /></td></tr>
+<tr class="memitem:ad720e72bfde0beb214fb9392c28b42be" id="r_ad720e72bfde0beb214fb9392c28b42be"><td class="memItemLeft" align="right" valign="top"><a id="ad720e72bfde0beb214fb9392c28b42be" name="ad720e72bfde0beb214fb9392c28b42be"></a>
+<a class="el" href="class_node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_node</b> (int i)</td></tr>
 <tr class="memitem:a2d7d9767395b910e66eeb250be3d63b9" id="r_a2d7d9767395b910e66eeb250be3d63b9"><td class="memItemLeft" align="right" valign="top"><a id="a2d7d9767395b910e66eeb250be3d63b9" name="a2d7d9767395b910e66eeb250be3d63b9"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>write</b> (string filename)</td></tr>
 <tr class="memdesc:a2d7d9767395b910e66eeb250be3d63b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write tree as a newick file. <br /></td></tr>
 <tr class="memitem:ac578842f3f22966760d0b182f51166f1" id="r_ac578842f3f22966760d0b182f51166f1"><td class="memItemLeft" align="right" valign="top"><a id="ac578842f3f22966760d0b182f51166f1" name="ac578842f3f22966760d0b182f51166f1"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>check_structure</b> ()</td></tr>
 <tr class="memdesc:ac578842f3f22966760d0b182f51166f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check that the tree structure is correct, especially forward/backward links. <br /></td></tr>
+<tr class="memitem:a46ebe6cd46c74a4572863b80aa7704e4" id="r_a46ebe6cd46c74a4572863b80aa7704e4"><td class="memItemLeft" align="right" valign="top"><a id="a46ebe6cd46c74a4572863b80aa7704e4" name="a46ebe6cd46c74a4572863b80aa7704e4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>add_mutations</b> (int l, double theta)</td></tr>
+<tr class="memdesc:a46ebe6cd46c74a4572863b80aa7704e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add mutations on a tree to generate sequence of length l with mutation rate theta/2. <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Class representing an unrooted non-ultrametric tree. </p>

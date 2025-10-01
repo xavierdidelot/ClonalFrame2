@@ -47,6 +47,7 @@ Node::Node() {
     father = NULL;
     dist_father = 0;
     name = "";
+    seq=NULL;
 }
 
 Node::~Node() {
@@ -60,6 +61,18 @@ string Node::to_string() {
 
 void Node::add_mutations(string * above, double theta) {
     seq=new string(*above);
+    int l=seq->size();
+    uniform_int_distribution unif4(0,3);
+    uniform_int_distribution unifL(0,l-1);
+    poisson_distribution pois(dist_father*theta/2);
+    int m=pois(rng);
+    for (int i=0;i<m;i++) {
+        int p=unifL(rng);
+        while (above->at(p)==seq->at(p)) {
+            int w=unif4(rng);
+            *(seq->data()+p)=*(lets+w);
+        }
+    }
     if (left!= NULL) left ->add_mutations(seq,theta);
     if (right!=NULL) right->add_mutations(seq,theta);
 }

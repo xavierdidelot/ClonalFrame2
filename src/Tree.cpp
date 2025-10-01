@@ -15,7 +15,7 @@ Tree::Tree(int n) {
     nodes=vector<Node*>();
     for (int i = 0; i < n; i++) {
         Node * node = new Node();
-        node->set_name("seq"+std::to_string(i));
+        node->set_name("seq"+std::to_string(i+1));
         node->set_dist_father(1.0);
         nodes.push_back(node);
     }
@@ -37,6 +37,39 @@ Tree::Tree(int n) {
 
 }
 
+Tree::Tree(int n, double avg_bra_len) {
+    this->n=n;
+    nodes=vector<Node*>();
+    vector<Node*> to_merge;
+    to_merge=vector<Node*>();
+    exponential_distribution rexp(avg_bra_len);
+    for (int i = 0; i < n; i++) {
+        Node * node = new Node();
+        node->set_name("seq"+std::to_string(i+1));
+        node->set_dist_father(rexp(rng));
+        nodes.push_back(node);
+        to_merge.push_back(node);
+    }
+    from_root = vector<Node*>();
+    while (to_merge.size() > 3) {
+        Node * node = new Node();
+        nodes.push_back(node);
+        uniform_int_distribution unif(0, (int)(to_merge.size()-1));
+        int a=unif(rng);
+        int b=a;
+        while (a==b) b=unif(rng);
+        node->set_left(to_merge[a]);
+        node->set_right(to_merge[b]);
+        to_merge[a]->set_father(node);
+        to_merge[b]->set_father(node);
+        node->set_dist_father(rexp(rng));
+        to_merge[a]=node;
+        to_merge[b]=to_merge.back();
+        to_merge.pop_back();
+    }
+    for (int i=0;i<3;i++) from_root.push_back(to_merge[i]);
+}
+
 Tree::Tree(Alignment *a) {
     int n=a->get_n();
     this->n=n;
@@ -51,7 +84,7 @@ Tree::Tree(Alignment *a) {
 string Tree::to_string() {
     return("("+ from_root[0]->to_string()+":"+std::to_string(from_root[0]->get_dist_father())+","+
                 from_root[1]->to_string()+":"+std::to_string(from_root[1]->get_dist_father())+","+
-                from_root[2]->to_string()+":"+std::to_string(from_root[2]->get_dist_father())+")");
+                from_root[2]->to_string()+":"+std::to_string(from_root[2]->get_dist_father())+");");
 }
 
 Tree::~Tree() {
@@ -87,12 +120,10 @@ bool Tree::check_structure() {
 }
 
 void Tree::add_mutations(int l, double theta) {
-    string s("ACGT");
-    char * lets=s.data();
     seq=new string(l,'A');
-    uniform_int_distribution<int> unif(0,3);
+    uniform_int_distribution unif4(0,3);
     for (int i=0;i<l;i++) {
-        *(seq->data()+i)=*(lets+unif(rng));
+        *(seq->data()+i)=*(lets+unif4(rng));
     }
     for (int i=0;i<3;i++) from_root[i]->add_mutations(seq,theta);
 

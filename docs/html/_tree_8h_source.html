@@ -103,36 +103,45 @@ $(function(){initNavTree('_tree_8h_source.html','',''); });
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;fstream&gt;</span></div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;Node.h&quot;</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keyword">using namespace </span>std;</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span></div>
-<div class="foldopen" id="foldopen00018" data-start="{" data-end="};">
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="class_tree.html">   18</a></span><span class="keyword">class </span><a class="code hl_function" href="class_tree.html#ad376a7c639d857312f5de2ef47482f68">Tree</a> {</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <a class="code hl_function" href="class_tree.html#ad376a7c639d857312f5de2ef47482f68">Tree</a>();</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <a class="code hl_function" href="class_tree.html#ad376a7c639d857312f5de2ef47482f68">Tree</a>(<span class="keywordtype">int</span> n);</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keywordtype">string</span> <a class="code hl_function" href="class_tree.html#af9f500f3ae4668babc62ca3598ed1815">to_string</a>();</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <a class="code hl_function" href="class_tree.html#abdc38545cf3f588725b5d8b8075b3866">~Tree</a>();</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="keywordtype">int</span> <a class="code hl_function" href="class_tree.html#a220ce16673a69e64c73b87e8718dd24c">get_n</a>();</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_tree.html#a2d7d9767395b910e66eeb250be3d63b9">write</a>(<span class="keywordtype">string</span> filename);</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="class_tree.html#ac578842f3f22966760d0b182f51166f1">check_structure</a>();</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keywordtype">int</span> n;</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <a class="code hl_class" href="class_node.html">Node</a>* from_root_1;</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <a class="code hl_class" href="class_node.html">Node</a>* from_root_2;</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <a class="code hl_class" href="class_node.html">Node</a>* from_root_3;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    vector &lt;Node*&gt; nodes;</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>};</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">using namespace </span>std;</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">class </span><a class="code hl_class" href="class_alignment.html">Alignment</a>;</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span></div>
+<div class="foldopen" id="foldopen00021" data-start="{" data-end="};">
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="class_tree.html">   21</a></span><span class="keyword">class </span><a class="code hl_function" href="class_tree.html#ad376a7c639d857312f5de2ef47482f68">Tree</a> {</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <a class="code hl_function" href="class_tree.html#ad376a7c639d857312f5de2ef47482f68">Tree</a>();</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <a class="code hl_function" href="class_tree.html#ad376a7c639d857312f5de2ef47482f68">Tree</a>(<span class="keywordtype">int</span> n);</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <a class="code hl_function" href="class_tree.html#ad376a7c639d857312f5de2ef47482f68">Tree</a>(<span class="keywordtype">int</span> n,<span class="keywordtype">double</span> avg_bra_len);</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <a class="code hl_function" href="class_tree.html#ad376a7c639d857312f5de2ef47482f68">Tree</a>(<a class="code hl_class" href="class_alignment.html">Alignment</a> * a);</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <span class="keywordtype">string</span> <a class="code hl_function" href="class_tree.html#af9f500f3ae4668babc62ca3598ed1815">to_string</a>();</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <a class="code hl_function" href="class_tree.html#abdc38545cf3f588725b5d8b8075b3866">~Tree</a>();</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keywordtype">int</span> <a class="code hl_function" href="class_tree.html#a220ce16673a69e64c73b87e8718dd24c">get_n</a>();</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <a class="code hl_class" href="class_node.html">Node</a> * get_node(<span class="keywordtype">int</span> i);</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_tree.html#a2d7d9767395b910e66eeb250be3d63b9">write</a>(<span class="keywordtype">string</span> filename);</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="class_tree.html#ac578842f3f22966760d0b182f51166f1">check_structure</a>();</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_tree.html#a46ebe6cd46c74a4572863b80aa7704e4">add_mutations</a>(<span class="keywordtype">int</span> l,<span class="keywordtype">double</span> theta);</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">int</span> n;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordtype">string</span> * seq;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    vector &lt;Node*&gt; from_root;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    vector &lt;Node*&gt; nodes;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>};</div>
 </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="preprocessor">#endif </span><span class="comment">//CLONALFRAME2_TREE_H</span></div>
-<div class="ttc" id="aclass_node_html"><div class="ttname"><a href="class_node.html">Node</a></div><div class="ttdoc">Class representing a node with (potentially) two children nodes.</div><div class="ttdef"><b>Definition</b> Node.h:15</div></div>
-<div class="ttc" id="aclass_tree_html_a220ce16673a69e64c73b87e8718dd24c"><div class="ttname"><a href="class_tree.html#a220ce16673a69e64c73b87e8718dd24c">Tree::get_n</a></div><div class="ttdeci">int get_n()</div><div class="ttdoc">Return number of leaves in the tree.</div><div class="ttdef"><b>Definition</b> Tree.cpp:47</div></div>
-<div class="ttc" id="aclass_tree_html_a2d7d9767395b910e66eeb250be3d63b9"><div class="ttname"><a href="class_tree.html#a2d7d9767395b910e66eeb250be3d63b9">Tree::write</a></div><div class="ttdeci">void write(string filename)</div><div class="ttdoc">Write tree as a newick file.</div><div class="ttdef"><b>Definition</b> Tree.cpp:51</div></div>
-<div class="ttc" id="aclass_tree_html_abdc38545cf3f588725b5d8b8075b3866"><div class="ttname"><a href="class_tree.html#abdc38545cf3f588725b5d8b8075b3866">Tree::~Tree</a></div><div class="ttdeci">~Tree()</div><div class="ttdoc">Destructor for a tree.</div><div class="ttdef"><b>Definition</b> Tree.cpp:44</div></div>
-<div class="ttc" id="aclass_tree_html_ac578842f3f22966760d0b182f51166f1"><div class="ttname"><a href="class_tree.html#ac578842f3f22966760d0b182f51166f1">Tree::check_structure</a></div><div class="ttdeci">bool check_structure()</div><div class="ttdoc">Check that the tree structure is correct, especially forward/backward links.</div><div class="ttdef"><b>Definition</b> Tree.cpp:61</div></div>
-<div class="ttc" id="aclass_tree_html_ad376a7c639d857312f5de2ef47482f68"><div class="ttname"><a href="class_tree.html#ad376a7c639d857312f5de2ef47482f68">Tree::Tree</a></div><div class="ttdeci">Tree()</div><div class="ttdoc">Constructor for an empty tree.</div><div class="ttdef"><b>Definition</b> Tree.cpp:9</div></div>
-<div class="ttc" id="aclass_tree_html_af9f500f3ae4668babc62ca3598ed1815"><div class="ttname"><a href="class_tree.html#af9f500f3ae4668babc62ca3598ed1815">Tree::to_string</a></div><div class="ttdeci">string to_string()</div><div class="ttdoc">Return the tree as a newick string.</div><div class="ttdef"><b>Definition</b> Tree.cpp:38</div></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">#endif </span><span class="comment">//CLONALFRAME2_TREE_H</span></div>
+<div class="ttc" id="aclass_alignment_html"><div class="ttname"><a href="class_alignment.html">Alignment</a></div><div class="ttdoc">Class representing an alignment.</div><div class="ttdef"><b>Definition</b> Alignment.h:20</div></div>
+<div class="ttc" id="aclass_node_html"><div class="ttname"><a href="class_node.html">Node</a></div><div class="ttdoc">Class representing a node with (potentially) two children nodes.</div><div class="ttdef"><b>Definition</b> Node.h:19</div></div>
+<div class="ttc" id="aclass_tree_html_a220ce16673a69e64c73b87e8718dd24c"><div class="ttname"><a href="class_tree.html#a220ce16673a69e64c73b87e8718dd24c">Tree::get_n</a></div><div class="ttdeci">int get_n()</div><div class="ttdoc">Return number of leaves in the tree.</div><div class="ttdef"><b>Definition</b> Tree.cpp:93</div></div>
+<div class="ttc" id="aclass_tree_html_a2d7d9767395b910e66eeb250be3d63b9"><div class="ttname"><a href="class_tree.html#a2d7d9767395b910e66eeb250be3d63b9">Tree::write</a></div><div class="ttdeci">void write(string filename)</div><div class="ttdoc">Write tree as a newick file.</div><div class="ttdef"><b>Definition</b> Tree.cpp:101</div></div>
+<div class="ttc" id="aclass_tree_html_a46ebe6cd46c74a4572863b80aa7704e4"><div class="ttname"><a href="class_tree.html#a46ebe6cd46c74a4572863b80aa7704e4">Tree::add_mutations</a></div><div class="ttdeci">void add_mutations(int l, double theta)</div><div class="ttdoc">Add mutations on a tree to generate sequence of length l with mutation rate theta/2.</div><div class="ttdef"><b>Definition</b> Tree.cpp:122</div></div>
+<div class="ttc" id="aclass_tree_html_abdc38545cf3f588725b5d8b8075b3866"><div class="ttname"><a href="class_tree.html#abdc38545cf3f588725b5d8b8075b3866">Tree::~Tree</a></div><div class="ttdeci">~Tree()</div><div class="ttdoc">Destructor for a tree.</div><div class="ttdef"><b>Definition</b> Tree.cpp:90</div></div>
+<div class="ttc" id="aclass_tree_html_ac578842f3f22966760d0b182f51166f1"><div class="ttname"><a href="class_tree.html#ac578842f3f22966760d0b182f51166f1">Tree::check_structure</a></div><div class="ttdeci">bool check_structure()</div><div class="ttdoc">Check that the tree structure is correct, especially forward/backward links.</div><div class="ttdef"><b>Definition</b> Tree.cpp:111</div></div>
+<div class="ttc" id="aclass_tree_html_ad376a7c639d857312f5de2ef47482f68"><div class="ttname"><a href="class_tree.html#ad376a7c639d857312f5de2ef47482f68">Tree::Tree</a></div><div class="ttdeci">Tree()</div><div class="ttdoc">Constructor for an empty tree.</div><div class="ttdef"><b>Definition</b> Tree.cpp:10</div></div>
+<div class="ttc" id="aclass_tree_html_af9f500f3ae4668babc62ca3598ed1815"><div class="ttname"><a href="class_tree.html#af9f500f3ae4668babc62ca3598ed1815">Tree::to_string</a></div><div class="ttdeci">string to_string()</div><div class="ttdoc">Return the tree as a newick string.</div><div class="ttdef"><b>Definition</b> Tree.cpp:84</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
