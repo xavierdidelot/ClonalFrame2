@@ -50,7 +50,6 @@ Tree::Tree(int n, double avg_bra_len) {
         nodes.push_back(node);
         to_merge.push_back(node);
     }
-    from_root = vector<Node*>();
     while (to_merge.size() > 3) {
         Node * node = new Node();
         nodes.push_back(node);
@@ -67,18 +66,48 @@ Tree::Tree(int n, double avg_bra_len) {
         to_merge[b]=to_merge.back();
         to_merge.pop_back();
     }
+    from_root = vector<Node*>();
     for (int i=0;i<3;i++) from_root.push_back(to_merge[i]);
 }
 
-Tree::Tree(Alignment *a) {
-    int n=a->get_n();
+Tree::Tree(Alignment * ali) {
+    int n=ali->get_n();
     this->n=n;
     nodes=vector<Node*>();
+    vector<int> to_merge;
+    to_merge=vector<int>();
     for (int i = 0; i < n; i++) {
         Node * node = new Node();
-        node->set_name(a->get_name(i));
+        node->set_name(ali->get_name(i));
+        nodes.push_back(node);
+        to_merge.push_back(i);
     }
-    //TODO
+    vector<vector<double> > dist(2*n,vector<double>(2*n,0.0));
+    for (int i = 0; i < n; i++) for (int j = 0; j < i; j++) dist[i][j]=ali->dist(i,j);
+
+    while (to_merge.size() > 3) {
+        Node * node = new Node();
+        nodes.push_back(node);
+        int a=1;
+        int b=0;
+        for (int i = 0; i < to_merge.size(); i++) for (int j = 0; j < i; j++)
+            if (dist[to_merge[i]][to_merge[j]]<dist[to_merge[a]][to_merge[b]]) {a=i; b=j;}
+        node->set_left (nodes[to_merge[a]]);
+        node->set_right(nodes[to_merge[b]]);
+        nodes[to_merge[a]]->set_father(node);
+        nodes[to_merge[b]]->set_father(node);
+        nodes[to_merge[a]]->set_dist_father(dist[to_merge[a]][to_merge[b]]/2);
+        nodes[to_merge[b]]->set_dist_father(dist[to_merge[a]][to_merge[b]]/2);
+        to_merge[a]=(int)nodes.size()-1;
+        to_merge[b]=to_merge.back();
+        to_merge.pop_back();
+    }
+    from_root = vector<Node*>();
+    for (int i=0;i<3;i++) {
+        nodes[to_merge[i]]->set_dist_father(1.0);
+        from_root.push_back(nodes[to_merge[i]]);
+    }
+
 }
 
 string Tree::to_string() {
@@ -106,6 +135,7 @@ void Tree::write(string filename) {
         exit(1);
     }
     file<<to_string()<<endl;
+    file.close();
 }
 
 bool Tree::check_structure() {

@@ -120,6 +120,14 @@ void Alignment::write(string filename) {
         }
         file<<endl;
     }
+    file.close();
 }
 
 string Alignment::get_name(int i) {return names[i];}
+
+double Alignment::dist(int i, int j) {
+    double d=0;
+    for (int a=0;a<l;a++)
+        if (data[i][a]!=data[j][a]) d++;
+    return(d/l);
+}

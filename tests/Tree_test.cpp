@@ -8,10 +8,9 @@
 using namespace std;
 
 int main() {
-    auto *t = new Tree(10);
+    auto * t = new Tree(10);
     assert(t->get_n()==10);
     assert(t->check_structure());
-    //assert(t->get_sum_bra_len()==8);
     t = new Tree(10,1);
     assert(t->get_n()==10);
     assert(t->check_structure());
@@ -21,6 +20,11 @@ int main() {
     t->add_mutations(1000,200);
     auto * a=new Alignment(t);
     a->write("tmp.fasta");
+    auto * t2=new Tree(a);
+    assert(t2->get_n()==10);
+    assert(t2->check_structure());
+    t2->write("tmp2.nwk");
     delete(a);
     delete(t);
+    delete(t2);
 }

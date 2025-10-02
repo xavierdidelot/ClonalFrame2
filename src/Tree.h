@@ -27,7 +27,7 @@ public:
     ///Constructor for a random tree with n leaves
     Tree(int n,double avg_bra_len);
     ///Constructor for a tree from an alignment
-    Tree(Alignment * a);
+    Tree(Alignment * ali);
     ///Return the tree as a newick string
     string to_string();
     ///Destructor for a tree

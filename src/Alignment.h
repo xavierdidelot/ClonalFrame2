@@ -37,6 +37,8 @@ public:
     void write(string filename);
     ///Return name of the i-th genome
     string get_name(int i);
+    ///Pairwise distance
+    double dist(int i, int j);
 
 private:
     char standardise(char in);
