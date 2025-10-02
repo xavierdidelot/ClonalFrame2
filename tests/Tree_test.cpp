@@ -11,7 +11,7 @@ int main() {
     auto * t = new Tree(10);
     assert(t->get_n()==10);
     assert(t->check_structure());
-    //t = new Tree(10,1);
+    t = new Tree(10,1);
     assert(t->get_n()==10);
     assert(t->check_structure());
     t->write("tmp.nwk");
