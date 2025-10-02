@@ -83,31 +83,47 @@ Tree::Tree(Alignment * ali) {
         to_merge.push_back(i);
     }
     vector<vector<double> > dist(2*n,vector<double>(2*n,0.0));
-    for (int i = 0; i < n; i++) for (int j = 0; j < i; j++) dist[i][j]=ali->dist(i,j);
+    for (int i = 0; i < n; i++) for (int j = 0; j < i; j++) {dist[i][j]=ali->dist(i,j);dist[j][i]=dist[i][j];}
+    vector<vector<double> > q(2*n,vector<double>(2*n,0.0));
+    vector<double> r(2*n,0.0);
 
-    while (to_merge.size() > 3) {
+    int m=0;
+    while (true) {
+        for (int i=0;i<to_merge.size();i++) {
+            r[to_merge[i]]=0;
+            for (int j=0;j<to_merge.size();j++) r[to_merge[i]]+=dist[to_merge[i]][to_merge[j]];
+        }
+        if (to_merge.size()==3) break;
+        for (int i=0;i<to_merge.size();i++) for (int j=0;j<i;j++)
+            q[to_merge[i]][to_merge[j]]=(n-m-2)*dist[to_merge[i]][to_merge[j]]-r[to_merge[i]]-r[to_merge[j]];
+        int f=1;
+        int g=0;
+        for (int i = 0; i < to_merge.size(); i++) for (int j = 0; j < i; j++)
+            if (q[to_merge[i]][to_merge[j]]<q[to_merge[f]][to_merge[g]]) {f=i; g=j;}
         Node * node = new Node();
         nodes.push_back(node);
-        int a=1;
-        int b=0;
-        for (int i = 0; i < to_merge.size(); i++) for (int j = 0; j < i; j++)
-            if (dist[to_merge[i]][to_merge[j]]<dist[to_merge[a]][to_merge[b]]) {a=i; b=j;}
-        node->set_left (nodes[to_merge[a]]);
-        node->set_right(nodes[to_merge[b]]);
-        nodes[to_merge[a]]->set_father(node);
-        nodes[to_merge[b]]->set_father(node);
-        nodes[to_merge[a]]->set_dist_father(dist[to_merge[a]][to_merge[b]]/2);
-        nodes[to_merge[b]]->set_dist_father(dist[to_merge[a]][to_merge[b]]/2);
-        to_merge[a]=(int)nodes.size()-1;
-        to_merge[b]=to_merge.back();
+        node->set_left (nodes[to_merge[f]]);
+        node->set_right(nodes[to_merge[g]]);
+        nodes[to_merge[f]]->set_father(node);
+        nodes[to_merge[g]]->set_father(node);
+        nodes[to_merge[f]]->set_dist_father(0.5*dist[to_merge[f]][to_merge[g]]+0.5/(n-m-2)*(r[to_merge[f]]-r[to_merge[g]]));
+        nodes[to_merge[g]]->set_dist_father(dist[to_merge[f]][to_merge[g]]-nodes[to_merge[f]]->get_dist_father());
+        for (int k=0;k<to_merge.size();k++) {
+            dist[n+m][to_merge[k]]=0.5*(dist[to_merge[f]][to_merge[k]]+dist[to_merge[g]][to_merge[k]]-dist[to_merge[f]][to_merge[g]]);
+            dist[to_merge[k]][n+m]=dist[n+m][to_merge[k]];
+        }
+        to_merge[f]=n+m;
+        to_merge[g]=to_merge.back();
         to_merge.pop_back();
+        m=m+1;
     }
     from_root = vector<Node*>();
-    for (int i=0;i<3;i++) {
-        nodes[to_merge[i]]->set_dist_father(1.0);
-        from_root.push_back(nodes[to_merge[i]]);
-    }
-
+    nodes[to_merge[0]]->set_dist_father(0.5*dist[to_merge[0]][to_merge[1]]+0.5/(n-m-2)*(r[to_merge[0]]-r[to_merge[1]]));
+    from_root.push_back(nodes[to_merge[0]]);
+    nodes[to_merge[1]]->set_dist_father(dist[to_merge[0]][to_merge[1]]-nodes[to_merge[0]]->get_dist_father());
+    from_root.push_back(nodes[to_merge[1]]);
+    nodes[to_merge[2]]->set_dist_father(0.5*(dist[to_merge[0]][to_merge[2]]+dist[to_merge[1]][to_merge[2]]-dist[to_merge[0]][to_merge[1]]));
+    from_root.push_back(nodes[to_merge[2]]);
 }
 
 string Tree::to_string() {
