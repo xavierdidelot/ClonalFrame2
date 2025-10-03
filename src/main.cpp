@@ -22,6 +22,8 @@ bool verbose=false;
 
 int main(int argc, char *argv[]) {
     cout<<"This is ClonalFrame2, version "<<VERSION_STRING<<endl;
+
+    int* array = new int[100];array[0] = 42;//MEMORY LEAK
     int burn=10000,nbit=10000,thin=10;
     int c;
     while ((c = getopt (argc, argv, "x:y:z:s:v")) != -1)
@@ -32,14 +34,14 @@ int main(int argc, char *argv[]) {
         case('z'):thin=stoi(optarg);break;
         case('s'):setSeed(stoi(optarg));break;
         case('v'):verbose=true;break;
-        case '?':cout<<"Unknown option."<<endl;return 1;
+        case '?':cout<<"Unknown option."<<endl;return 0;
         default:
                 abort ();
         }
 
-    if (argc-optind==0) {cout<<help<<endl;exit(0);}
-    if (argc-optind<2) {cout<<"Too few non option arguments."<<endl;return 1;}
-        if (argc-optind>2) {cout<<"Too many non option arguments."<<endl;return 1;}
+    if (argc-optind==0) {cout<<help<<endl;return 0;}
+    if (argc-optind<2) {cout<<"Too few non option arguments."<<endl;return 0;}
+        if (argc-optind>2) {cout<<"Too many non option arguments."<<endl;return 0;}
 
         string inputfile=string(argv[optind++]);
         string outfile =string(argv[optind++]);
