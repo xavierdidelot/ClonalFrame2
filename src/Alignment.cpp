@@ -22,8 +22,8 @@ Alignment::Alignment(string filename) {
         cout<<"Error opening file "<<filename<<endl;
         exit(1);
     }
-    int n=0;
-    int l=0;
+    n=0;
+    l=0;
     while (true) {
         getline(file,line);
         if (file.eof()) break;
@@ -35,12 +35,10 @@ Alignment::Alignment(string filename) {
     file.clear();
     file.seekg(0);
     cout<<n<<" "<<l<<endl;
-    this->n=n;
-    this->l=l;
     data=vector<string>(n);
     for (int i=0;i<n;i++) {string s(l,'*');data.push_back(s);}
     names=vector<string>(n);
-    n=-1;
+    n=0;
     l=0;
     regex reg("[> ]");
     while (true) {
@@ -48,9 +46,9 @@ Alignment::Alignment(string filename) {
         if (file.eof()) break;
         if (line.empty()) continue;
         if (line.at(0)=='#') continue;
-        if (line.at(0)=='>') {l=0;n++;names[n]=regex_replace(line,reg,"");continue;}
-        for (int i=0;i<line.length();i++) {
-            data[n][l++]=standardise(line[i]);
+        if (line.at(0)=='>') {l=0;n++;names[n-1]=regex_replace(line,reg,"");continue;}
+        for (unsigned int i=0;i<line.length();i++) {
+            data[n-1][l++]=standardise(line[i]);
         }
     }
     file.close();

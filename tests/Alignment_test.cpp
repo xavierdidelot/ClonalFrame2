@@ -20,9 +20,9 @@ int main() {
     remove("tmp.fasta");
     a->write("tmp2.fasta");
     remove("tmp2.fasta");
-    assert(a->get_n()==3);
-    assert(a->get_l()==8);
-    assert(a->get_data(1,1)=='C');
-    assert(a->get_name(2)=="seq3");
+    int n=a->get_n();assert(n==3);
+    int l=a->get_l();assert(l==8);
+    char c=a->get_data(1,1);assert(c=='C');
+    string s=a->get_name(2);assert(s=="seq3");
     delete(a);
 }

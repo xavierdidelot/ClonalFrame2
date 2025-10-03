@@ -20,14 +20,8 @@ class Alignment;
  */
 class Tree {
 public:
-    ///Constructor for an empty tree
-    Tree();
     ///Constructor for a deterministic tree with n leaves
-    Tree(int n);
-    ///Constructor for a random tree with n leaves
-    Tree(int n,double avg_bra_len);
-    ///Constructor for a tree from an alignment
-    Tree(Alignment * ali);
+    explicit Tree(int n);
     ///Return the tree as a newick string
     string to_string();
     ///Destructor for a tree
@@ -41,6 +35,10 @@ public:
     bool check_structure();
     ///Add mutations on a tree to generate sequence of length l with mutation rate theta/2
     void add_mutations(int l,double theta);
+    ///Randomise the tree
+    void randomise(double avg_bra_len);
+    ///NJ algorithm
+    void nj(Alignment * ali);
 
 private:
     int n;

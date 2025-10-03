@@ -42,19 +42,19 @@ double Node::get_dist_father() {
 }
 
 Node::Node() {
-    left = NULL;
-    right = NULL;
-    father = NULL;
+    left = nullptr;
+    right = nullptr;
+    father = nullptr;
     dist_father = 0;
     name = "";
-    seq=NULL;
+    seq=nullptr;
 }
 
 Node::~Node() {
 }
 
 string Node::to_string() {
-    if (left == NULL) return name;
+    if (left == nullptr) return name;
     return("("+ left ->to_string()+":"+std::to_string(left ->get_dist_father())+","+
                 right->to_string()+":"+std::to_string(right->get_dist_father())+")");
 }
@@ -73,8 +73,8 @@ void Node::add_mutations(string * above, double theta) {
             *(seq->data()+p)=*(lets+w);
         }
     }
-    if (left!= NULL) left ->add_mutations(seq,theta);
-    if (right!=NULL) right->add_mutations(seq,theta);
+    if (left!= nullptr) left ->add_mutations(seq,theta);
+    if (right!=nullptr) right->add_mutations(seq,theta);
 }
 
 void Node::set_dist_father(double dist_father) {

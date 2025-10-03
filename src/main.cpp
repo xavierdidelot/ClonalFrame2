@@ -4,6 +4,7 @@
 #include "Alignment.h"
 #include "Tree.h"
 #include "RNGGlobal.h"
+#include "version.h"
 
 static string help=
     R"(Usage: ClonalFrame2 [OPTIONS] inputfile outputfile
@@ -20,15 +21,16 @@ static string help=
 bool verbose=false;
 
 int main(int argc, char *argv[]) {
+    cout<<"This is ClonalFrame2, version "<<VERSION_STRING<<endl;
     int burn=10000,nbit=10000,thin=10;
     int c;
     while ((c = getopt (argc, argv, "x:y:z:s:v")) != -1)
         switch (c)
         {
-        case('x'):burn=atoi(optarg);break;
-        case('y'):nbit=atoi(optarg);break;
-        case('z'):thin=atoi(optarg);break;
-        case('s'):setSeed(atoi(optarg));break;
+        case('x'):burn=stoi(optarg);break;
+        case('y'):nbit=stoi(optarg);break;
+        case('z'):thin=stoi(optarg);break;
+        case('s'):setSeed(stoi(optarg));break;
         case('v'):verbose=true;break;
         case '?':cout<<"Unknown option."<<endl;return 1;
         default:
@@ -42,9 +44,11 @@ int main(int argc, char *argv[]) {
         string inputfile=string(argv[optind++]);
         string outfile =string(argv[optind++]);
         auto * a = new Alignment(inputfile);
-        //auto * t = new Tree(a);//TODO NJ
-        //cout << t->to_string() << endl;
-        //delete(t);
+        auto * t = new Tree(a->get_n());
+        t -> nj(a);
+        cout << t->to_string() << endl;
+        delete(t);
         delete(a);
+        cout << burn<< " "<<nbit<<" "<<thin<<" "<<outfile<<endl;
         return 0;
 }
