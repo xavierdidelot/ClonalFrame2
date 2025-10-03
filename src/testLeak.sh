@@ -3,3 +3,4 @@ echo "constexpr const char* VERSION_STRING = \"0.0.1\";" > version.h
 g++ -o /tmp/ClonalFrame2 -O0 -fsanitize=leak *.cpp
 rm version.h
 /tmp/ClonalFrame2
+/tmp/ClonalFrame2 ../data/simu.fasta /tmp/out

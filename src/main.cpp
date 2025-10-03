@@ -22,8 +22,6 @@ bool verbose=false;
 
 int main(int argc, char *argv[]) {
     cout<<"This is ClonalFrame2, version "<<VERSION_STRING<<endl;
-
-    int* array = new int[100];array[0] = 42;//MEMORY LEAK
     int burn=10000,nbit=10000,thin=10;
     int c;
     while ((c = getopt (argc, argv, "x:y:z:s:v")) != -1)
@@ -48,9 +46,6 @@ int main(int argc, char *argv[]) {
         auto * a = new Alignment(inputfile);
         auto * t = new Tree(a->get_n());
         t -> nj(a);
-        cout << t->to_string() << endl;
-        delete(t);
-        delete(a);
-        cout << burn<< " "<<nbit<<" "<<thin<<" "<<outfile<<endl;
+        t -> write(outfile);
         return 0;
 }
