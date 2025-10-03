@@ -51,6 +51,7 @@ Node::Node() {
 }
 
 Node::~Node() {
+    delete seq;
 }
 
 string Node::to_string() {

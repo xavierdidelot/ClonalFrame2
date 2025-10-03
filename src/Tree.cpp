@@ -41,6 +41,8 @@ string Tree::to_string() {
 }
 
 Tree::~Tree() {
+    for (int i = 0; i < nodes.size(); i++) delete nodes[i];
+    delete seq;
 }
 
 int Tree::get_n() {

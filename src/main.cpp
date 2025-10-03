@@ -47,5 +47,7 @@ int main(int argc, char *argv[]) {
         auto * t = new Tree(a->get_n());
         t -> nj(a);
         t -> write(outfile);
+        delete a;
+        delete t;
         return 0;
 }
