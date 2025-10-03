@@ -22,7 +22,7 @@ bool verbose=false;
 
 int main(int argc, char *argv[]) {
     cout<<"This is ClonalFrame2, version "<<VERSION_STRING<<endl;
-    int burn=10000,nbit=10000,thin=10;
+    [[maybe_unused]] int burn=10000,nbit=10000,thin=10;
     int c;
     while ((c = getopt (argc, argv, "x:y:z:s:v")) != -1)
         switch (c)

@@ -34,9 +34,7 @@ Alignment::Alignment(string filename) {
     }
     file.clear();
     file.seekg(0);
-    cout<<n<<" "<<l<<endl;
-    data=vector<string>(n);
-    for (int i=0;i<n;i++) {string s(l,'*');data.push_back(s);}
+    data=vector<string>(n,string(l,'*'));
     names=vector<string>(n);
     n=0;
     l=0;
@@ -48,9 +46,11 @@ Alignment::Alignment(string filename) {
         if (line.at(0)=='#') continue;
         if (line.at(0)=='>') {l=0;n++;names[n-1]=regex_replace(line,reg,"");continue;}
         for (unsigned int i=0;i<line.length();i++) {
-            data[n-1][l++]=standardise(line[i]);
+            data[n-1][l]=standardise(line[i]);
+            l++;
         }
     }
+    cout<<"Finished reading file made of "<<n<<" genomes of length "<<l<<endl;
     file.close();
 }
 
