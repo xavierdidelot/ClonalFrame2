@@ -21,25 +21,27 @@ public:
     ///Return name of the node
     string get_name();
     ///Set name of the node
-    void set_name(string name);
+    void set_name(string);
     ///Return node on the left
     Node * get_left();
     ///Set node on the left
-    void set_left(Node *left);
+    void set_left(Node *);
     ///Return node on the right
     Node * get_right();
     ///Set node on the right
-    void set_right(Node *right);
+    void set_right(Node *);
     ///Return father node
     Node * get_father();
     ///Set father node
-    void set_father(Node *father);
+    void set_father(Node *);
     ///Return distance to father
     double get_dist_father();
     ///Set distance to father
-    void set_dist_father(double dist_father);
+    void set_dist_father(double);
     ///Return sequence
     string * get_seq();
+    ///Sets sequence
+    void set_seq(string *);
     ///Constructor for a new node
     Node();
     ///Destructor for a node

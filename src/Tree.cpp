@@ -1,30 +1,27 @@
 //
 // Created by Didelot, Xavier on 29/09/2025.
-//
 
 #include "Tree.h"
 #include "Alignment.h"
 
 #include <iostream>
 
-Tree::Tree(int n) {
-    this->n = n;
-    this->seq=nullptr;
-    nodes = vector<Node *>();
+/**
+ *
+ * @param n
+ */
+Tree::Tree(int n): n(n), seq(nullptr), nodes(vector<Node *>(n+n-3)) {
     for (int i = 0; i < n; i++) {
         Node *node = new Node();
         node->set_name("seq" + std::to_string(i + 1));
         node->set_dist_father(1.0);
-        nodes.push_back(node);
+        nodes[i]=node;
     }
-    from_root = vector<Node *>();
-    from_root.push_back(nodes[0]);
-    from_root.push_back(nodes[1]);
-    from_root.push_back(nodes[n - 1]);
+    from_root = {nodes[0],nodes[1],nodes[n - 1]};
 
     for (int i = n - 2; i >= 2; i--) {
         Node *node = new Node();
-        nodes.push_back(node);
+        nodes[n-i+n-2]=node;
         node->set_left(nodes[i]);
         nodes[i]->set_father(node);
         node->set_dist_father(1.0);
@@ -41,7 +38,7 @@ string Tree::to_string() {
 }
 
 Tree::~Tree() {
-    for (int i = 0; i < nodes.size(); i++) delete nodes[i];
+    for (unsigned int i = 0; i < nodes.size(); i++) delete nodes[i];
     delete seq;
 }
 
@@ -65,7 +62,7 @@ void Tree::write(string filename) {
 }
 
 bool Tree::check_structure() {
-    if (this->n * 2 - 3 - nodes.size() != 0) return false;
+    if (n * 2 - 3 - nodes.size() != 0) return false;
     if (from_root.size() != 3) return false;
     for (int i = 0; i < 3; i++) if (from_root[i]->get_father() != nullptr) return false;
     for (unsigned int i = 0; i < nodes.size(); i++) {
@@ -85,12 +82,12 @@ void Tree::add_mutations(int l, double theta) {
 }
 
 void Tree::randomise(double avg_bra_len) {
-    vector<Node *> to_merge = vector<Node *>();
+    vector<Node *> to_merge = vector<Node *>(n);
     exponential_distribution rexp(avg_bra_len);
-    for (int i = 0; i < n; i++) to_merge.push_back(nodes[i]);
+    for (int i = 0; i < n; i++) to_merge[i]=nodes[i];
     int m=n;
     while (to_merge.size() > 3) {
-        uniform_int_distribution unif(0, (int) (to_merge.size() - 1));
+        uniform_int_distribution unif(0, static_cast<int>(to_merge.size() - 1));
         int a = unif(rng);
         int b = a;
         while (a == b) b = unif(rng);
@@ -104,16 +101,13 @@ void Tree::randomise(double avg_bra_len) {
         to_merge.pop_back();
         m++;
     }
-    from_root=vector<Node *>();
-    for (int i = 0; i < 3; i++) {
-        to_merge[i]->set_father(nullptr);
-        from_root.push_back(to_merge[i]);
-    }
+    from_root={to_merge[0],to_merge[1],to_merge[2]};
+    for (int i = 0; i < 3; i++) from_root[i]->set_father(nullptr);
 }
 
 void Tree::nj(Alignment *ali) {
-    vector<int> to_merge = vector<int>();
-    for (int i = 0; i < n; i++) to_merge.push_back(i);
+    vector<int> to_merge = vector<int>(n);
+    for (int i = 0; i < n; i++) to_merge[i]=i;
     vector<vector<double> > dist(2 * n, vector<double>(2 * n, 0.0));
     for (int i = 0; i < n; i++) for (int j = 0; j < i; j++) {
         dist[i][j] = ali->dist(i, j);
@@ -159,16 +153,27 @@ void Tree::nj(Alignment *ali) {
         to_merge.pop_back();
         m++;
     }
-    from_root = vector<Node *>();
     nodes[to_merge[0]]->set_dist_father(
         0.5 * dist[to_merge[0]][to_merge[1]] + 0.5 / (n - m - 2) * (r[to_merge[0]] - r[to_merge[1]]));
-    from_root.push_back(nodes[to_merge[0]]);
     nodes[to_merge[1]]->set_dist_father(dist[to_merge[0]][to_merge[1]] - nodes[to_merge[0]]->get_dist_father());
-    from_root.push_back(nodes[to_merge[1]]);
     nodes[to_merge[2]]->set_dist_father(
         0.5 * (dist[to_merge[0]][to_merge[2]] + dist[to_merge[1]][to_merge[2]] - dist[to_merge[0]][to_merge[1]]));
-    from_root.push_back(nodes[to_merge[2]]);
+    from_root={nodes[to_merge[0]],nodes[to_merge[1]],nodes[to_merge[2]]};
     for (i=0;i<3;i++) from_root[i]->set_father(nullptr);
+}
+
+void Tree::set_seqs(Alignment *ali) {
+    for (int i=0;i<ali->get_n();i++) get_node(i)->set_seq(ali->get_seq(i));
+}
+
+void Tree::ancestral_reconstruction() {
+    int l=nodes[0]->get_seq()->size();
+    for (unsigned int i=n;i<nodes.size();i++) {
+        if (nodes[i]->get_seq()!=nullptr) delete nodes[i]->get_seq();
+        nodes[i]->set_seq(new string(l,'A'));
+    }
+    if (seq!=nullptr) delete seq;
+    seq=new string(l,'A');
 }
 
 

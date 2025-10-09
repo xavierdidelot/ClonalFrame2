@@ -8,7 +8,7 @@ ACGTACGT
 > seq2
 acgtACGT
 >  seq3
-ACGTACGT
+ACGTACGA
 )";
 
 

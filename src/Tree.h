@@ -39,6 +39,10 @@ public:
     void randomise(double avg_bra_len);
     ///NJ algorithm
     void nj(Alignment * ali);
+    ///Assign sequences from alignment to the tree leaves
+    void set_seqs(Alignment * ali);
+    ///Ancestral state reconstruction
+    void ancestral_reconstruction();
 
 private:
     int n;

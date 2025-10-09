@@ -19,6 +19,8 @@ int main() {
     t->nj(a);
     b=t->check_structure();assert(b);
     t->write("tmp2.nwk");
-    delete(a);
+    t->set_seqs(a);
+    t->ancestral_reconstruction();
     delete(t);
+    delete(a);
 }

@@ -10,7 +10,8 @@
 const char * lets="ACGT";
 
 Alignment::~Alignment() {
-
+    //for (int i = 0; i < n; i++) {delete data->at(i);}//An alignment does not delete the seqs: this is done by the tree
+    delete data;
 }
 
 Alignment::Alignment(string filename) {
@@ -34,7 +35,8 @@ Alignment::Alignment(string filename) {
     }
     file.clear();
     file.seekg(0);
-    data=vector<string>(n,string(l,'*'));
+    data=new vector<string*>(n);
+    for (int i=0;i<n;i++) data->at(i)=new string(l,'*');
     names=vector<string>(n);
     n=0;
     l=0;
@@ -46,7 +48,7 @@ Alignment::Alignment(string filename) {
         if (line.at(0)=='#') continue;
         if (line.at(0)=='>') {l=0;n++;names[n-1]=regex_replace(line,reg,"");continue;}
         for (unsigned int i=0;i<line.length();i++) {
-            data[n-1][l]=standardise(line[i]);
+            data->at(n-1)->at(l)=standardise(line[i]);
             l++;
         }
     }
@@ -54,28 +56,25 @@ Alignment::Alignment(string filename) {
     file.close();
 }
 
-Alignment::Alignment(int n, int l) {
-    this->n=n;
-    this->l=l;
-    data=vector<string>();
-    for (int i=0;i<n;i++) {
-        string s(l,'A');
-        data.push_back(s);
-    }
+Alignment::Alignment(int num, int len) {
+    n=num;
+    l=len;
+    data=new vector<string*>(n);
+    for (int i=0;i<n;i++) data->at(i)=new string(l,'A');
 }
 
 Alignment::Alignment(Tree *t) {
     n=t->get_n();
-    names=vector<string>();
-    data=vector<string>();
+    names=vector<string>(n);
+    data=new vector<string*>(n);
     for (int i=0;i<n;i++) {
-        names.push_back(t->get_node(i)->get_name());
-        data.push_back(*(t->get_node(i)->get_seq()));
+        names[i]=t->get_node(i)->get_name();
+        data->at(i)=t->get_node(i)->get_seq();
     }
-    l=data[0].length();
+    l=data->at(0)->length();
 }
 
-char Alignment::get_data(int i, int j) {return data[i][j];}
+char Alignment::get_data(int i, int j) {return data->at(i)->at(j);}
 
 int Alignment::get_n() {return n;}
 
@@ -126,6 +125,10 @@ string Alignment::get_name(int i) {return names[i];}
 double Alignment::dist(int i, int j) {
     double d=0;
     for (int a=0;a<l;a++)
-        if (data[i][a]!=data[j][a]) d++;
+        if (data->at(i)->at(a)!=data->at(j)->at(a)) d++;
     return(d/l);
+}
+
+string * Alignment::get_seq(int i) {
+    return(data->at(i));
 }

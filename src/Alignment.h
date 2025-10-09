@@ -22,7 +22,7 @@ public:
     ///Constructor of alignment from a fasta file
     explicit Alignment(string filename);
     ///Constructor of non-polymorphic alignment of n genomes of length l
-    Alignment(int n,int l);
+    Alignment(int num,int len);
     ///Constructor of alignment from a tree
     explicit Alignment(Tree * t);
     ///Return data for genome i position j
@@ -37,12 +37,14 @@ public:
     string get_name(int i);
     ///Pairwise distance
     double dist(int i, int j);
+    ///Return a sequence
+    string * get_seq(int i);
 
 private:
     char standardise(char in);
     int n;
     int l;
-    vector<string> data;
+    vector<string*>* data;
     vector<string> names;
 };
 
