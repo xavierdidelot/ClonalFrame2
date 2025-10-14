@@ -73,10 +73,10 @@ bool Tree::check_structure() {
 }
 
 void Tree::add_mutations(int l, double theta) {
-    seq = new string(l, 'A');
+    seq = new string(l, 0);
     uniform_int_distribution unif4(0, 3);
     for (int i = 0; i < l; i++) {
-        *(seq->data() + i) = *(lets + unif4(rng));
+        *(seq->data() + i) = 1 << unif4(rng);
     }
     for (int i = 0; i < 3; i++) from_root[i]->add_mutations(seq, theta);
 }

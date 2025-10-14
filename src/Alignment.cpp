@@ -7,8 +7,6 @@
 #include <iostream>
 #include <regex>
 
-const char * lets="ACGT";
-
 Alignment::~Alignment() {
     //for (int i = 0; i < n; i++) {delete data->at(i);}//An alignment does not delete the seqs: this is done by the tree
     delete data;
@@ -48,7 +46,7 @@ Alignment::Alignment(string filename) {
         if (line.at(0)=='#') continue;
         if (line.at(0)=='>') {l=0;n++;names[n-1]=regex_replace(line,reg,"");continue;}
         for (unsigned int i=0;i<line.length();i++) {
-            data->at(n-1)->at(l)=standardise(line[i]);
+            data->at(n-1)->at(l)=encode(line[i]);
             l++;
         }
     }
@@ -80,28 +78,44 @@ int Alignment::get_n() {return n;}
 
 int Alignment::get_l() {return l;}
 
-char Alignment::standardise(char in) {
+char Alignment::encode(char in) {
     switch (in) {
         case 'a':
-            return 'A';
+            return 1;
         case 'A':
-            return 'A';
-        case 't':
-            return 'T';
-        case 'T':
-            return 'T';
+            return 1;
         case 'c':
-            return 'C';
+            return 2;
         case 'C':
-            return 'C';
+            return 2;
         case 'g':
-            return 'G';
+            return 4;
         case 'G':
+            return 4;
+        case 't':
+            return 8;
+        case 'T':
+            return 8;
+        default:
+            return 0;
+    }
+}
+
+char Alignment::decode(char in) {
+    switch (in) {
+        case 1:
+            return 'A';
+        case 2:
+            return 'C';
+        case 4:
             return 'G';
+        case 8:
+            return 'T';
         default:
             return 'N';
     }
 }
+
 
 void Alignment::write(string filename) {
     ofstream file;
@@ -113,7 +127,7 @@ void Alignment::write(string filename) {
     for (int i=0;i<n;i++) {
         file<<">"<<names[i]<<endl;
         for (int j=0;j<l;j++) {
-            file<<get_data(i,j);
+            file<<decode(get_data(i,j));
         }
         file<<endl;
     }

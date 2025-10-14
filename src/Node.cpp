@@ -69,8 +69,7 @@ void Node::add_mutations(string * above, double theta) {
     for (int i=0;i<m;i++) {
         int p=unif_l(rng);
         while (above->at(p)==seq->at(p)) {
-            int w=unif4(rng);
-            *(seq->data()+p)=*(lets+w);
+            *(seq->data()+p)=1 << unif4(rng);
         }
     }
     if (left!= nullptr) left ->add_mutations(seq,theta);

@@ -8,8 +8,6 @@
 #include <string>
 #include "RNGGlobal.h"
 
-extern const char * lets;
-
 using namespace std;
 
 /**

@@ -41,7 +41,8 @@ public:
     string * get_seq(int i);
 
 private:
-    char standardise(char in);
+    static char encode(char in);
+    static char decode(char in);
     int n;
     int l;
     vector<string*>* data;
