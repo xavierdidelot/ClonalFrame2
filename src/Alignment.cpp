@@ -123,10 +123,13 @@ void Alignment::write(string filename) {
 string Alignment::get_name(int i) {return names[i];}
 
 double Alignment::dist(int i, int j) {
-    double d=0;
-    for (int a=0;a<l;a++)
-        if (data->at(i)->at(a)!=data->at(j)->at(a)) d++;
-    return(d/l);
+    int num=0,den=0;
+    for (int a=0;a<l;a++) {
+        if (get_data(i,a)=='N' || get_data(j,a)=='N') continue;
+        den++;
+        if (get_data(i,a)!=get_data(j,a)) num++;
+    }
+    return(-0.75*log(1.0-4.0/3.0*num/den));
 }
 
 string * Alignment::get_seq(int i) {

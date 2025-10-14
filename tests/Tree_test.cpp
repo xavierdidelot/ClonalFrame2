@@ -10,10 +10,10 @@ int main() {
     auto * t = new Tree(10);
     int n=t->get_n();assert(n==10);
     bool b=t->check_structure();assert(b);
-    t->randomise(1.0);
+    //t->randomise(1.0);
     b=t->check_structure();assert(b);
     t->write("tmp.nwk");
-    t->add_mutations(10000,200);
+    t->add_mutations(1000,200);
     auto * a=new Alignment(t);
     a->write("tmp.fasta");
     t->nj(a);
