@@ -6,6 +6,8 @@
 #define CLONALFRAME2_NODE_H
 
 #include <string>
+#include <sstream>
+#include <iomanip>
 #include "RNGGlobal.h"
 
 using namespace std;

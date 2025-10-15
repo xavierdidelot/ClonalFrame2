@@ -57,8 +57,15 @@ Node::~Node() {
 
 string Node::to_string() {
     if (left == nullptr) return name;
-    return("("+ left ->to_string()+":"+std::format("{:e}",left ->get_dist_father())+","+
-                right->to_string()+":"+std::format("{:e}",right->get_dist_father())+")");
+    ostringstream oss;
+    oss << "(";
+    oss << left->to_string();
+    oss << scientific << setprecision(6) << left ->get_dist_father();
+    oss << ",";
+    oss << right->to_string();
+    oss << scientific << setprecision(6) << right->get_dist_father();
+    oss << ")";
+    return oss.str();
 }
 
 void Node::add_mutations(vector<uint8_t> * above, double theta) {

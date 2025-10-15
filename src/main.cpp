@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) {
         string outfile =string(argv[optind++]);
         auto * a = new Alignment(inputfile);
         auto * t = new Tree(a->get_n());
+        auto * orphan = new Node();orphan->set_dist_father(1.0);//just to test leak detection
         t -> nj(a);
         t -> set_seqs(a);
         t -> ancestral_reconstruction();
