@@ -46,6 +46,8 @@ int main(int argc, char *argv[]) {
         auto * a = new Alignment(inputfile);
         auto * t = new Tree(a->get_n());
         t -> nj(a);
+        t -> set_seqs(a);
+        t -> ancestral_reconstruction();
         t -> write(outfile);
         delete a;
         delete t;

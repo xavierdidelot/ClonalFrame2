@@ -40,6 +40,11 @@ public:
     vector<uint8_t> * get_seq();
     ///Sets sequence
     void set_seq(vector<uint8_t> *);
+    ///Fitch algorithm, first pass, returns score
+    int fitch_pass1(size_t pos);
+    ///Fitch algorithm, second pass
+    void fitch_pass2(size_t pos);
+
     ///Constructor for a new node
     Node();
     ///Destructor for a node

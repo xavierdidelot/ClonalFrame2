@@ -57,8 +57,8 @@ Node::~Node() {
 
 string Node::to_string() {
     if (left == nullptr) return name;
-    return("("+ left ->to_string()+":"+std::to_string(left ->get_dist_father())+","+
-                right->to_string()+":"+std::to_string(right->get_dist_father())+")");
+    return("("+ left ->to_string()+":"+std::format("{:e}",left ->get_dist_father())+","+
+                right->to_string()+":"+std::format("{:e}",right->get_dist_father())+")");
 }
 
 void Node::add_mutations(vector<uint8_t> * above, double theta) {
@@ -88,4 +88,35 @@ vector<uint8_t> * Node::get_seq() {
 
 void Node::set_seq(vector<uint8_t> *s) {
     seq=s;
+}
+
+int Node::fitch_pass1(size_t pos) {
+    if (left==nullptr) {
+        if (Alignment::nuc_is_missing(seq->at(pos))) Alignment::nuc_set_as(&(seq->at(pos)),Alignment::nuc_any());
+        return 0;
+    }
+    int s=left->fitch_pass1(pos);
+    s+=right->fitch_pass1(pos);
+    uint8_t inter=Alignment::nuc_intersect(left->get_seq()->at(pos),right->get_seq()->at(pos));
+    if (inter==0u) {
+        s++;
+        seq->at(pos)=Alignment::nuc_union(left->get_seq()->at(pos),right->get_seq()->at(pos));
+    } else {
+        seq->at(pos)=inter;
+    }
+    return s;
+}
+
+void Node::fitch_pass2(size_t pos) {
+    uint8_t f;
+    if (father==nullptr) f=seq->at(pos);
+    else {
+        f=Alignment::nuc_intersect(get_seq()->at(pos),father->get_seq()->at(pos));
+        if (f==0u) f=get_seq()->at(pos);
+    }
+    seq->at(pos)=Alignment::nuc_pick_one(f);
+    if (left!=nullptr) {
+        left ->fitch_pass2(pos);
+        right->fitch_pass2(pos);
+    }
 }

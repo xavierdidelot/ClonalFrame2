@@ -10,15 +10,15 @@
  *
  * @param n
  */
-Tree::Tree(int n): n(n), nodes(vector<Node *>(n+n-1)) {
-    for (int i = 0; i < n; i++) {
+Tree::Tree(size_t n): n(n), nodes(vector<Node *>(n+n-1)) {
+    for (size_t i = 0; i < n; i++) {
         Node *node = new Node();
         node->set_name("seq" + std::to_string(i + 1));
         node->set_dist_father(1.0);
         nodes[i]=node;
     }
 
-    for (int i = 0; i < n-1; i++) {
+    for (size_t i = 0; i < n-1; i++) {
         Node *node = new Node();
         nodes[n+i]=node;
         node->set_left(nodes[i]);
@@ -39,14 +39,14 @@ string Tree::to_string() {
 }
 
 Tree::~Tree() {
-    for (unsigned int i = 0; i < nodes.size(); i++) delete nodes[i];
+    for (size_t i = 0; i < nodes.size(); i++) delete nodes[i];
 }
 
-int Tree::get_n() {
+size_t Tree::get_n() {
     return n;
 }
 
-Node *Tree::get_node(int i) {
+Node *Tree::get_node(size_t i) {
     return nodes[i];
 }
 
@@ -63,18 +63,19 @@ void Tree::write(string filename) {
 
 bool Tree::check_structure() {
     if (n * 2 - 1 - nodes.size() != 0) return false;
-    for (unsigned int i = 0; i < nodes.size(); i++) {
+    if (nodes[n]->get_father()!=nullptr) return false;
+    for (size_t i = 0; i < nodes.size(); i++) {
         if (nodes[i]->get_left() != nullptr && nodes[i]->get_left()->get_father() != nodes[i]) return false;
         if (nodes[i]->get_right() != nullptr && nodes[i]->get_right()->get_father() != nodes[i]) return false;
     }
     return true;
 }
 
-void Tree::add_mutations(int l, double theta) {
+void Tree::add_mutations(size_t l, double theta) {
     delete nodes[n]->get_seq();
     nodes[n]->set_seq(new vector<uint8_t>(l));
     uniform_int_distribution unif4(0, 3);
-    for (int i = 0; i < l; i++) {
+    for (size_t i = 0; i < l; i++) {
         nodes[n]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
     }
     nodes[n]->get_left ()->add_mutations(nodes[n]->get_seq(), theta);
@@ -84,7 +85,7 @@ void Tree::add_mutations(int l, double theta) {
 void Tree::randomise(double avg_bra_len) {
     vector<Node *> to_merge = vector<Node *>(n);
     exponential_distribution rexp(avg_bra_len);
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         to_merge[i]=nodes[i];
         to_merge[i]->set_dist_father(rexp(rng));
     }
@@ -112,9 +113,9 @@ void Tree::randomise(double avg_bra_len) {
 
 void Tree::nj(Alignment *ali) {
     vector<int> to_merge = vector<int>(n);
-    for (int i = 0; i < n; i++) to_merge[i]=i;
+    for (size_t i = 0; i < n; i++) to_merge[i]=i;
     vector<vector<double> > dist(2 * n, vector<double>(2 * n, 0.0));
-    for (int i = 0; i < n; i++) for (int j = 0; j < i; j++) {
+    for (size_t i = 0; i < n; i++) for (size_t j = 0; j < i; j++) {
         dist[i][j] = ali->dist(i, j);
         dist[j][i] = dist[i][j];
     }
@@ -122,7 +123,7 @@ void Tree::nj(Alignment *ali) {
     vector<double> r(2 * n, 0.0);
 
     int m = 0;
-    unsigned int i,j,k,f,g;
+    size_t i,j,k,f,g;
     while (true) {
         for (i = 0; i < to_merge.size(); i++) {
             r[to_merge[i]] = 0;
@@ -172,32 +173,52 @@ void Tree::nj(Alignment *ali) {
     nodes[to_merge[2]]->set_father(nodes[n+m+1]);
     nodes[n+m]->set_father(nodes[n+m+1]);
     nodes[n+m]->set_dist_father(0.0);
+    nodes[n+m]->set_dist_father(nodes[to_merge[2]]->get_dist_father()*0.5);
+    nodes[to_merge[2]]->set_dist_father(nodes[to_merge[2]]->get_dist_father()*0.5);
     swap(nodes[n+m+1],nodes[n]);
+    nodes[n]->set_father(nullptr);
+    //for (i=0;i<nodes.size();i++) if (nodes[i]->get_dist_father()<=0.0) nodes[i]->set_dist_father(1e-5);
 }
 
 void Tree::set_seqs(Alignment *ali) {
-    for (int i=0;i<ali->get_n();i++) get_node(i)->set_seq(ali->get_seq(i));
+    for (size_t i=0;i<ali->get_n();i++) get_node(i)->set_seq(ali->get_seq(i));
 }
 
-void Tree::ancestral_reconstruction() {
-    unsigned int l=nodes[0]->get_seq()->size();
-    for (unsigned int i=n;i<nodes.size();i++) {
+int Tree::ancestral_reconstruction() {
+    int score=0;
+    size_t l=nodes[0]->get_seq()->size();
+    for (size_t i=n;i<nodes.size();i++) {
         delete nodes[i]->get_seq();
         nodes[i]->set_seq(new vector<uint8_t>(l,0));
     }
-    for (unsigned int j=0;j<l;j++) {
+    for (size_t pos=0;pos<l;pos++) {
         uint8_t combined=0u;
-        for (int i=0;i<n;i++) {
-            if (Alignment::nuc_is_missing(nodes[i]->get_seq()->at(j))) continue;
-            combined=combined|nodes[i]->get_seq()->at(j);
+        for (size_t i=0;i<n;i++) {
+            if (Alignment::nuc_is_missing(nodes[i]->get_seq()->at(pos))) continue;
+            combined=Alignment::nuc_union(combined,nodes[i]->get_seq()->at(pos));
         }
+        if (combined==0u) combined=Alignment::nuc_from_int(0);
         if (Alignment::nuc_is_single(combined)) {
-            for (int i=0;i<n;i++) Alignment::nuc_set_as(&nodes[i]->get_seq()->at(j),combined);
-            for (unsigned int i=n;i<nodes.size();i++) nodes[i]->get_seq()->at(j)=combined;
+            for (size_t i=0;i<n;i++) Alignment::nuc_set_as(&nodes[i]->get_seq()->at(pos),combined);
+            for (size_t i=n;i<nodes.size();i++) nodes[i]->get_seq()->at(pos)=combined;
             continue;
         }
-        //Fitch algo to go here since site is polymorphic
+        score+=nodes[n]->fitch_pass1(pos);
+        nodes[n]->fitch_pass2(pos);
     }
+    return(score);
+}
+
+int Tree::count_subs() {
+    int subs=0;
+    size_t l=nodes[0]->get_seq()->size();
+    for (size_t pos=0;pos<l;pos++) {
+        for (size_t i=0;i<nodes.size();i++) {
+            if (nodes[i]->get_father()==nullptr) continue;
+            if (!Alignment::nuc_is_same(nodes[i]->get_seq()->at(pos),nodes[i]->get_father()->get_seq()->at(pos))) subs++;
+        }
+    }
+    return subs;
 }
 
 

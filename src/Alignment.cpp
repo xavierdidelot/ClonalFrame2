@@ -34,7 +34,7 @@ Alignment::Alignment(string filename) {
     file.clear();
     file.seekg(0);
     data=new vector<vector<uint8_t>*>(n);
-    for (int i=0;i<n;i++) data->at(i)=new vector<uint8_t>(l);
+    for (size_t i=0;i<n;i++) data->at(i)=new vector<uint8_t>(l);
     names=vector<string>(n);
     n=0;
     l=0;
@@ -45,7 +45,7 @@ Alignment::Alignment(string filename) {
         if (line.empty()) continue;
         if (line.at(0)=='#') continue;
         if (line.at(0)=='>') {l=0;n++;names[n-1]=regex_replace(line,reg,"");continue;}
-        for (unsigned int i=0;i<line.length();i++) {
+        for (size_t i=0;i<line.length();i++) {
             data->at(n-1)->at(l)=encode(line[i]);
             l++;
         }
@@ -54,65 +54,51 @@ Alignment::Alignment(string filename) {
     file.close();
 }
 
-Alignment::Alignment(int num, int len) {
+Alignment::Alignment(size_t num, size_t len) {
     n=num;
     l=len;
     data=new vector<vector<uint8_t>*>(n);
-    for (int i=0;i<n;i++) data->at(i)=new vector<uint8_t>(l,1);
+    for (size_t i=0;i<n;i++) data->at(i)=new vector<uint8_t>(l,1);
 }
 
 Alignment::Alignment(Tree *t) {
     n=t->get_n();
     names=vector<string>(n);
     data=new vector<vector<uint8_t>*>(n);
-    for (int i=0;i<n;i++) {
+    for (size_t i=0;i<n;i++) {
         names[i]=t->get_node(i)->get_name();
         data->at(i)=t->get_node(i)->get_seq();
     }
     l=data->at(0)->size();
 }
 
-char Alignment::get_data(int i, int j) {return data->at(i)->at(j);}
+char Alignment::get_data(size_t i, size_t j) {return data->at(i)->at(j);}
 
-int Alignment::get_n() {return n;}
+size_t Alignment::get_n() {return n;}
 
-int Alignment::get_l() {return l;}
+size_t Alignment::get_l() {return l;}
 
 uint8_t Alignment::encode(char in) {
     switch (in) {
-        case 'a':
-            return 1u;
-        case 'A':
-            return 1u;
-        case 'c':
-            return 1u << 1;
-        case 'C':
-            return 1u << 1;
-        case 'g':
-            return 1u << 2;
-        case 'G':
-            return 1u << 2;
-        case 't':
-            return 1u << 3;
-        case 'T':
-            return 1u << 3;
-        default:
-            return 1u << 4;
+        case 'a': return nuc_from_int(0);
+        case 'A': return nuc_from_int(0);
+        case 'c': return nuc_from_int(1);
+        case 'C': return nuc_from_int(1);
+        case 'g': return nuc_from_int(2);
+        case 'G': return nuc_from_int(2);
+        case 't': return nuc_from_int(3);
+        case 'T': return nuc_from_int(3);
+        default:  return nuc_from_int(4);
     }
 }
 
 char Alignment::decode(uint8_t in) {
     switch (in) {
-        case 1u:
-            return 'A';
-        case 1u << 1:
-            return 'C';
-        case 1u << 2:
-            return 'G';
-        case 1u << 3:
-            return 'T';
-        default:
-            return 'N';
+        case 1u: return 'A';
+        case 2u: return 'C';
+        case 4u: return 'G';
+        case 8u: return 'T';
+        default: return 'N';
     }
 }
 
@@ -124,9 +110,9 @@ void Alignment::write(string filename) {
         cout<<"Error opening file "<<filename<<endl;
         exit(1);
     }
-    for (int i=0;i<n;i++) {
+    for (size_t i=0;i<n;i++) {
         file<<">"<<names[i]<<endl;
-        for (int j=0;j<l;j++) {
+        for (size_t j=0;j<l;j++) {
             file<<decode(get_data(i,j));
         }
         file<<endl;
@@ -134,11 +120,11 @@ void Alignment::write(string filename) {
     file.close();
 }
 
-string Alignment::get_name(int i) {return names[i];}
+string Alignment::get_name(size_t i) {return names[i];}
 
-double Alignment::dist(int i, int j) {
+double Alignment::dist(size_t i, size_t j) {
     int num=0,den=0;
-    for (int a=0;a<l;a++) {
+    for (size_t a=0;a<l;a++) {
         if (nuc_is_missing(get_data(i,a))) continue;
         if (nuc_is_missing(get_data(j,a))) continue;
         den++;
@@ -147,6 +133,15 @@ double Alignment::dist(int i, int j) {
     return(-0.75*log(1.0-4.0/3.0*num/den));
 }
 
-vector<uint8_t> * Alignment::get_seq(int i) {
+vector<uint8_t> * Alignment::get_seq(size_t i) {
     return(data->at(i));
+}
+
+void Alignment::miss_at_random(double x) {
+    uniform_real_distribution unif(0.0, 1.0);
+    for (size_t i=0;i<n;i++) {
+        for (size_t j=0;j<l;j++) {
+            if (unif(rng)<x) data->at(i)->at(j)=data->at(i)->at(j)|0b00010000;
+        }
+    }
 }
