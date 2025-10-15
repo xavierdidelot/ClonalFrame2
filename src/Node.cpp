@@ -4,6 +4,8 @@
 
 #include "Node.h"
 
+#include "Alignment.h"
+
 
 string Node::get_name() {
     return name;
@@ -69,7 +71,7 @@ void Node::add_mutations(vector<uint8_t> * above, double theta) {
     for (int i=0;i<m;i++) {
         int p=unif_l(rng);
         while (above->at(p)==seq->at(p)) {
-            *(seq->data()+p)=1 << unif4(rng);
+            seq->at(p)=Alignment::nuc_from_int(unif4(rng));
         }
     }
     if (left!= nullptr) left ->add_mutations(seq,theta);

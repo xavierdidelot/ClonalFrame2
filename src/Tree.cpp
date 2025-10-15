@@ -75,7 +75,7 @@ void Tree::add_mutations(int l, double theta) {
     nodes[n]->set_seq(new vector<uint8_t>(l));
     uniform_int_distribution unif4(0, 3);
     for (int i = 0; i < l; i++) {
-        nodes[n]->get_seq()->at(i) = 1 << unif4(rng);
+        nodes[n]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
     }
     nodes[n]->get_left ()->add_mutations(nodes[n]->get_seq(), theta);
     nodes[n]->get_right()->add_mutations(nodes[n]->get_seq(), theta);
@@ -186,13 +186,14 @@ void Tree::ancestral_reconstruction() {
         nodes[i]->set_seq(new vector<uint8_t>(l,0));
     }
     for (unsigned int j=0;j<l;j++) {
-        uint8_t c=0;
+        uint8_t combined=0u;
         for (int i=0;i<n;i++) {
-            uint8_t t=nodes[i]->get_seq()->at(j);
-            if (t==1 || t==2 || t==4 || t==8) c=c|t;
+            if (Alignment::nuc_is_missing(nodes[i]->get_seq()->at(j))) continue;
+            combined=combined|nodes[i]->get_seq()->at(j);
         }
-        if (c==1 || c==2 || c==4 || c==8) {
-            for (unsigned int i=n;i<nodes.size();i++) nodes[i]->get_seq()->at(j)=c;
+        if (Alignment::nuc_is_single(combined)) {
+            for (int i=0;i<n;i++) Alignment::nuc_set_as(&nodes[i]->get_seq()->at(j),combined);
+            for (unsigned int i=n;i<nodes.size();i++) nodes[i]->get_seq()->at(j)=combined;
             continue;
         }
         //Fitch algo to go here since site is polymorphic

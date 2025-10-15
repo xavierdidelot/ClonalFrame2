@@ -81,35 +81,35 @@ int Alignment::get_l() {return l;}
 uint8_t Alignment::encode(char in) {
     switch (in) {
         case 'a':
-            return 1;
+            return 1u;
         case 'A':
-            return 1;
+            return 1u;
         case 'c':
-            return 2;
+            return 1u << 1;
         case 'C':
-            return 2;
+            return 1u << 1;
         case 'g':
-            return 4;
+            return 1u << 2;
         case 'G':
-            return 4;
+            return 1u << 2;
         case 't':
-            return 8;
+            return 1u << 3;
         case 'T':
-            return 8;
+            return 1u << 3;
         default:
-            return 15;
+            return 1u << 4;
     }
 }
 
 char Alignment::decode(uint8_t in) {
     switch (in) {
-        case 1:
+        case 1u:
             return 'A';
-        case 2:
+        case 1u << 1:
             return 'C';
-        case 4:
+        case 1u << 2:
             return 'G';
-        case 8:
+        case 1u << 3:
             return 'T';
         default:
             return 'N';
@@ -139,7 +139,8 @@ string Alignment::get_name(int i) {return names[i];}
 double Alignment::dist(int i, int j) {
     int num=0,den=0;
     for (int a=0;a<l;a++) {
-        if (get_data(i,a)=='N' || get_data(j,a)=='N') continue;
+        if (nuc_is_missing(get_data(i,a))) continue;
+        if (nuc_is_missing(get_data(j,a))) continue;
         den++;
         if (get_data(i,a)!=get_data(j,a)) num++;
     }

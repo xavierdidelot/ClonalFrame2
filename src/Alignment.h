@@ -39,6 +39,12 @@ public:
     double dist(int i, int j);
     ///Return a sequence
     vector<uint8_t> * get_seq(int i);
+    ///Indicate if a nucleotide is missing
+    static inline bool nuc_is_missing(const uint8_t c) {return (c&(1u<<4))!=0;}
+    static inline uint8_t nuc_from_int(const int i) {return 1u<<i;}
+    static inline bool nuc_is_single(const uint8_t c) {return c==1u || c==1u<<1 || c==1u<<2 || c==1u<<3;}
+    static inline uint8_t nuc_or(uint8_t a,uint8_t b) {return a|b;}
+    static inline void nuc_set_as(uint8_t * a,const uint8_t b) {*a=((*a)&0b11110000) | (b&0b00001111);}
 
 private:
     static uint8_t encode(char in);
