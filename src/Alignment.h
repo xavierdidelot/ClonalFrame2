@@ -38,14 +38,14 @@ public:
     ///Pairwise distance
     double dist(int i, int j);
     ///Return a sequence
-    string * get_seq(int i);
+    vector<uint8_t> * get_seq(int i);
 
 private:
-    static char encode(char in);
-    static char decode(char in);
+    static uint8_t encode(char in);
+    static char decode(uint8_t in);
     int n;
     int l;
-    vector<string*>* data;
+    vector<vector<uint8_t>*>* data;
     vector<string> names;
 };
 

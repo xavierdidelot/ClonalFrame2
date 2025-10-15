@@ -37,9 +37,9 @@ public:
     ///Set distance to father
     void set_dist_father(double);
     ///Return sequence
-    string * get_seq();
+    vector<uint8_t> * get_seq();
     ///Sets sequence
-    void set_seq(string *);
+    void set_seq(vector<uint8_t> *);
     ///Constructor for a new node
     Node();
     ///Destructor for a node
@@ -47,11 +47,11 @@ public:
     ///Return a newick string for this node and its children
     string to_string();
     ///Add mutations
-    void add_mutations(string * above,double theta);
+    void add_mutations(vector<uint8_t> * above,double theta);
 
 private:
     string name;
-    string *seq;
+    vector<uint8_t> *seq;
     Node *left;
     Node *right;
     Node *father;

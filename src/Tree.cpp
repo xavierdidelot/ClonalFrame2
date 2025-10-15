@@ -10,36 +10,36 @@
  *
  * @param n
  */
-Tree::Tree(int n): n(n), seq(nullptr), nodes(vector<Node *>(n+n-3)) {
+Tree::Tree(int n): n(n), nodes(vector<Node *>(n+n-1)) {
     for (int i = 0; i < n; i++) {
         Node *node = new Node();
         node->set_name("seq" + std::to_string(i + 1));
         node->set_dist_father(1.0);
         nodes[i]=node;
     }
-    from_root = {nodes[0],nodes[1],nodes[n - 1]};
 
-    for (int i = n - 2; i >= 2; i--) {
+    for (int i = 0; i < n-1; i++) {
         Node *node = new Node();
-        nodes[n-i+n-2]=node;
+        nodes[n+i]=node;
         node->set_left(nodes[i]);
         nodes[i]->set_father(node);
         node->set_dist_father(1.0);
-        node->set_right(from_root[2]);
-        from_root[2]->set_father(node);
-        from_root[2] = node;
+        if (i>0) {
+            node->set_father(nodes[n+i-1]);
+            nodes[n+i-1]->set_right(node);
+        }
     }
+    nodes[n+n-2]->set_right(nodes[n-1]);
+    nodes[n-1]->set_father(nodes[n+n-2]);
+    nodes[n-1]->set_dist_father(1.0);
 }
 
 string Tree::to_string() {
-    return ("(" + from_root[0]->to_string() + ":" + std::to_string(from_root[0]->get_dist_father()) + "," +
-            from_root[1]->to_string() + ":" + std::to_string(from_root[1]->get_dist_father()) + "," +
-            from_root[2]->to_string() + ":" + std::to_string(from_root[2]->get_dist_father()) + ");");
+    return nodes[n]->to_string() + ";";
 }
 
 Tree::~Tree() {
     for (unsigned int i = 0; i < nodes.size(); i++) delete nodes[i];
-    delete seq;
 }
 
 int Tree::get_n() {
@@ -62,9 +62,7 @@ void Tree::write(string filename) {
 }
 
 bool Tree::check_structure() {
-    if (n * 2 - 3 - nodes.size() != 0) return false;
-    if (from_root.size() != 3) return false;
-    for (int i = 0; i < 3; i++) if (from_root[i]->get_father() != nullptr) return false;
+    if (n * 2 - 1 - nodes.size() != 0) return false;
     for (unsigned int i = 0; i < nodes.size(); i++) {
         if (nodes[i]->get_left() != nullptr && nodes[i]->get_left()->get_father() != nodes[i]) return false;
         if (nodes[i]->get_right() != nullptr && nodes[i]->get_right()->get_father() != nodes[i]) return false;
@@ -73,20 +71,25 @@ bool Tree::check_structure() {
 }
 
 void Tree::add_mutations(int l, double theta) {
-    seq = new string(l, 0);
+    delete nodes[n]->get_seq();
+    nodes[n]->set_seq(new vector<uint8_t>(l));
     uniform_int_distribution unif4(0, 3);
     for (int i = 0; i < l; i++) {
-        *(seq->data() + i) = 1 << unif4(rng);
+        nodes[n]->get_seq()->at(i) = 1 << unif4(rng);
     }
-    for (int i = 0; i < 3; i++) from_root[i]->add_mutations(seq, theta);
+    nodes[n]->get_left ()->add_mutations(nodes[n]->get_seq(), theta);
+    nodes[n]->get_right()->add_mutations(nodes[n]->get_seq(), theta);
 }
 
 void Tree::randomise(double avg_bra_len) {
     vector<Node *> to_merge = vector<Node *>(n);
     exponential_distribution rexp(avg_bra_len);
-    for (int i = 0; i < n; i++) to_merge[i]=nodes[i];
-    int m=n;
-    while (to_merge.size() > 3) {
+    for (int i = 0; i < n; i++) {
+        to_merge[i]=nodes[i];
+        to_merge[i]->set_dist_father(rexp(rng));
+    }
+    int m=n+1;
+    while (to_merge.size() > 2) {
         uniform_int_distribution unif(0, static_cast<int>(to_merge.size() - 1));
         int a = unif(rng);
         int b = a;
@@ -101,8 +104,10 @@ void Tree::randomise(double avg_bra_len) {
         to_merge.pop_back();
         m++;
     }
-    from_root={to_merge[0],to_merge[1],to_merge[2]};
-    for (int i = 0; i < 3; i++) from_root[i]->set_father(nullptr);
+    nodes[n]->set_left (to_merge[0]);
+    nodes[n]->set_right(to_merge[1]);
+    to_merge[0]->set_father(nodes[n]);
+    to_merge[1]->set_father(nodes[n]);
 }
 
 void Tree::nj(Alignment *ali) {
@@ -158,8 +163,16 @@ void Tree::nj(Alignment *ali) {
     nodes[to_merge[1]]->set_dist_father(dist[to_merge[0]][to_merge[1]] - nodes[to_merge[0]]->get_dist_father());
     nodes[to_merge[2]]->set_dist_father(
         0.5 * (dist[to_merge[0]][to_merge[2]] + dist[to_merge[1]][to_merge[2]] - dist[to_merge[0]][to_merge[1]]));
-    from_root={nodes[to_merge[0]],nodes[to_merge[1]],nodes[to_merge[2]]};
-    for (i=0;i<3;i++) from_root[i]->set_father(nullptr);
+    nodes[n+m]->set_left (nodes[to_merge[0]]);
+    nodes[n+m]->set_right(nodes[to_merge[1]]);
+    nodes[to_merge[0]]->set_father(nodes[n+m]);
+    nodes[to_merge[1]]->set_father(nodes[n+m]);
+    nodes[n+m+1]->set_left (nodes[to_merge[2]]);
+    nodes[n+m+1]->set_right(nodes[n+m]);
+    nodes[to_merge[2]]->set_father(nodes[n+m+1]);
+    nodes[n+m]->set_father(nodes[n+m+1]);
+    nodes[n+m]->set_dist_father(0.0);
+    swap(nodes[n+m+1],nodes[n]);
 }
 
 void Tree::set_seqs(Alignment *ali) {
@@ -167,13 +180,23 @@ void Tree::set_seqs(Alignment *ali) {
 }
 
 void Tree::ancestral_reconstruction() {
-    int l=nodes[0]->get_seq()->size();
+    unsigned int l=nodes[0]->get_seq()->size();
     for (unsigned int i=n;i<nodes.size();i++) {
-        if (nodes[i]->get_seq()!=nullptr) delete nodes[i]->get_seq();
-        nodes[i]->set_seq(new string(l,'A'));
+        delete nodes[i]->get_seq();
+        nodes[i]->set_seq(new vector<uint8_t>(l,0));
     }
-    if (seq!=nullptr) delete seq;
-    seq=new string(l,'A');
+    for (unsigned int j=0;j<l;j++) {
+        uint8_t c=0;
+        for (int i=0;i<n;i++) {
+            uint8_t t=nodes[i]->get_seq()->at(j);
+            if (t==1 || t==2 || t==4 || t==8) c=c|t;
+        }
+        if (c==1 || c==2 || c==4 || c==8) {
+            for (unsigned int i=n;i<nodes.size();i++) nodes[i]->get_seq()->at(j)=c;
+            continue;
+        }
+        //Fitch algo to go here since site is polymorphic
+    }
 }
 
 

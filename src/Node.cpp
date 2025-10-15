@@ -59,8 +59,8 @@ string Node::to_string() {
                 right->to_string()+":"+std::to_string(right->get_dist_father())+")");
 }
 
-void Node::add_mutations(string * above, double theta) {
-    seq=new string(*above);
+void Node::add_mutations(vector<uint8_t> * above, double theta) {
+    seq=new vector<uint8_t>(*above);
     int l=seq->size();
     uniform_int_distribution unif4(0,3);
     uniform_int_distribution unif_l(0,l-1);
@@ -80,10 +80,10 @@ void Node::set_dist_father(double d) {
     dist_father=d;
 }
 
-string * Node::get_seq() {
+vector<uint8_t> * Node::get_seq() {
     return seq;
 }
 
-void Node::set_seq(string *s) {
+void Node::set_seq(vector<uint8_t> *s) {
     seq=s;
 }

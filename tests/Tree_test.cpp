@@ -7,8 +7,8 @@
 using namespace std;
 
 int main() {
-    auto * t = new Tree(10);
-    int n=t->get_n();assert(n==10);
+    auto * t = new Tree(20);
+    int n=t->get_n();assert(n==20);
     bool b=t->check_structure();assert(b);
     t->randomise(1.0);
     b=t->check_structure();assert(b);

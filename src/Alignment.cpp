@@ -33,8 +33,8 @@ Alignment::Alignment(string filename) {
     }
     file.clear();
     file.seekg(0);
-    data=new vector<string*>(n);
-    for (int i=0;i<n;i++) data->at(i)=new string(l,'*');
+    data=new vector<vector<uint8_t>*>(n);
+    for (int i=0;i<n;i++) data->at(i)=new vector<uint8_t>(l);
     names=vector<string>(n);
     n=0;
     l=0;
@@ -57,19 +57,19 @@ Alignment::Alignment(string filename) {
 Alignment::Alignment(int num, int len) {
     n=num;
     l=len;
-    data=new vector<string*>(n);
-    for (int i=0;i<n;i++) data->at(i)=new string(l,'A');
+    data=new vector<vector<uint8_t>*>(n);
+    for (int i=0;i<n;i++) data->at(i)=new vector<uint8_t>(l,1);
 }
 
 Alignment::Alignment(Tree *t) {
     n=t->get_n();
     names=vector<string>(n);
-    data=new vector<string*>(n);
+    data=new vector<vector<uint8_t>*>(n);
     for (int i=0;i<n;i++) {
         names[i]=t->get_node(i)->get_name();
         data->at(i)=t->get_node(i)->get_seq();
     }
-    l=data->at(0)->length();
+    l=data->at(0)->size();
 }
 
 char Alignment::get_data(int i, int j) {return data->at(i)->at(j);}
@@ -78,7 +78,7 @@ int Alignment::get_n() {return n;}
 
 int Alignment::get_l() {return l;}
 
-char Alignment::encode(char in) {
+uint8_t Alignment::encode(char in) {
     switch (in) {
         case 'a':
             return 1;
@@ -97,11 +97,11 @@ char Alignment::encode(char in) {
         case 'T':
             return 8;
         default:
-            return 0;
+            return 15;
     }
 }
 
-char Alignment::decode(char in) {
+char Alignment::decode(uint8_t in) {
     switch (in) {
         case 1:
             return 'A';
@@ -146,6 +146,6 @@ double Alignment::dist(int i, int j) {
     return(-0.75*log(1.0-4.0/3.0*num/den));
 }
 
-string * Alignment::get_seq(int i) {
+vector<uint8_t> * Alignment::get_seq(int i) {
     return(data->at(i));
 }

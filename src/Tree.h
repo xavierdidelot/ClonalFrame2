@@ -46,8 +46,6 @@ public:
 
 private:
     int n;
-    string * seq;
-    vector <Node*> from_root;
     vector <Node*> nodes;
 };
 
