@@ -60,10 +60,10 @@ string Node::to_string() {
     ostringstream oss;
     oss << "(";
     oss << left->to_string();
-    oss << scientific << setprecision(6) << left ->get_dist_father();
+    oss << scientific << setprecision(6) << ":" << left ->get_dist_father();
     oss << ",";
     oss << right->to_string();
-    oss << scientific << setprecision(6) << right->get_dist_father();
+    oss << scientific << setprecision(6) << ":" << right->get_dist_father();
     oss << ")";
     return oss.str();
 }
