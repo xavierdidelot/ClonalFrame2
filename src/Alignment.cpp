@@ -7,18 +7,15 @@
 #include <iostream>
 #include <regex>
 
-Alignment::~Alignment() {
-    //for (int i = 0; i < n; i++) {delete data->at(i);}//An alignment does not delete the seqs: this is done by the tree
-    delete data;
-}
+Alignment::~Alignment() = default;
 
 Alignment::Alignment(string filename) {
     string line;
     ifstream file;
-    cout<<"Opening file "<<filename<<endl;
+    if (verbose) cout<<"Opening file "<<filename<<endl;
     file.open(filename);
     if (file.is_open()==false) {
-        cout<<"Error opening file "<<filename<<endl;
+        cerr<<"Error opening file "<<filename<<endl;
         exit(1);
     }
     n=0;
@@ -50,7 +47,7 @@ Alignment::Alignment(string filename) {
             l++;
         }
     }
-    cout<<"Finished reading file made of "<<n<<" genomes of length "<<l<<endl;
+    if (verbose) cout<<"Finished reading file made of "<<n<<" genomes of length "<<l<<endl;
     file.close();
 }
 
@@ -107,7 +104,7 @@ void Alignment::write(string filename) {
     ofstream file;
     file.open(filename);
     if (file.is_open()==false) {
-        cout<<"Error opening file "<<filename<<endl;
+        cerr<<"Error opening file "<<filename<<endl;
         exit(1);
     }
     for (size_t i=0;i<n;i++) {

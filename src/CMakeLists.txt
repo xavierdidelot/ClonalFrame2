@@ -4,7 +4,9 @@ add_library(cf2_lib
         Tree.cpp
         Tree.h
         Node.cpp
-        Node.h)
+        Node.h
+        Param.cpp
+        Param.h)
 
 add_executable(ClonalFrame2 main.cpp)
 #find_package(GSL REQUIRED)

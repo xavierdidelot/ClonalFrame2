@@ -50,7 +50,7 @@ public:
     ///Constructor for a new node
     Node();
     ///Destructor for a node
-    ~Node();
+    ~Node() = default;
     ///Return a newick string for this node and its children
     string to_string();
     ///Add mutations

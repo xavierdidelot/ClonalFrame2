@@ -12,14 +12,14 @@
  */
 Tree::Tree(size_t n): n(n), nodes(vector<Node *>(n+n-1)) {
     for (size_t i = 0; i < n; i++) {
-        Node *node = new Node();
+        auto node = new Node();
         node->set_name("seq" + std::to_string(i + 1));
         node->set_dist_father(1.0);
         nodes[i]=node;
     }
 
     for (size_t i = 0; i < n-1; i++) {
-        Node *node = new Node();
+        auto node = new Node();
         nodes[n+i]=node;
         node->set_left(nodes[i]);
         nodes[i]->set_father(node);
@@ -38,10 +38,6 @@ string Tree::to_string() {
     return nodes[n]->to_string() + ";";
 }
 
-Tree::~Tree() {
-    for (size_t i = 0; i < nodes.size(); i++) delete nodes[i];
-}
-
 size_t Tree::get_n() {
     return n;
 }
@@ -54,7 +50,7 @@ void Tree::write(string filename) {
     ofstream file;
     file.open(filename);
     if (file.is_open() == false) {
-        cout << "Error opening file " << filename << endl;
+        cerr << "Error opening file " << filename << endl;
         exit(1);
     }
     file << to_string() << endl;
@@ -72,7 +68,6 @@ bool Tree::check_structure() {
 }
 
 void Tree::add_mutations(size_t l, double theta) {
-    delete nodes[n]->get_seq();
     nodes[n]->set_seq(new vector<uint8_t>(l));
     uniform_int_distribution unif4(0, 3);
     for (size_t i = 0; i < l; i++) {
@@ -111,7 +106,7 @@ void Tree::randomise(double avg_bra_len) {
     to_merge[1]->set_father(nodes[n]);
 }
 
-void Tree::nj(Alignment *ali) {
+void Tree::nj(Alignment * ali) {
     vector<int> to_merge = vector<int>(n);
     for (size_t i = 0; i < n; i++) to_merge[i]=i;
     vector<vector<double> > dist(2 * n, vector<double>(2 * n, 0.0));
@@ -188,7 +183,6 @@ int Tree::ancestral_reconstruction() {
     int score=0;
     size_t l=nodes[0]->get_seq()->size();
     for (size_t i=n;i<nodes.size();i++) {
-        delete nodes[i]->get_seq();
         nodes[i]->set_seq(new vector<uint8_t>(l,0));
     }
     for (size_t pos=0;pos<l;pos++) {

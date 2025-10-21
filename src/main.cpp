@@ -3,6 +3,7 @@
 
 #include "Alignment.h"
 #include "Tree.h"
+#include "Param.h"
 #include "RNGGlobal.h"
 #include "version.h"
 
@@ -17,14 +18,8 @@ static string help =
     -v          Verbose mode
 )";
 
-bool verbose = false;
-
-int main(int argc, char *argv[]) {
+int main(int argc, const char *argv[]) {
     auto start = chrono::high_resolution_clock::now();
-    cout << "This is ClonalFrame2, version " << VERSION_STRING << endl;
-    cout << "Command used: ";
-    for (int i = 0; i < argc; i++) cout << argv[i] << " ";
-    cout << endl;
     auto *orphan = new Node();orphan->set_dist_father(1.0); //just to test leak detection is working
 
     int burn = 10000, nbit = 10000, thin = 10;
@@ -33,14 +28,13 @@ int main(int argc, char *argv[]) {
     while (i < argc) {
         string arg = argv[i];
         if (arg[0]=='-') {
-            char opt = arg[1];
-            switch (opt) {
+            switch (arg[1]) {
                 case('x'):burn =  stoi(argv[++i]) ;break;
                 case('y'):nbit =  stoi(argv[++i]) ;break;
                 case('z'):thin =  stoi(argv[++i]) ;break;
                 case('s'):setSeed(stoi(argv[++i]));break;
                 case('v'):verbose = true;break;
-                default:cout << "Ignoring incorrect option -" << opt << endl;
+                default:cout << "Ignoring incorrect option -" << arg[1] << endl;
             }
         } else remainder.push_back(arg);
         i++;
@@ -50,24 +44,29 @@ int main(int argc, char *argv[]) {
         cout << "Need two non-option arguments but found " << remainder.size() << endl;
         cout << help << endl;
     } else {
-        string inputfile = string(remainder[0]);
-        string outfile = string(remainder[1]);
-        swap(burn, nbit);swap(burn,thin); //just to avoid warnings of unused variables
-        auto *a = new Alignment(inputfile);
-        cout << "Building initial tree..." << endl;
-        auto *t = new Tree(a->get_n());
-        t->nj(a);
-        t->set_seqs(a);
-        cout << "Performing initial ancestral reconstruction..." << endl;
+        if (verbose) {
+            cout << "This is ClonalFrame2, version " << VERSION_STRING << endl;
+            cout << "Command used: ";
+            for (i = 0; i < argc; i++) cout << argv[i] << " ";
+            cout << endl;
+        }
+        const auto inputfile = string(remainder[0]);
+        const auto outfile = string(remainder[1]);
+        auto a = make_unique<Alignment>(inputfile);
+        if (verbose) cout << "Building initial tree..." << endl;
+        auto t = make_unique<Tree>(a->get_n());
+        t->nj(a.get());
+        t->set_seqs(a.get());
+        if (verbose) cout << "Performing initial ancestral reconstruction..." << endl;
         t->ancestral_reconstruction();
+        auto p= make_unique<Param>(t.get());
+        p->mcmc(burn, nbit, thin);
         t->write(outfile);
-        delete a;
-        delete t;
     }
 
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end - start;
-    cout << "Time spent running: " << elapsed.count() << " seconds" << endl;
-    cout << "End of ClonalFrame2 run." << endl;
+    if (verbose) cout << "Time spent running: " << elapsed.count() << " seconds" << endl;
+    if (verbose) cout << "End of ClonalFrame2 run." << endl;
     return 0;
 }
