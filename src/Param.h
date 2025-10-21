@@ -10,7 +10,7 @@
 class Param {
 public:
     Param(Tree * t);
-    ~Param() = default;
+    ~Param();
     void mcmc(int burn,int nbit,int thin);
 private:
     Tree * tree;

@@ -25,7 +25,7 @@ public:
     ///Return the tree as a newick string
     string to_string();
     ///Destructor for a tree
-    ~Tree() = default;
+    ~Tree();
     ///Return number of leaves in the tree
     size_t get_n();
     Node * get_node(size_t i);

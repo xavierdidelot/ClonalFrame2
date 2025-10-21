@@ -12,6 +12,9 @@ Param::Param(Tree *t) {
     delta=0.001;
 }
 
+Param::~Param() {
+}
+
 void Param::mcmc(int burn, int nbit, int thin) {
     swap(burn,burn);
     swap(nbit,nbit);

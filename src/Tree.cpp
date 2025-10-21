@@ -22,11 +22,11 @@ Tree::Tree(size_t n): n(n), nodes(vector<Node *>(n+n-1)) {
         auto node = new Node();
         nodes[n+i]=node;
         node->set_left(nodes[i]);
-        nodes[i]->set_father(node);
+        nodes[i]->set_father(nodes[n+i]);
         node->set_dist_father(1.0);
         if (i>0) {
             node->set_father(nodes[n+i-1]);
-            nodes[n+i-1]->set_right(node);
+            nodes[n+i-1]->set_right(nodes[n+i]);
         }
     }
     nodes[n+n-2]->set_right(nodes[n-1]);
@@ -36,6 +36,10 @@ Tree::Tree(size_t n): n(n), nodes(vector<Node *>(n+n-1)) {
 
 string Tree::to_string() {
     return nodes[n]->to_string() + ";";
+}
+
+Tree::~Tree() {
+    for (size_t i = 0; i < nodes.size(); i++) {delete nodes[i];}
 }
 
 size_t Tree::get_n() {
@@ -68,6 +72,7 @@ bool Tree::check_structure() {
 }
 
 void Tree::add_mutations(size_t l, double theta) {
+    delete nodes[n]->get_seq();
     nodes[n]->set_seq(new vector<uint8_t>(l));
     uniform_int_distribution unif4(0, 3);
     for (size_t i = 0; i < l; i++) {
@@ -84,7 +89,7 @@ void Tree::randomise(double avg_bra_len) {
         to_merge[i]=nodes[i];
         to_merge[i]->set_dist_father(rexp(rng));
     }
-    int m=n+1;
+    size_t m=n+1;
     while (to_merge.size() > 2) {
         uniform_int_distribution unif(0, static_cast<int>(to_merge.size() - 1));
         int a = unif(rng);
@@ -183,6 +188,7 @@ int Tree::ancestral_reconstruction() {
     int score=0;
     size_t l=nodes[0]->get_seq()->size();
     for (size_t i=n;i<nodes.size();i++) {
+        delete nodes[i]->get_seq();
         nodes[i]->set_seq(new vector<uint8_t>(l,0));
     }
     for (size_t pos=0;pos<l;pos++) {

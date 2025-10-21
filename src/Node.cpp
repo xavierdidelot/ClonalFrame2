@@ -51,6 +51,10 @@ Node::Node() {
     seq=nullptr;
 }
 
+Node::~Node() {
+    delete seq;
+}
+
 string Node::to_string() {
     if (left == nullptr) return name;
     ostringstream oss;

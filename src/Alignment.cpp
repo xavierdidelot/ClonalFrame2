@@ -7,7 +7,9 @@
 #include <iostream>
 #include <regex>
 
-Alignment::~Alignment() = default;
+Alignment::~Alignment() {
+    delete data;
+}
 
 Alignment::Alignment(string filename) {
     string line;
