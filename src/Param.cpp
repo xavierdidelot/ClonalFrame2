@@ -4,6 +4,8 @@
 
 #include "Param.h"
 
+using std::string,std::cerr,std::cout,std::endl,std::vector;
+
 Param::Param(Tree *t) {
     tree = t;
     theta=10;
@@ -16,7 +18,5 @@ Param::~Param() {
 }
 
 void Param::mcmc(int burn, int nbit, int thin) {
-    swap(burn,burn);
-    swap(nbit,nbit);
-    swap(thin,thin);
+    cout<<burn<<" "<<nbit<<" "<<thin<<endl;
 }

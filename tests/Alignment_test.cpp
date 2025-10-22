@@ -1,6 +1,8 @@
 #include "../src/Alignment.h"
 #include <cassert>
 
+using std::string;
+
 static string fasta=
     R"(
 >seq1

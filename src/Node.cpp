@@ -3,9 +3,9 @@
 //
 
 #include "Node.h"
-
 #include "Alignment.h"
 
+using std::string,std::cerr,std::cout,std::endl,std::vector;
 
 string Node::get_name() {
     return name;
@@ -80,7 +80,7 @@ Node::Node(const string &s, vector <Node*> * nodes) {
         right->set_father(this);
     } else {
         nodes->insert(nodes->begin(),this);
-        istringstream iss(s);
+        std::istringstream iss(s);
         string tmp;
         getline(iss,tmp,':');
         set_name(tmp);
@@ -95,13 +95,13 @@ Node::~Node() {
 
 string Node::to_string() {
     if (left == nullptr) return name;
-    ostringstream oss;
+    std::ostringstream oss;
     oss << "(";
     oss << left->to_string();
-    oss << scientific << setprecision(6) << ":" << left ->get_dist_father();
+    oss << std::scientific << std::setprecision(6) << ":" << left ->get_dist_father();
     oss << ",";
     oss << right->to_string();
-    oss << scientific << setprecision(6) << ":" << right->get_dist_father();
+    oss << std::scientific << std::setprecision(6) << ":" << right->get_dist_father();
     oss << ")";
     return oss.str();
 }
@@ -109,9 +109,9 @@ string Node::to_string() {
 void Node::add_mutations(vector<uint8_t> * above, double theta) {
     seq=new vector<uint8_t>(*above);
     int l=seq->size();
-    uniform_int_distribution unif4(0,3);
-    uniform_int_distribution unif_l(0,l-1);
-    poisson_distribution pois(dist_father*theta/2);
+    std::uniform_int_distribution unif4(0,3);
+    std::uniform_int_distribution unif_l(0,l-1);
+    std::poisson_distribution pois(dist_father*theta/2);
     int m=pois(rng);
     for (int i=0;i<m;i++) {
         int p=unif_l(rng);

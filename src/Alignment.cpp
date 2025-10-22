@@ -7,13 +7,15 @@
 #include <iostream>
 #include <regex>
 
+using std::string,std::cerr,std::cout,std::endl,std::vector;
+
 Alignment::~Alignment() {
 
 }
 
 Alignment::Alignment(const string &filename) {
     string line;
-    ifstream file;
+    std::ifstream file;
     if (verbose) cout<<"Opening file "<<filename<<endl;
     file.open(filename);
     if (file.is_open()==false) {
@@ -37,7 +39,7 @@ Alignment::Alignment(const string &filename) {
     names=vector<string>(n);
     n=0;
     l=0;
-    regex reg("[> ]");
+    std::regex reg("[> ]");
     while (true) {
         getline(file,line);
         if (file.eof()) break;
@@ -103,7 +105,7 @@ char Alignment::decode(uint8_t in) {
 
 
 void Alignment::write(const string &filename) {
-    ofstream file;
+    std::ofstream file;
     file.open(filename);
     if (file.is_open()==false) {
         cerr<<"Error opening file "<<filename<<endl;
@@ -137,7 +139,7 @@ vector<uint8_t> * Alignment::get_seq(size_t i) {
 }
 
 void Alignment::miss_at_random(double x) {
-    uniform_real_distribution unif(0.0, 1.0);
+    std::uniform_real_distribution unif(0.0, 1.0);
     for (size_t i=0;i<n;i++) {
         for (size_t j=0;j<l;j++) {
             if (unif(rng)<x) data[i]->at(j)=data[i]->at(j)|0b00010000;

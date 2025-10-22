@@ -7,6 +7,8 @@
 #include "RNGGlobal.h"
 #include "version.h"
 
+using std::string,std::vector,std::cerr,std::cout,std::endl;
+
 static string help =
         R"(Usage: ClonalFrame2 [OPTIONS] inputfile outputfile
 
@@ -19,7 +21,7 @@ static string help =
 )";
 
 int main(int argc, const char *argv[]) {
-    auto start = chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
     auto *orphan = new Node();orphan->set_dist_father(1.0); //just to test leak detection is working
 
     int burn = 10000, nbit = 10000, thin = 10;
@@ -29,10 +31,10 @@ int main(int argc, const char *argv[]) {
         string arg = argv[i];
         if (arg[0]=='-') {
             switch (arg[1]) {
-                case('x'):burn =  stoi(argv[++i]) ;break;
-                case('y'):nbit =  stoi(argv[++i]) ;break;
-                case('z'):thin =  stoi(argv[++i]) ;break;
-                case('s'):setSeed(stoi(argv[++i]));break;
+                case('x'):burn =  std::stoi(argv[++i]) ;break;
+                case('y'):nbit =  std::stoi(argv[++i]) ;break;
+                case('z'):thin =  std::stoi(argv[++i]) ;break;
+                case('s'):setSeed(std::stoi(argv[++i]));break;
                 case('v'):verbose = true;break;
                 default:cout << "Ignoring incorrect option -" << arg[1] << endl;
             }
@@ -67,8 +69,8 @@ int main(int argc, const char *argv[]) {
         delete(p);
     }
 
-    auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double> elapsed = end - start;
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
     if (verbose) cout << "Time spent running: " << elapsed.count() << " seconds" << endl;
     if (verbose) cout << "End of ClonalFrame2 run." << endl;
     return 0;

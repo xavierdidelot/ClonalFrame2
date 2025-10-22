@@ -9,7 +9,6 @@
 #include <fstream>
 #include <vector>
 #include "Tree.h"
-using namespace std;
 
 /**
  * @class Alignment
@@ -20,7 +19,7 @@ public:
     ///Destructor of alignment
     ~Alignment();
     ///Constructor of alignment from a fasta file
-    explicit Alignment(const string &filename);
+    explicit Alignment(const std::string &filename);
     ///Constructor of non-polymorphic alignment of n genomes of length l
     Alignment(size_t num,size_t len);
     ///Constructor of alignment from a tree
@@ -32,13 +31,13 @@ public:
     ///Return length of the alignment
     size_t get_l();
     ///Write alignment into a fasta file
-    void write(const string &filename);
+    void write(const std::string &filename);
     ///Return name of the i-th genome
-    string get_name(size_t i);
+    std::string get_name(size_t i);
     ///Pairwise distance
     double dist(size_t i, size_t j);
     ///Return a sequence
-    vector<uint8_t> * get_seq(size_t i);
+    std::vector<uint8_t> * get_seq(size_t i);
     ///Make some of the data be missed at random
     void miss_at_random(double x);
 
@@ -66,8 +65,8 @@ private:
     static char decode(uint8_t in);
     size_t n;
     size_t l;
-    vector<vector<uint8_t>*> data;
-    vector<string> names;
+    std::vector<std::vector<uint8_t>*> data;
+    std::vector<std::string> names;
 };
 
 

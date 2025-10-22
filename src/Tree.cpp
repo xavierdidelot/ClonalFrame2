@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+using std::string,std::cerr,std::cout,std::endl,std::vector;
+
 /**
  *
  * @param n
@@ -36,7 +38,7 @@ Tree::Tree(size_t n): n(n), nodes(vector<Node *>(n+n-1)) {
 
 Tree::Tree(const string &filename) {
     string line;
-    ifstream file;
+    std::ifstream file;
     if (verbose) cout << "Opening file " << filename << endl;
     file.open(filename);
     if (file.is_open() == false) {
@@ -69,7 +71,7 @@ Node *Tree::get_node(size_t i) {
 }
 
 void Tree::write(const string &filename) {
-    ofstream file;
+    std::ofstream file;
     file.open(filename);
     if (file.is_open() == false) {
         cerr << "Error opening file " << filename << endl;
@@ -92,7 +94,7 @@ bool Tree::check_structure() {
 void Tree::add_mutations(size_t l, double theta) {
     delete nodes[n]->get_seq();
     nodes[n]->set_seq(new vector<uint8_t>(l));
-    uniform_int_distribution unif4(0, 3);
+    std::uniform_int_distribution unif4(0, 3);
     for (size_t i = 0; i < l; i++) {
         nodes[n]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
     }
@@ -102,14 +104,14 @@ void Tree::add_mutations(size_t l, double theta) {
 
 void Tree::randomise(double avg_bra_len) {
     vector<Node *> to_merge = vector<Node *>(n);
-    exponential_distribution rexp(avg_bra_len);
+    std::exponential_distribution rexp(avg_bra_len);
     for (size_t i = 0; i < n; i++) {
         to_merge[i]=nodes[i];
         to_merge[i]->set_dist_father(rexp(rng));
     }
     size_t m=n+1;
     while (to_merge.size() > 2) {
-        uniform_int_distribution unif(0, static_cast<int>(to_merge.size() - 1));
+        std::uniform_int_distribution unif(0, static_cast<int>(to_merge.size() - 1));
         int a = unif(rng);
         int b = a;
         while (a == b) b = unif(rng);
@@ -192,7 +194,7 @@ void Tree::nj(Alignment * ali) {
     nodes[n+m]->set_dist_father(0.0);
     nodes[n+m]->set_dist_father(nodes[to_merge[2]]->get_dist_father()*0.5);
     nodes[to_merge[2]]->set_dist_father(nodes[to_merge[2]]->get_dist_father()*0.5);
-    swap(nodes[n+m+1],nodes[n]);
+    std::swap(nodes[n+m+1],nodes[n]);
     nodes[n]->set_father(nullptr);
     //for (i=0;i<nodes.size();i++) if (nodes[i]->get_dist_father()<=0.0) nodes[i]->set_dist_father(1e-5);
 }
