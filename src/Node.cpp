@@ -51,29 +51,42 @@ Node::Node() {
     seq=nullptr;
 }
 
-Node::Node(const string &s) {
+Node::Node(const string &s, vector <Node*> * nodes) {
     left=nullptr;
     right=nullptr;
     father=nullptr;
     seq=nullptr;
     dist_father=0;
-    cout<<s<<endl;
-    if (s.at(0)=='(') {
-        string s1="a:1";
-        string s2="b:2";
-        left=new Node(s1);
-        right=new Node(s2);
+    if (s.front()=='(') {
+        size_t last=s.size()-1;
+        while (s[last]!=')') last--;
+        if (last<s.size()-1) {
+            dist_father=stof(s.substr(last+2));
+        }
+        size_t mid=1;
+        int counter=0;
+        while (true) {
+            if (s[mid]=='(') counter++;
+            if (s[mid]==')') counter--;
+            if (s[mid]==',' && counter==0) break;
+            mid++;
+        }
+        nodes->push_back(this);
+        string s1=s.substr(1,mid-1);
+        string s2=s.substr(mid+1,last-mid-1);
+        left=new Node(s1, nodes);
+        right=new Node(s2, nodes);
         left->set_father(this);
         right->set_father(this);
     } else {
-        istringstream  iss(s);
+        nodes->insert(nodes->begin(),this);
+        istringstream iss(s);
         string tmp;
         getline(iss,tmp,':');
         set_name(tmp);
         getline(iss,tmp);
         set_dist_father(stof(tmp));
     }
-
 }
 
 Node::~Node() {

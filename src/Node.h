@@ -51,7 +51,7 @@ public:
     ///Constructor for a new node
     Node();
     ///Constructor for a new node from a Newick string
-    Node(const string &s);
+    Node(const string &s, vector <Node*> * nodes);
     ///Destructor for a node
     ~Node();
     ///Return a newick string for this node and its children

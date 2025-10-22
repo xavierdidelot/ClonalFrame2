@@ -46,10 +46,9 @@ Tree::Tree(const string &filename) {
     getline(file, line);
     file.close();
     nodes=vector<Node *>();
-    Node *root = new Node(line);
-    nodes.push_back(root->get_left());
-    nodes.push_back(root->get_right());
-    nodes.push_back(root);
+    if (line.back()==';') line.pop_back();
+    Node *root = new Node(line, &nodes);
+    root->set_father(nullptr);
     n=(nodes.size()+1)/2;
 }
 
