@@ -8,10 +8,10 @@
 #include <regex>
 
 Alignment::~Alignment() {
-    delete data;
+
 }
 
-Alignment::Alignment(string filename) {
+Alignment::Alignment(const string &filename) {
     string line;
     ifstream file;
     if (verbose) cout<<"Opening file "<<filename<<endl;
@@ -32,8 +32,8 @@ Alignment::Alignment(string filename) {
     }
     file.clear();
     file.seekg(0);
-    data=new vector<vector<uint8_t>*>(n);
-    for (size_t i=0;i<n;i++) data->at(i)=new vector<uint8_t>(l);
+    data=vector<vector<uint8_t>*>(n);
+    for (size_t i=0;i<n;i++) data.at(i)=new vector<uint8_t>(l);
     names=vector<string>(n);
     n=0;
     l=0;
@@ -45,7 +45,7 @@ Alignment::Alignment(string filename) {
         if (line.at(0)=='#') continue;
         if (line.at(0)=='>') {l=0;n++;names[n-1]=regex_replace(line,reg,"");continue;}
         for (size_t i=0;i<line.length();i++) {
-            data->at(n-1)->at(l)=encode(line[i]);
+            data.at(n-1)->at(l)=encode(line[i]);
             l++;
         }
     }
@@ -56,22 +56,22 @@ Alignment::Alignment(string filename) {
 Alignment::Alignment(size_t num, size_t len) {
     n=num;
     l=len;
-    data=new vector<vector<uint8_t>*>(n);
-    for (size_t i=0;i<n;i++) data->at(i)=new vector<uint8_t>(l,1);
+    data=vector<vector<uint8_t>*>(n);
+    for (size_t i=0;i<n;i++) data.at(i)=new vector<uint8_t>(l,1);
 }
 
 Alignment::Alignment(Tree *t) {
     n=t->get_n();
     names=vector<string>(n);
-    data=new vector<vector<uint8_t>*>(n);
+    data=vector<vector<uint8_t>*>(n);
     for (size_t i=0;i<n;i++) {
         names[i]=t->get_node(i)->get_name();
-        data->at(i)=t->get_node(i)->get_seq();
+        data[i]=t->get_node(i)->get_seq();
     }
-    l=data->at(0)->size();
+    l=data[0]->size();
 }
 
-char Alignment::get_data(size_t i, size_t j) {return data->at(i)->at(j);}
+char Alignment::get_data(size_t i, size_t j) {return data[i]->at(j);}
 
 size_t Alignment::get_n() {return n;}
 
@@ -102,12 +102,12 @@ char Alignment::decode(uint8_t in) {
 }
 
 
-void Alignment::write(string filename) {
+void Alignment::write(const string &filename) {
     ofstream file;
     file.open(filename);
     if (file.is_open()==false) {
         cerr<<"Error opening file "<<filename<<endl;
-        exit(1);
+        return;
     }
     for (size_t i=0;i<n;i++) {
         file<<">"<<names[i]<<endl;
@@ -133,14 +133,14 @@ double Alignment::dist(size_t i, size_t j) {
 }
 
 vector<uint8_t> * Alignment::get_seq(size_t i) {
-    return(data->at(i));
+    return(data[i]);
 }
 
 void Alignment::miss_at_random(double x) {
     uniform_real_distribution unif(0.0, 1.0);
     for (size_t i=0;i<n;i++) {
         for (size_t j=0;j<l;j++) {
-            if (unif(rng)<x) data->at(i)->at(j)=data->at(i)->at(j)|0b00010000;
+            if (unif(rng)<x) data[i]->at(j)=data[i]->at(j)|0b00010000;
         }
     }
 }

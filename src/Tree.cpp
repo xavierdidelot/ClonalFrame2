@@ -34,6 +34,25 @@ Tree::Tree(size_t n): n(n), nodes(vector<Node *>(n+n-1)) {
     nodes[n-1]->set_dist_father(1.0);
 }
 
+Tree::Tree(const string &filename) {
+    string line;
+    ifstream file;
+    if (verbose) cout << "Opening file " << filename << endl;
+    file.open(filename);
+    if (file.is_open() == false) {
+        cerr << "Error opening file " << filename << endl;
+        exit(1);
+    }
+    getline(file, line);
+    file.close();
+    nodes=vector<Node *>();
+    Node *root = new Node(line);
+    nodes.push_back(root->get_left());
+    nodes.push_back(root->get_right());
+    nodes.push_back(root);
+    n=(nodes.size()+1)/2;
+}
+
 string Tree::to_string() {
     return nodes[n]->to_string() + ";";
 }
@@ -50,12 +69,12 @@ Node *Tree::get_node(size_t i) {
     return nodes[i];
 }
 
-void Tree::write(string filename) {
+void Tree::write(const string &filename) {
     ofstream file;
     file.open(filename);
     if (file.is_open() == false) {
         cerr << "Error opening file " << filename << endl;
-        exit(1);
+        return;
     }
     file << to_string() << endl;
     file.close();
@@ -123,20 +142,19 @@ void Tree::nj(Alignment * ali) {
     vector<double> r(2 * n, 0.0);
 
     int m = 0;
-    size_t i,j,k,f,g;
     while (true) {
-        for (i = 0; i < to_merge.size(); i++) {
+        for (size_t i = 0; i < to_merge.size(); i++) {
             r[to_merge[i]] = 0;
-            for (j = 0; j < to_merge.size(); j++) r[to_merge[i]] += dist[to_merge[i]][to_merge[j]];
+            for (size_t j = 0; j < to_merge.size(); j++) r[to_merge[i]] += dist[to_merge[i]][to_merge[j]];
         }
         if (to_merge.size() == 3) break;
-        for (i = 0; i < to_merge.size(); i++)
-            for (j = 0; j < i; j++)
+        for (size_t i = 0; i < to_merge.size(); i++)
+            for (size_t j = 0; j < i; j++)
                 q[to_merge[i]][to_merge[j]] = (n - m - 2) * dist[to_merge[i]][to_merge[j]] - r[to_merge[i]] - r[to_merge[j]];
-        f = 1;
-        g = 0;
-        for (i = 0; i < to_merge.size(); i++)
-            for (j = 0; j < i; j++)
+        size_t f = 1;
+        size_t g = 0;
+        for (size_t i = 0; i < to_merge.size(); i++)
+            for (size_t j = 0; j < i; j++)
                 if (q[to_merge[i]][to_merge[j]] < q[to_merge[f]][to_merge[g]]) {
                     f = i;
                     g = j;
@@ -149,7 +167,7 @@ void Tree::nj(Alignment * ali) {
         nodes[to_merge[f]]->set_dist_father(
             0.5 * dist[to_merge[f]][to_merge[g]] + 0.5 / (n - m - 2) * (r[to_merge[f]] - r[to_merge[g]]));
         nodes[to_merge[g]]->set_dist_father(dist[to_merge[f]][to_merge[g]] - nodes[to_merge[f]]->get_dist_father());
-        for (k = 0; k < to_merge.size(); k++) {
+        for (size_t k = 0; k < to_merge.size(); k++) {
             dist[n + m][to_merge[k]] = 0.5 * (dist[to_merge[f]][to_merge[k]] + dist[to_merge[g]][to_merge[k]] - dist[
                                                   to_merge[f]][to_merge[g]]);
             dist[to_merge[k]][n + m] = dist[n + m][to_merge[k]];

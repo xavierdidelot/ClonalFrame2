@@ -52,16 +52,19 @@ int main(int argc, const char *argv[]) {
         }
         const auto inputfile = string(remainder[0]);
         const auto outfile = string(remainder[1]);
-        auto a = make_unique<Alignment>(inputfile);
+        auto a = new Alignment(inputfile);
         if (verbose) cout << "Building initial tree..." << endl;
-        auto t = make_unique<Tree>(a->get_n());
-        t->nj(a.get());
-        t->set_seqs(a.get());
+        auto t = new Tree(a->get_n());
+        t->nj(a);
+        t->set_seqs(a);
         if (verbose) cout << "Performing initial ancestral reconstruction..." << endl;
         t->ancestral_reconstruction();
-        auto p= make_unique<Param>(t.get());
+        auto p = new Param(t);
         p->mcmc(burn, nbit, thin);
         t->write(outfile);
+        delete(a);
+        delete(t);
+        delete(p);
     }
 
     auto end = chrono::high_resolution_clock::now();

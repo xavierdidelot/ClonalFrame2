@@ -8,14 +8,18 @@
 using namespace std;
 
 int main() {
-    auto * t = new Tree(10);
+    auto t = new Tree(10);
     size_t n=t->get_n();assert(n==10);
     bool b=t->check_structure();assert(b);
     t->randomise(1.0);
     b=t->check_structure();assert(b);
     t->write("tmp.nwk");
+    auto t2=new Tree("tmp.nwk");
+    b=t2->check_structure();assert(b);
+    t2->write("t2.nwk");
+    delete t2;
     t->add_mutations(10000,10);
-    auto * a=new Alignment(t);
+    auto a=new Alignment(t);
     a->miss_at_random(0.1);
     a->write("tmp.fasta");
     int truth=t->count_subs();

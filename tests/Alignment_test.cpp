@@ -16,7 +16,7 @@ int main() {
     std::ofstream out("tmp.fasta");
     out << fasta;
     out.close();
-    auto *a = new Alignment("tmp.fasta");
+    auto a = new Alignment("tmp.fasta");
     remove("tmp.fasta");
     a->write("tmp2.fasta");
     remove("tmp2.fasta");

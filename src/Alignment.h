@@ -20,7 +20,7 @@ public:
     ///Destructor of alignment
     ~Alignment();
     ///Constructor of alignment from a fasta file
-    explicit Alignment(string filename);
+    explicit Alignment(const string &filename);
     ///Constructor of non-polymorphic alignment of n genomes of length l
     Alignment(size_t num,size_t len);
     ///Constructor of alignment from a tree
@@ -32,7 +32,7 @@ public:
     ///Return length of the alignment
     size_t get_l();
     ///Write alignment into a fasta file
-    void write(string filename);
+    void write(const string &filename);
     ///Return name of the i-th genome
     string get_name(size_t i);
     ///Pairwise distance
@@ -66,7 +66,7 @@ private:
     static char decode(uint8_t in);
     size_t n;
     size_t l;
-    vector<vector<uint8_t>*>* data;
+    vector<vector<uint8_t>*> data;
     vector<string> names;
 };
 

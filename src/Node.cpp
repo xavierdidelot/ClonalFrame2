@@ -11,7 +11,7 @@ string Node::get_name() {
     return name;
 }
 
-void Node::set_name(string s) {
+void Node::set_name(const string &s) {
     name = s;
 }
 
@@ -49,6 +49,31 @@ Node::Node() {
     father = nullptr;
     dist_father = 0;
     seq=nullptr;
+}
+
+Node::Node(const string &s) {
+    left=nullptr;
+    right=nullptr;
+    father=nullptr;
+    seq=nullptr;
+    dist_father=0;
+    cout<<s<<endl;
+    if (s.at(0)=='(') {
+        string s1="a:1";
+        string s2="b:2";
+        left=new Node(s1);
+        right=new Node(s2);
+        left->set_father(this);
+        right->set_father(this);
+    } else {
+        istringstream  iss(s);
+        string tmp;
+        getline(iss,tmp,':');
+        set_name(tmp);
+        getline(iss,tmp);
+        set_dist_father(stof(tmp));
+    }
+
 }
 
 Node::~Node() {

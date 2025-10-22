@@ -7,6 +7,7 @@
 
 #include <string>
 #include <sstream>
+#include <iostream>
 #include <iomanip>
 #include "RNGGlobal.h"
 
@@ -21,7 +22,7 @@ public:
     ///Return name of the node
     string get_name();
     ///Set name of the node
-    void set_name(string);
+    void set_name(const string &);
     ///Return node on the left
     Node * get_left();
     ///Set node on the left
@@ -49,6 +50,8 @@ public:
 
     ///Constructor for a new node
     Node();
+    ///Constructor for a new node from a Newick string
+    Node(const string &s);
     ///Destructor for a node
     ~Node();
     ///Return a newick string for this node and its children
