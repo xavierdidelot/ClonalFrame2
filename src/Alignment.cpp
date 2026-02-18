@@ -53,6 +53,7 @@ Alignment::Alignment(const string &filename) {
     }
     if (verbose) cout<<"Finished reading file made of "<<n<<" genomes of length "<<l<<endl;
     file.close();
+    pattern_analysis();
 }
 
 Alignment::Alignment(size_t num, size_t len) {
@@ -60,6 +61,7 @@ Alignment::Alignment(size_t num, size_t len) {
     l=len;
     data=vector<vector<uint8_t>*>(n);
     for (size_t i=0;i<n;i++) data.at(i)=new vector<uint8_t>(l,1);
+    pattern_analysis();
 }
 
 Alignment::Alignment(Tree *t) {
@@ -71,13 +73,49 @@ Alignment::Alignment(Tree *t) {
         data[i]=t->get_node(i)->get_seq();
     }
     l=data[0]->size();
+    pattern_analysis();
 }
 
-char Alignment::get_data(size_t i, size_t j) {return data[i]->at(j);}
+void Alignment::pattern_analysis() {
+    if (verbose) cout<<"Starting pattern analysis"<<endl;
+    auto data2=vector<vector<uint8_t>*>(n);
+    for (size_t i=0;i<n;i++) data2.at(i)=new vector<uint8_t>(l);
+    npat=0;
+    patindex=vector<size_t>(l,0);
+    weights =vector<size_t>(l,0);
+    for (size_t j=0;j<l;j++) {
+        bool toadd=true;
+        size_t j2=0;
+        for (j2=0;j2<npat;j2++) {
+            bool samepat=true;
+            for (size_t i=0;i<n;i++) {
+                if (data[i]->at(j)!=data2[i]->at(j2)) {samepat=false;break;}
+            }
+            if (samepat) {toadd=false;break;}
+        }
+        if (toadd) {
+            for (size_t i=0;i<n;i++) {
+                data2[i]->at(npat)=data[i]->at(j);
+            }
+            j2=npat;
+            npat++;
+        }
+        patindex[j]=j2;
+        weights[j2]++;
+    }
+    weights.resize(npat);
+    for (size_t i=0;i<n;i++) data2[i]->resize(npat);
+    data=data2;
+    if (verbose) cout<<"Finished pattern analysis and found "<<npat<<" patterns"<<endl;
+}
+
+char Alignment::get_data(size_t i, size_t j) {return data[i]->at(patindex[j]);}
 
 size_t Alignment::get_n() {return n;}
 
 size_t Alignment::get_l() {return l;}
+
+size_t Alignment::get_npat() {return npat;}
 
 uint8_t Alignment::encode(char in) {
     switch (in) {
@@ -128,8 +166,8 @@ double Alignment::dist(size_t i, size_t j) {
     for (size_t a=0;a<l;a++) {
         if (nuc_is_missing(get_data(i,a))) continue;
         if (nuc_is_missing(get_data(j,a))) continue;
-        den++;
-        if (get_data(i,a)!=get_data(j,a)) num++;
+        den+=weights[j];
+        if (get_data(i,a)!=get_data(j,a)) num+=weights[j];
     }
     return(-0.75*log(1.0-4.0/3.0*num/den));
 }
@@ -141,7 +179,7 @@ vector<uint8_t> * Alignment::get_seq(size_t i) {
 void Alignment::miss_at_random(double x) {
     std::uniform_real_distribution unif(0.0, 1.0);
     for (size_t i=0;i<n;i++) {
-        for (size_t j=0;j<l;j++) {
+        for (size_t j=0;j<npat;j++) {
             if (unif(rng)<x) data[i]->at(j)=data[i]->at(j)|0b00010000;
         }
     }

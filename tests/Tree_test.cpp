@@ -8,30 +8,44 @@
 using namespace std;
 
 int main() {
+
+    //Creating a tree
     auto t = new Tree(10);
     size_t n=t->get_n();assert(n==10);
     bool b=t->check_structure();assert(b);
+
+    //Randomise a tree
     t->randomise(1.0);
     b=t->check_structure();assert(b);
-    t->write("tmp.nwk");
-    auto t2=new Tree("tmp.nwk");
+    cout<<"Expected number of substitutions: "<<t->sum_bra_len()*10/2<<endl;
+
+    //Writing and re-reading a tree
+    t->write("true.nwk");
+    auto t2=new Tree("true.nwk");
     b=t2->check_structure();assert(b);
-    t2->write("t2.nwk");
     delete t2;
-    t->add_mutations(10000,10);
+
+    //Generating an alignment from a tree
+    t->make_sequences(10000,10);
     auto a=new Alignment(t);
-    a->miss_at_random(0.1);
-    a->write("tmp.fasta");
+    //a->miss_at_random(0.1);
+    a->write("ali.fasta");
+
+    //Counting number of substitutions in the tree
     int truth=t->count_subs();
-    cout<<"truth="<<truth<<endl;
-    t->nj(a);
-    b=t->check_structure();assert(b);
-    t->write("tmp2.nwk");
-    t->set_seqs(a);
+    cout<<"Actual number of substitutions: "<<truth<<endl;
+
+    //Ancestral reconstruction
     int s1=t->ancestral_reconstruction();
     int s2=t->count_subs();
-    cout<<s1<<" "<<s2<<endl;
+    cout<<"Parsimonious number of substitutions: "<<s1<<" "<<s2<<endl;
     assert(s1==s2);
+
+    //NJ algorithm
+    t->nj(a);
+    b=t->check_structure();assert(b);
+    t->write("nj.nwk");
+    t->set_seqs(a);
     delete(t);
     delete(a);
 }

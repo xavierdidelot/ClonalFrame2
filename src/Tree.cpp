@@ -91,15 +91,15 @@ bool Tree::check_structure() {
     return true;
 }
 
-void Tree::add_mutations(size_t l, double theta) {
+void Tree::make_sequences(size_t l, double theta) {
     delete nodes[n]->get_seq();
     nodes[n]->set_seq(new vector<uint8_t>(l));
     std::uniform_int_distribution unif4(0, 3);
     for (size_t i = 0; i < l; i++) {
         nodes[n]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
     }
-    nodes[n]->get_left ()->add_mutations(nodes[n]->get_seq(), theta);
-    nodes[n]->get_right()->add_mutations(nodes[n]->get_seq(), theta);
+    nodes[n]->get_left ()->make_sequences(nodes[n]->get_seq(),theta);
+    nodes[n]->get_right()->make_sequences(nodes[n]->get_seq(),theta);
 }
 
 void Tree::randomise(double avg_bra_len) {
@@ -240,4 +240,12 @@ int Tree::count_subs() {
     return subs;
 }
 
+double Tree::sum_bra_len() {
+    double res=0;
+        for (size_t i=0;i<nodes.size();i++) {
+            if (nodes[i]->get_father()==nullptr) continue;
+            res+=nodes[i]->get_dist_father();
+        }
+    return res;
+}
 

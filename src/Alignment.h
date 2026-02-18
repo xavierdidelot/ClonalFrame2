@@ -30,6 +30,8 @@ public:
     size_t get_n();
     ///Return length of the alignment
     size_t get_l();
+    ///Return number of patterns
+    size_t get_npat();
     ///Write alignment into a fasta file
     void write(const std::string &filename);
     ///Return name of the i-th genome
@@ -40,6 +42,8 @@ public:
     std::vector<uint8_t> * get_seq(size_t i);
     ///Make some of the data be missed at random
     void miss_at_random(double x);
+    ///Pattern analysis
+    void pattern_analysis();
 
     ///Indicate if a nucleotide is missing
     static inline bool nuc_is_missing(const uint8_t c) {return (c&(1u<<4))!=0;}
@@ -67,6 +71,9 @@ private:
     size_t l;
     std::vector<std::vector<uint8_t>*> data;
     std::vector<std::string> names;
+    size_t npat;
+    std::vector<size_t> patindex;
+    std::vector<size_t> weights;
 };
 
 

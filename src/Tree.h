@@ -34,7 +34,7 @@ public:
     ///Check that the tree structure is correct, especially forward/backward links
     bool check_structure();
     ///Add mutations on a tree to generate sequence of length l with mutation rate theta/2
-    void add_mutations(size_t l,double theta);
+    void make_sequences(size_t l,double theta);
     ///Randomise the tree
     void randomise(double avg_bra_len);
     ///NJ algorithm
@@ -45,6 +45,8 @@ public:
     int ancestral_reconstruction();
     ///Count number of substitutions in a tree with ancestral sequences
     int count_subs();
+    ///Sum of branch lengths
+    double sum_bra_len();
 
 private:
     size_t n;

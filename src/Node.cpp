@@ -106,7 +106,7 @@ string Node::to_string() {
     return oss.str();
 }
 
-void Node::add_mutations(vector<uint8_t> * above, double theta) {
+void Node::make_sequences(vector<uint8_t> * above, double theta) {
     seq=new vector<uint8_t>(*above);
     int l=seq->size();
     std::uniform_int_distribution unif4(0,3);
@@ -119,8 +119,8 @@ void Node::add_mutations(vector<uint8_t> * above, double theta) {
             seq->at(p)=Alignment::nuc_from_int(unif4(rng));
         }
     }
-    if (left!= nullptr) left ->add_mutations(seq,theta);
-    if (right!=nullptr) right->add_mutations(seq,theta);
+    if (left!= nullptr) left ->make_sequences(seq,theta);
+    if (right!=nullptr) right->make_sequences(seq,theta);
 }
 
 void Node::set_dist_father(double d) {
