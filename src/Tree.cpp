@@ -211,10 +211,12 @@ int Tree::ancestral_reconstruction() {
         nodes[i]->set_seq(new vector<uint8_t>(l,0));
     }
     for (size_t pos=0;pos<l;pos++) {
+        /*
+        //This code was to avoid running the Fitch algorithm for non-polymorphic sites, but no longer needed with pattern analysis
         uint8_t combined=0u;
         for (size_t i=0;i<n;i++) {
-            if (Alignment::nuc_is_missing(nodes[i]->get_seq()->at(pos))) continue;
-            combined=Alignment::nuc_union(combined,nodes[i]->get_seq()->at(pos));
+            if (Alignment::nuc_is_unsure(nodes[i]->get_seq()->at(pos))) continue;
+            combined=combined|nodes[i]->get_seq()->at(pos);
         }
         if (combined==0u) combined=Alignment::nuc_from_int(0);
         if (Alignment::nuc_is_single(combined)) {
@@ -222,6 +224,7 @@ int Tree::ancestral_reconstruction() {
             for (size_t i=n;i<nodes.size();i++) nodes[i]->get_seq()->at(pos)=combined;
             continue;
         }
+        */
         score+=nodes[n]->fitch_pass1(pos);
         nodes[n]->fitch_pass2(pos);
     }
@@ -234,7 +237,7 @@ int Tree::count_subs() {
     for (size_t pos=0;pos<l;pos++) {
         for (size_t i=0;i<nodes.size();i++) {
             if (nodes[i]->get_father()==nullptr) continue;
-            if (!Alignment::nuc_is_same(nodes[i]->get_seq()->at(pos),nodes[i]->get_father()->get_seq()->at(pos))) subs++;
+            if (!Alignment::nuc_is_currently_same(nodes[i]->get_seq()->at(pos),nodes[i]->get_father()->get_seq()->at(pos))) subs++;
         }
     }
     return subs;

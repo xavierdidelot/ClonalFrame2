@@ -119,25 +119,25 @@ size_t Alignment::get_npat() {return npat;}
 
 uint8_t Alignment::encode(char in) {
     switch (in) {
-        case 'a': return nuc_from_int(0);
-        case 'A': return nuc_from_int(0);
-        case 'c': return nuc_from_int(1);
-        case 'C': return nuc_from_int(1);
-        case 'g': return nuc_from_int(2);
-        case 'G': return nuc_from_int(2);
-        case 't': return nuc_from_int(3);
-        case 'T': return nuc_from_int(3);
-        default:  return nuc_from_int(4);
+        case 'a': return 0b00000001;
+        case 'A': return 0b00000001;
+        case 'c': return 0b00000010;
+        case 'C': return 0b00000010;
+        case 'g': return 0b00000100;
+        case 'G': return 0b00000100;
+        case 't': return 0b00001000;
+        case 'T': return 0b00001000;
+        default:  return 0b00010000;
     }
 }
 
 char Alignment::decode(uint8_t in) {
     switch (in) {
-        case 1u: return 'A';
-        case 2u: return 'C';
-        case 4u: return 'G';
-        case 8u: return 'T';
-        default: return 'N';
+        case 0b00000001: return 'A';
+        case 0b00000010: return 'C';
+        case 0b00000100: return 'G';
+        case 0b00001000: return 'T';
+        default        : return 'N';
     }
 }
 
@@ -162,10 +162,10 @@ void Alignment::write(const string &filename) {
 string Alignment::get_name(size_t i) {return names[i];}
 
 double Alignment::dist(size_t i, size_t j) {
-    int num=0,den=0;
+    size_t num=0,den=0;
     for (size_t a=0;a<l;a++) {
-        if (nuc_is_missing(get_data(i,a))) continue;
-        if (nuc_is_missing(get_data(j,a))) continue;
+        if (nuc_is_unsure(get_data(i,a))) continue;
+        if (nuc_is_unsure(get_data(j,a))) continue;
         den+=weights[j];
         if (get_data(i,a)!=get_data(j,a)) num+=weights[j];
     }

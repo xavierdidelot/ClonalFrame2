@@ -137,29 +137,30 @@ void Node::set_seq(vector<uint8_t> *s) {
 
 int Node::fitch_pass1(size_t pos) {
     if (left==nullptr) {
-        if (Alignment::nuc_is_missing(seq->at(pos))) Alignment::nuc_set_as(&(seq->at(pos)),Alignment::nuc_any());
+        if (Alignment::nuc_is_unsure(seq->at(pos))) seq->at(pos)=0b00011111;
         return 0;
     }
     int s=left->fitch_pass1(pos);
     s+=right->fitch_pass1(pos);
-    uint8_t inter=Alignment::nuc_intersect(left->get_seq()->at(pos),right->get_seq()->at(pos));
+    uint8_t inter=left->get_seq()->at(pos)&right->get_seq()->at(pos)&0b00001111;
     if (inter==0u) {
         s++;
-        seq->at(pos)=Alignment::nuc_union(left->get_seq()->at(pos),right->get_seq()->at(pos));
+        seq->at(pos)=left->get_seq()->at(pos)|right->get_seq()->at(pos)|0b00010000;
     } else {
-        seq->at(pos)=inter;
+        seq->at(pos)=inter|0b00010000;
     }
     return s;
 }
 
 void Node::fitch_pass2(size_t pos) {
     uint8_t f;
-    if (father==nullptr) f=seq->at(pos);
+    if (father==nullptr) f=seq->at(pos)&0b00001111;
     else {
-        f=Alignment::nuc_intersect(get_seq()->at(pos),father->get_seq()->at(pos));
-        if (f==0u) f=get_seq()->at(pos);
+        f=get_seq()->at(pos)&father->get_seq()->at(pos)&0b00001111;
+        if (f==0u) f=get_seq()->at(pos)&0b00001111;
     }
-    seq->at(pos)=Alignment::nuc_pick_one(f);
+    f=f&-f;//pick first common bit
+    seq->at(pos)=f|(f&0b00010000);//preserve missing status
     if (left!=nullptr) {
         left ->fitch_pass2(pos);
         right->fitch_pass2(pos);
