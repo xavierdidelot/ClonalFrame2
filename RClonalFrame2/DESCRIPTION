@@ -1,0 +1,15 @@
+Package: RClonalFrame2
+Type: Package
+Title: R interface for ClonalFrame2
+Version: 0.1.0
+Date: 2024-07-02
+Authors@R: person("Xavier","Didelot",email="xavier.didelot@gmail.com",role=c("aut", "cre"))
+Maintainer: Xavier Didelot <xavier.didelot@gmail.com>
+Depends: R (>= 3.5.0), ape, phangorn
+Suggests: knitr, testthat
+Description: RClonalFrame2 is a R package to provide an interface for ClonalFrame2.
+VignetteBuilder: knitr
+License: GPL (>=3)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.3

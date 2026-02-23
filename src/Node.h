@@ -66,5 +66,4 @@ private:
     double dist_father;
 };
 
-
 #endif //CLONALFRAME2_NODE_H

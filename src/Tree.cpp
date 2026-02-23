@@ -208,23 +208,9 @@ int Tree::ancestral_reconstruction() {
     size_t l=nodes[0]->get_seq()->size();
     for (size_t i=n;i<nodes.size();i++) {
         delete nodes[i]->get_seq();
-        nodes[i]->set_seq(new vector<uint8_t>(l,0));
+        nodes[i]->set_seq(new vector<uint8_t>(l,0b00010000));
     }
     for (size_t pos=0;pos<l;pos++) {
-        /*
-        //This code was to avoid running the Fitch algorithm for non-polymorphic sites, but no longer needed with pattern analysis
-        uint8_t combined=0u;
-        for (size_t i=0;i<n;i++) {
-            if (Alignment::nuc_is_unsure(nodes[i]->get_seq()->at(pos))) continue;
-            combined=combined|nodes[i]->get_seq()->at(pos);
-        }
-        if (combined==0u) combined=Alignment::nuc_from_int(0);
-        if (Alignment::nuc_is_single(combined)) {
-            for (size_t i=0;i<n;i++) Alignment::nuc_set_as(&nodes[i]->get_seq()->at(pos),combined);
-            for (size_t i=n;i<nodes.size();i++) nodes[i]->get_seq()->at(pos)=combined;
-            continue;
-        }
-        */
         score+=nodes[n]->fitch_pass1(pos);
         nodes[n]->fitch_pass2(pos);
     }

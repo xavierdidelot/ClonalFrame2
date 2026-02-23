@@ -142,25 +142,24 @@ int Node::fitch_pass1(size_t pos) {
     }
     int s=left->fitch_pass1(pos);
     s+=right->fitch_pass1(pos);
-    uint8_t inter=left->get_seq()->at(pos)&right->get_seq()->at(pos)&0b00001111;
-    if (inter==0u) {
+    uint8_t toset=left->seq->at(pos)&right->seq->at(pos)&0b00001111;//intersect
+    if (toset==0u) {
         s++;
-        seq->at(pos)=left->get_seq()->at(pos)|right->get_seq()->at(pos)|0b00010000;
-    } else {
-        seq->at(pos)=inter|0b00010000;
+        toset=left->seq->at(pos)|right->seq->at(pos);//union
     }
+    Alignment::nuc_set_as(&seq->at(pos),toset);
     return s;
 }
 
 void Node::fitch_pass2(size_t pos) {
-    uint8_t f;
-    if (father==nullptr) f=seq->at(pos)&0b00001111;
+    uint8_t toset;
+    if (father==nullptr) toset=seq->at(pos)&0b00001111;
     else {
-        f=get_seq()->at(pos)&father->get_seq()->at(pos)&0b00001111;
-        if (f==0u) f=get_seq()->at(pos)&0b00001111;
+        toset=seq->at(pos)&father->seq->at(pos)&0b00001111;
+        if (toset==0u) toset=seq->at(pos)&0b00001111;
     }
-    f=f&-f;//pick first common bit
-    seq->at(pos)=f|(f&0b00010000);//preserve missing status
+    toset=toset&-toset;//pick first common bit
+    Alignment::nuc_set_as(&seq->at(pos),toset);//preserve missing status
     if (left!=nullptr) {
         left ->fitch_pass2(pos);
         right->fitch_pass2(pos);
