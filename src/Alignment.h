@@ -29,14 +29,14 @@ Bit8=unused
  */
 class Alignment {
 public:
-    ///Destructor of alignment
-    ~Alignment();
-    ///Constructor of alignment from a fasta file
-    explicit Alignment(const string &filename);
+    ///Create an alignment from a fasta file
+    static Alignment* read_fasta(const string &filename);
     ///Constructor of non-polymorphic alignment of n genomes of length l
     Alignment(size_t num,size_t len);
     ///Constructor of alignment from a tree
     explicit Alignment(Tree * t);
+    ///Destructor of alignment
+    ~Alignment();
     ///Return data for genome i position j
     char get_data(size_t i, size_t j);
     ///Return number of genomes in alignment
@@ -68,6 +68,7 @@ public:
     static inline bool nuc_is_currently_same(uint8_t a,uint8_t b) {return (a&0b00001111)==(b&0b00001111);};
 
 private:
+    Alignment() = default;
     static uint8_t encode(char in);
     static char decode(uint8_t in);
     size_t n;

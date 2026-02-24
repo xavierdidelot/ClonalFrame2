@@ -20,10 +20,14 @@ class Alignment;
  */
 class Tree {
 public:
-    ///Constructor for a deterministic tree with n leaves
-    explicit Tree(size_t n);
-    ///Constructor from a newick string
-    explicit Tree(const string &filename);
+    ///Create a deterministic tree with n leaves
+    static Tree* deterministic_tree(size_t n);
+    ///Create a random tree with n leaves
+    static Tree* random_tree(size_t n,double avg_bra_len);
+    ///Create a tree using the NJ algorithm
+    static Tree* nj(Alignment * ali);
+    ///Create a tree from a Newick string
+    static Tree* read_newick(const string &filename);
     ///Return the tree as a newick string
     string to_string();
     ///Destructor for a tree
@@ -38,20 +42,17 @@ public:
     bool check_structure();
     ///Add mutations on a tree to generate sequence of length l with mutation rate theta/2
     void make_sequences(size_t l,double theta);
-    ///Randomise the tree
-    void randomise(double avg_bra_len);
-    ///NJ algorithm
-    void nj(Alignment * ali);
     ///Assign sequences from alignment to the tree leaves
     void set_seqs(Alignment * ali);
-    ///Ancestral state reconstruction
+    ///Ancestral state reconstruction, returning number of substitutions in patterns
     int ancestral_reconstruction();
-    ///Count number of substitutions in a tree with ancestral sequences
+    ///Count number of substitutions in patterns
     int count_subs();
     ///Sum of branch lengths
     double sum_bra_len();
 
 private:
+    Tree() = default;
     size_t n;
     vector <Node*> nodes;
 };

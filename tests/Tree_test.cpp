@@ -10,18 +10,20 @@ using namespace std;
 int main() {
 
     //Creating a tree
-    auto t = new Tree(10);
+    auto t = Tree::deterministic_tree(10);
     size_t n=t->get_n();assert(n==10);
     bool b=t->check_structure();assert(b);
+    delete(t);
 
-    //Randomise a tree
-    t->randomise(1.0);
+    //Random tree
+    t = Tree::random_tree(10,1.0);
+    n=t->get_n();assert(n==10);
     b=t->check_structure();assert(b);
     cout<<"Expected number of substitutions: "<<t->sum_bra_len()*10/2<<endl;
 
     //Writing and re-reading a tree
     t->write("true.nwk");
-    auto t2=new Tree("true.nwk");
+    auto t2=Tree::read_newick("true.nwk");
     b=t2->check_structure();assert(b);
     delete t2;
 
@@ -42,7 +44,8 @@ int main() {
     assert(s1==s2);
 
     //NJ algorithm
-    t->nj(a);
+    delete(t);
+    t=Tree::nj(a);
     b=t->check_structure();assert(b);
     t->write("nj.nwk");
     t->set_seqs(a);

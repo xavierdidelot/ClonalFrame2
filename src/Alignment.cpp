@@ -13,7 +13,8 @@ Alignment::~Alignment() {
 
 }
 
-Alignment::Alignment(const string &filename) {
+Alignment * Alignment::read_fasta(const string &filename) {
+    auto a = new Alignment();
     string line;
     std::ifstream file;
     if (verbose) cout<<"Opening file "<<filename<<endl;
@@ -22,8 +23,8 @@ Alignment::Alignment(const string &filename) {
         cerr<<"Error opening file "<<filename<<endl;
         exit(1);
     }
-    n=0;
-    l=0;
+    size_t n=0;
+    size_t l=0;
     while (true) {
         getline(file,line);
         if (file.eof()) break;
@@ -34,9 +35,9 @@ Alignment::Alignment(const string &filename) {
     }
     file.clear();
     file.seekg(0);
-    data=vector<vector<uint8_t>*>(n);
-    for (size_t i=0;i<n;i++) data.at(i)=new vector<uint8_t>(l);
-    names=vector<string>(n);
+    a->data=vector<vector<uint8_t>*>(n);
+    for (size_t i=0;i<n;i++) a->data.at(i)=new vector<uint8_t>(l);
+    a->names=vector<string>(n);
     n=0;
     l=0;
     std::regex reg("[> ]");
@@ -45,15 +46,18 @@ Alignment::Alignment(const string &filename) {
         if (file.eof()) break;
         if (line.empty()) continue;
         if (line.at(0)=='#') continue;
-        if (line.at(0)=='>') {l=0;n++;names[n-1]=regex_replace(line,reg,"");continue;}
+        if (line.at(0)=='>') {l=0;n++;a->names[n-1]=regex_replace(line,reg,"");continue;}
         for (size_t i=0;i<line.length();i++) {
-            data.at(n-1)->at(l)=encode(line[i]);
+            a->data.at(n-1)->at(l)=encode(line[i]);
             l++;
         }
     }
     if (verbose) cout<<"Finished reading file made of "<<n<<" genomes of length "<<l<<endl;
     file.close();
-    pattern_analysis();
+    a->n=n;
+    a->l=l;
+    a->pattern_analysis();
+    return a;
 }
 
 Alignment::Alignment(size_t num, size_t len) {

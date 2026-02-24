@@ -8,35 +8,36 @@
 
 using std::string,std::cerr,std::cout,std::endl,std::vector;
 
-/**
- *
- * @param n
- */
-Tree::Tree(size_t n): n(n), nodes(vector<Node *>(n+n-1)) {
+Tree * Tree::deterministic_tree(size_t n) {
+    auto t = new Tree();
+    t->n=n;
+    t->nodes=vector<Node *>(n+n-1);
     for (size_t i = 0; i < n; i++) {
         auto node = new Node();
         node->set_name("seq" + std::to_string(i + 1));
         node->set_dist_father(1.0);
-        nodes[i]=node;
+        t->nodes[i]=node;
     }
 
     for (size_t i = 0; i < n-1; i++) {
         auto node = new Node();
-        nodes[n+i]=node;
-        node->set_left(nodes[i]);
-        nodes[i]->set_father(nodes[n+i]);
+        t->nodes[n+i]=node;
+        node->set_left(t->nodes[i]);
+        t->nodes[i]->set_father(t->nodes[n+i]);
         node->set_dist_father(1.0);
         if (i>0) {
-            node->set_father(nodes[n+i-1]);
-            nodes[n+i-1]->set_right(nodes[n+i]);
+            node->set_father(t->nodes[n+i-1]);
+            t->nodes[n+i-1]->set_right(t->nodes[n+i]);
         }
     }
-    nodes[n+n-2]->set_right(nodes[n-1]);
-    nodes[n-1]->set_father(nodes[n+n-2]);
-    nodes[n-1]->set_dist_father(1.0);
+    t->nodes[n+n-2]->set_right(t->nodes[n-1]);
+    t->nodes[n-1]->set_father(t->nodes[n+n-2]);
+    t->nodes[n-1]->set_dist_father(1.0);
+    return t;
 }
 
-Tree::Tree(const string &filename) {
+Tree* Tree::read_newick(const string &filename) {
+    auto t=new Tree();
     string line;
     std::ifstream file;
     if (verbose) cout << "Opening file " << filename << endl;
@@ -47,11 +48,12 @@ Tree::Tree(const string &filename) {
     }
     getline(file, line);
     file.close();
-    nodes=vector<Node *>();
+    t->nodes=vector<Node *>();
     if (line.back()==';') line.pop_back();
-    auto root = new Node(line, &nodes);
+    auto root = new Node(line, &t->nodes);
     root->set_father(nullptr);
-    n=(nodes.size()+1)/2;
+    t->n=(t->nodes.size()+1)/2;
+    return t;
 }
 
 string Tree::to_string() {
@@ -102,11 +104,18 @@ void Tree::make_sequences(size_t l, double theta) {
     nodes[n]->get_right()->make_sequences(nodes[n]->get_seq(),theta);
 }
 
-void Tree::randomise(double avg_bra_len) {
+Tree* Tree::random_tree(size_t n,double avg_bra_len) {
+    auto t = new Tree();
+    t->n=n;
+    t->nodes=vector<Node *>(n+n-1);
+    for (size_t i = 0; i < 2*n-1; i++) {
+        t->nodes[i]=new Node();
+        if (i<n) t->nodes[i]->set_name("seq" + std::to_string(i + 1));
+    }
     auto to_merge = vector<Node *>(n);
     std::exponential_distribution rexp(avg_bra_len);
     for (size_t i = 0; i < n; i++) {
-        to_merge[i]=nodes[i];
+        to_merge[i]=t->nodes[i];
         to_merge[i]->set_dist_father(rexp(rng));
     }
     size_t m=n+1;
@@ -115,24 +124,32 @@ void Tree::randomise(double avg_bra_len) {
         int a = unif(rng);
         int b = a;
         while (a == b) b = unif(rng);
-        nodes[m]->set_left(to_merge[a]);
-        nodes[m]->set_right(to_merge[b]);
-        to_merge[a]->set_father(nodes[m]);
-        to_merge[b]->set_father(nodes[m]);
-        nodes[m]->set_dist_father(rexp(rng));
-        to_merge[a] = nodes[m];
+        t->nodes[m]->set_left(to_merge[a]);
+        t->nodes[m]->set_right(to_merge[b]);
+        to_merge[a]->set_father(t->nodes[m]);
+        to_merge[b]->set_father(t->nodes[m]);
+        t->nodes[m]->set_dist_father(rexp(rng));
+        to_merge[a] = t->nodes[m];
         to_merge[b] = to_merge.back();
         to_merge.pop_back();
         m++;
     }
-    nodes[n]->set_left (to_merge[0]);
-    nodes[n]->set_right(to_merge[1]);
-    to_merge[0]->set_father(nodes[n]);
-    to_merge[1]->set_father(nodes[n]);
+    t->nodes[n]->set_left (to_merge[0]);
+    t->nodes[n]->set_right(to_merge[1]);
+    to_merge[0]->set_father(t->nodes[n]);
+    to_merge[1]->set_father(t->nodes[n]);
+    return t;
 }
 
-void Tree::nj(Alignment * ali) {
-    for (size_t i = 0; i < n; i++) nodes[i]->set_name(ali->get_name(i));
+Tree* Tree::nj(Alignment * ali) {
+    size_t n=ali->get_n();
+    auto t = new Tree();
+    t->n=n;
+    t->nodes=vector<Node *>(n+n-1);
+    for (size_t i = 0; i < 2*n-1; i++) {
+        t->nodes[i]=new Node();
+        if (i<n) t->nodes[i]->set_name(ali->get_name(i));
+    }
     auto to_merge = vector<int>(n);
     for (size_t i = 0; i < n; i++) to_merge[i]=i;
     vector<vector<double> > dist(2 * n, vector<double>(2 * n, 0.0));
@@ -161,14 +178,14 @@ void Tree::nj(Alignment * ali) {
                     f = i;
                     g = j;
                 }
-        Node *node = nodes[n+m];
-        node->set_left(nodes[to_merge[f]]);
-        node->set_right(nodes[to_merge[g]]);
-        nodes[to_merge[f]]->set_father(node);
-        nodes[to_merge[g]]->set_father(node);
-        nodes[to_merge[f]]->set_dist_father(
+        Node *node = t->nodes[n+m];
+        node->set_left(t->nodes[to_merge[f]]);
+        node->set_right(t->nodes[to_merge[g]]);
+        t->nodes[to_merge[f]]->set_father(node);
+        t->nodes[to_merge[g]]->set_father(node);
+        t->nodes[to_merge[f]]->set_dist_father(
             0.5 * dist[to_merge[f]][to_merge[g]] + 0.5 / (n - m - 2) * (r[to_merge[f]] - r[to_merge[g]]));
-        nodes[to_merge[g]]->set_dist_father(dist[to_merge[f]][to_merge[g]] - nodes[to_merge[f]]->get_dist_father());
+        t->nodes[to_merge[g]]->set_dist_father(dist[to_merge[f]][to_merge[g]] - t->nodes[to_merge[f]]->get_dist_father());
         for (size_t k = 0; k < to_merge.size(); k++) {
             dist[n + m][to_merge[k]] = 0.5 * (dist[to_merge[f]][to_merge[k]] + dist[to_merge[g]][to_merge[k]] - dist[
                                                   to_merge[f]][to_merge[g]]);
@@ -179,25 +196,26 @@ void Tree::nj(Alignment * ali) {
         to_merge.pop_back();
         m++;
     }
-    nodes[to_merge[0]]->set_dist_father(
+    t->nodes[to_merge[0]]->set_dist_father(
         0.5 * dist[to_merge[0]][to_merge[1]] + 0.5 / (n - m - 2) * (r[to_merge[0]] - r[to_merge[1]]));
-    nodes[to_merge[1]]->set_dist_father(dist[to_merge[0]][to_merge[1]] - nodes[to_merge[0]]->get_dist_father());
-    nodes[to_merge[2]]->set_dist_father(
+    t->nodes[to_merge[1]]->set_dist_father(dist[to_merge[0]][to_merge[1]] - t->nodes[to_merge[0]]->get_dist_father());
+    t->nodes[to_merge[2]]->set_dist_father(
         0.5 * (dist[to_merge[0]][to_merge[2]] + dist[to_merge[1]][to_merge[2]] - dist[to_merge[0]][to_merge[1]]));
-    nodes[n+m]->set_left (nodes[to_merge[0]]);
-    nodes[n+m]->set_right(nodes[to_merge[1]]);
-    nodes[to_merge[0]]->set_father(nodes[n+m]);
-    nodes[to_merge[1]]->set_father(nodes[n+m]);
-    nodes[n+m+1]->set_left (nodes[to_merge[2]]);
-    nodes[n+m+1]->set_right(nodes[n+m]);
-    nodes[to_merge[2]]->set_father(nodes[n+m+1]);
-    nodes[n+m]->set_father(nodes[n+m+1]);
-    nodes[n+m]->set_dist_father(0.0);
-    nodes[n+m]->set_dist_father(nodes[to_merge[2]]->get_dist_father()*0.5);
-    nodes[to_merge[2]]->set_dist_father(nodes[to_merge[2]]->get_dist_father()*0.5);
-    std::swap(nodes[n+m+1],nodes[n]);
-    nodes[n]->set_father(nullptr);
+    t->nodes[n+m]->set_left (t->nodes[to_merge[0]]);
+    t->nodes[n+m]->set_right(t->nodes[to_merge[1]]);
+    t->nodes[to_merge[0]]->set_father(t->nodes[n+m]);
+    t->nodes[to_merge[1]]->set_father(t->nodes[n+m]);
+    t->nodes[n+m+1]->set_left (t->nodes[to_merge[2]]);
+    t->nodes[n+m+1]->set_right(t->nodes[n+m]);
+    t->nodes[to_merge[2]]->set_father(t->nodes[n+m+1]);
+    t->nodes[n+m]->set_father(t->nodes[n+m+1]);
+    t->nodes[n+m]->set_dist_father(0.0);
+    t->nodes[n+m]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father()*0.5);
+    t->nodes[to_merge[2]]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father()*0.5);
+    std::swap(t->nodes[n+m+1],t->nodes[n]);
+    t->nodes[n]->set_father(nullptr);
     //for (i=0;i<nodes.size();i++) if (nodes[i]->get_dist_father()<=0.0) nodes[i]->set_dist_father(1e-5);
+    return t;
 }
 
 void Tree::set_seqs(Alignment *ali) {
