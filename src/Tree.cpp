@@ -132,6 +132,7 @@ void Tree::randomise(double avg_bra_len) {
 }
 
 void Tree::nj(Alignment * ali) {
+    for (size_t i = 0; i < n; i++) nodes[i]->set_name(ali->get_name(i));
     vector<int> to_merge = vector<int>(n);
     for (size_t i = 0; i < n; i++) to_merge[i]=i;
     vector<vector<double> > dist(2 * n, vector<double>(2 * n, 0.0));
@@ -200,7 +201,8 @@ void Tree::nj(Alignment * ali) {
 }
 
 void Tree::set_seqs(Alignment *ali) {
-    for (size_t i=0;i<ali->get_n();i++) get_node(i)->set_seq(ali->get_seq(i));
+    for (size_t i=0;i<ali->get_n();i++) for (size_t j=0;j<n;j++)
+        if (get_node(j)->get_name()==ali->get_name(i)) get_node(j)->set_seq(ali->get_seq(i));
 }
 
 int Tree::ancestral_reconstruction() {
