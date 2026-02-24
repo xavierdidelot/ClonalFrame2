@@ -103,30 +103,60 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8787573a5060136c2a51f40cf229e356" id="r_a8787573a5060136c2a51f40cf229e356"><td class="memItemLeft" align="right" valign="top"><a id="a8787573a5060136c2a51f40cf229e356" name="a8787573a5060136c2a51f40cf229e356"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>~Alignment</b> ()</td></tr>
 <tr class="memdesc:a8787573a5060136c2a51f40cf229e356"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor of alignment. <br /></td></tr>
-<tr class="memitem:a9442717e443b91994dac9c7535190ace" id="r_a9442717e443b91994dac9c7535190ace"><td class="memItemLeft" align="right" valign="top"><a id="a9442717e443b91994dac9c7535190ace" name="a9442717e443b91994dac9c7535190ace"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Alignment</b> (string filename)</td></tr>
-<tr class="memdesc:a9442717e443b91994dac9c7535190ace"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of alignment from a fasta file. <br /></td></tr>
-<tr class="memitem:ab1fbaad1394981a2ada1cbc0ce16bb9c" id="r_ab1fbaad1394981a2ada1cbc0ce16bb9c"><td class="memItemLeft" align="right" valign="top"><a id="ab1fbaad1394981a2ada1cbc0ce16bb9c" name="ab1fbaad1394981a2ada1cbc0ce16bb9c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Alignment</b> (int n, int l)</td></tr>
-<tr class="memdesc:ab1fbaad1394981a2ada1cbc0ce16bb9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of non-polymorphic alignment of n genomes of length l. <br /></td></tr>
+<tr class="memitem:a73eb0a2a1c46274a1ae100dba87166bb" id="r_a73eb0a2a1c46274a1ae100dba87166bb"><td class="memItemLeft" align="right" valign="top"><a id="a73eb0a2a1c46274a1ae100dba87166bb" name="a73eb0a2a1c46274a1ae100dba87166bb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Alignment</b> (const string &amp;filename)</td></tr>
+<tr class="memdesc:a73eb0a2a1c46274a1ae100dba87166bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of alignment from a fasta file. <br /></td></tr>
+<tr class="memitem:a34228c999f66fb709058cf2199d5fe10" id="r_a34228c999f66fb709058cf2199d5fe10"><td class="memItemLeft" align="right" valign="top"><a id="a34228c999f66fb709058cf2199d5fe10" name="a34228c999f66fb709058cf2199d5fe10"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Alignment</b> (size_t num, size_t len)</td></tr>
+<tr class="memdesc:a34228c999f66fb709058cf2199d5fe10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of non-polymorphic alignment of n genomes of length l. <br /></td></tr>
 <tr class="memitem:ac300fd8fce79640f280ebd8d14690a1f" id="r_ac300fd8fce79640f280ebd8d14690a1f"><td class="memItemLeft" align="right" valign="top"><a id="ac300fd8fce79640f280ebd8d14690a1f" name="ac300fd8fce79640f280ebd8d14690a1f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Alignment</b> (<a class="el" href="class_tree.html">Tree</a> *t)</td></tr>
-<tr class="memdesc:ac300fd8fce79640f280ebd8d14690a1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of alignment. <br /></td></tr>
-<tr class="memitem:a962b8178076e8097c4a807ae3b6353cd" id="r_a962b8178076e8097c4a807ae3b6353cd"><td class="memItemLeft" align="right" valign="top"><a id="a962b8178076e8097c4a807ae3b6353cd" name="a962b8178076e8097c4a807ae3b6353cd"></a>
-char&#160;</td><td class="memItemRight" valign="bottom"><b>get_data</b> (int i, int j)</td></tr>
-<tr class="memdesc:a962b8178076e8097c4a807ae3b6353cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return data for genome i position j. <br /></td></tr>
-<tr class="memitem:a21a5a7b27ce1220e747db61db3a14c49" id="r_a21a5a7b27ce1220e747db61db3a14c49"><td class="memItemLeft" align="right" valign="top"><a id="a21a5a7b27ce1220e747db61db3a14c49" name="a21a5a7b27ce1220e747db61db3a14c49"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>get_n</b> ()</td></tr>
-<tr class="memdesc:a21a5a7b27ce1220e747db61db3a14c49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return number of genomes in alignment. <br /></td></tr>
-<tr class="memitem:a038eace51c7fe667e32beedd8ae967fa" id="r_a038eace51c7fe667e32beedd8ae967fa"><td class="memItemLeft" align="right" valign="top"><a id="a038eace51c7fe667e32beedd8ae967fa" name="a038eace51c7fe667e32beedd8ae967fa"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>get_l</b> ()</td></tr>
-<tr class="memdesc:a038eace51c7fe667e32beedd8ae967fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return length of the alignment. <br /></td></tr>
-<tr class="memitem:a6c59e54b3505ccc2cdfaaa05a5215e74" id="r_a6c59e54b3505ccc2cdfaaa05a5215e74"><td class="memItemLeft" align="right" valign="top"><a id="a6c59e54b3505ccc2cdfaaa05a5215e74" name="a6c59e54b3505ccc2cdfaaa05a5215e74"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>write</b> (string filename)</td></tr>
-<tr class="memdesc:a6c59e54b3505ccc2cdfaaa05a5215e74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write alignment into a fasta file. <br /></td></tr>
-<tr class="memitem:a61d525ba266d4705bc437d58d0807323" id="r_a61d525ba266d4705bc437d58d0807323"><td class="memItemLeft" align="right" valign="top"><a id="a61d525ba266d4705bc437d58d0807323" name="a61d525ba266d4705bc437d58d0807323"></a>
-string&#160;</td><td class="memItemRight" valign="bottom"><b>get_name</b> (int i)</td></tr>
-<tr class="memdesc:a61d525ba266d4705bc437d58d0807323"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return name of the i-th genome. <br /></td></tr>
+<tr class="memdesc:ac300fd8fce79640f280ebd8d14690a1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of alignment from a tree. <br /></td></tr>
+<tr class="memitem:a313cbdbcc821e259dbb6bfa9d19c9a6a" id="r_a313cbdbcc821e259dbb6bfa9d19c9a6a"><td class="memItemLeft" align="right" valign="top"><a id="a313cbdbcc821e259dbb6bfa9d19c9a6a" name="a313cbdbcc821e259dbb6bfa9d19c9a6a"></a>
+char&#160;</td><td class="memItemRight" valign="bottom"><b>get_data</b> (size_t i, size_t j)</td></tr>
+<tr class="memdesc:a313cbdbcc821e259dbb6bfa9d19c9a6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return data for genome i position j. <br /></td></tr>
+<tr class="memitem:a1271e258899c0344d080487bce6c9920" id="r_a1271e258899c0344d080487bce6c9920"><td class="memItemLeft" align="right" valign="top"><a id="a1271e258899c0344d080487bce6c9920" name="a1271e258899c0344d080487bce6c9920"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_n</b> ()</td></tr>
+<tr class="memdesc:a1271e258899c0344d080487bce6c9920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return number of genomes in alignment. <br /></td></tr>
+<tr class="memitem:ad8f2c1e72564ab79990d51c0faea6119" id="r_ad8f2c1e72564ab79990d51c0faea6119"><td class="memItemLeft" align="right" valign="top"><a id="ad8f2c1e72564ab79990d51c0faea6119" name="ad8f2c1e72564ab79990d51c0faea6119"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_l</b> ()</td></tr>
+<tr class="memdesc:ad8f2c1e72564ab79990d51c0faea6119"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return length of the alignment. <br /></td></tr>
+<tr class="memitem:a1e0f44d98b5fc51e163d25b3092ed915" id="r_a1e0f44d98b5fc51e163d25b3092ed915"><td class="memItemLeft" align="right" valign="top"><a id="a1e0f44d98b5fc51e163d25b3092ed915" name="a1e0f44d98b5fc51e163d25b3092ed915"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_npat</b> ()</td></tr>
+<tr class="memdesc:a1e0f44d98b5fc51e163d25b3092ed915"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return number of patterns. <br /></td></tr>
+<tr class="memitem:ae57c0fc945cfa4e5322660c021372d09" id="r_ae57c0fc945cfa4e5322660c021372d09"><td class="memItemLeft" align="right" valign="top"><a id="ae57c0fc945cfa4e5322660c021372d09" name="ae57c0fc945cfa4e5322660c021372d09"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>write</b> (const string &amp;filename)</td></tr>
+<tr class="memdesc:ae57c0fc945cfa4e5322660c021372d09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write alignment into a fasta file. <br /></td></tr>
+<tr class="memitem:afabc9398fb329cbfc9456e4c2e21076a" id="r_afabc9398fb329cbfc9456e4c2e21076a"><td class="memItemLeft" align="right" valign="top"><a id="afabc9398fb329cbfc9456e4c2e21076a" name="afabc9398fb329cbfc9456e4c2e21076a"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>get_name</b> (size_t i)</td></tr>
+<tr class="memdesc:afabc9398fb329cbfc9456e4c2e21076a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return name of the i-th genome. <br /></td></tr>
+<tr class="memitem:a44018d621275b2b6408b7d5f195127cc" id="r_a44018d621275b2b6408b7d5f195127cc"><td class="memItemLeft" align="right" valign="top"><a id="a44018d621275b2b6408b7d5f195127cc" name="a44018d621275b2b6408b7d5f195127cc"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>dist</b> (size_t i, size_t j)</td></tr>
+<tr class="memdesc:a44018d621275b2b6408b7d5f195127cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pairwise distance. <br /></td></tr>
+<tr class="memitem:a1f07bee8ef296c8010104f2a4c8019b6" id="r_a1f07bee8ef296c8010104f2a4c8019b6"><td class="memItemLeft" align="right" valign="top"><a id="a1f07bee8ef296c8010104f2a4c8019b6" name="a1f07bee8ef296c8010104f2a4c8019b6"></a>
+vector&lt; uint8_t &gt; *&#160;</td><td class="memItemRight" valign="bottom"><b>get_seq</b> (size_t i)</td></tr>
+<tr class="memdesc:a1f07bee8ef296c8010104f2a4c8019b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a sequence. <br /></td></tr>
+<tr class="memitem:a678d97350e3b6a5b1f7362735b80e115" id="r_a678d97350e3b6a5b1f7362735b80e115"><td class="memItemLeft" align="right" valign="top"><a id="a678d97350e3b6a5b1f7362735b80e115" name="a678d97350e3b6a5b1f7362735b80e115"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>miss_at_random</b> (double x)</td></tr>
+<tr class="memdesc:a678d97350e3b6a5b1f7362735b80e115"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make some of the data be missed at random. <br /></td></tr>
+<tr class="memitem:a24230b405f27998236fef155e7024d5c" id="r_a24230b405f27998236fef155e7024d5c"><td class="memItemLeft" align="right" valign="top"><a id="a24230b405f27998236fef155e7024d5c" name="a24230b405f27998236fef155e7024d5c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>pattern_analysis</b> ()</td></tr>
+<tr class="memdesc:a24230b405f27998236fef155e7024d5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pattern analysis. <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-static-methods" class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a8a6b478a73ae126de8d8fb098c7ec55a" id="r_a8a6b478a73ae126de8d8fb098c7ec55a"><td class="memItemLeft" align="right" valign="top"><a id="a8a6b478a73ae126de8d8fb098c7ec55a" name="a8a6b478a73ae126de8d8fb098c7ec55a"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>nuc_is_unsure</b> (const uint8_t c)</td></tr>
+<tr class="memdesc:a8a6b478a73ae126de8d8fb098c7ec55a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicate if a nucleotide is unsure. <br /></td></tr>
+<tr class="memitem:a437ac233663c218ce65d6db1fff7a402" id="r_a437ac233663c218ce65d6db1fff7a402"><td class="memItemLeft" align="right" valign="top"><a id="a437ac233663c218ce65d6db1fff7a402" name="a437ac233663c218ce65d6db1fff7a402"></a>
+static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>nuc_from_int</b> (const int i)</td></tr>
+<tr class="memdesc:a437ac233663c218ce65d6db1fff7a402"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make a nuc from an int (0=A, 1=C, 2=G, 3=T, 4=N) <br /></td></tr>
+<tr class="memitem:affae8a9f26eea75701813072a6b9abe9" id="r_affae8a9f26eea75701813072a6b9abe9"><td class="memItemLeft" align="right" valign="top"><a id="affae8a9f26eea75701813072a6b9abe9" name="affae8a9f26eea75701813072a6b9abe9"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>nuc_set_as</b> (uint8_t *a, const uint8_t b)</td></tr>
+<tr class="memdesc:affae8a9f26eea75701813072a6b9abe9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the nuc a to nuc b while retaining extra info. <br /></td></tr>
+<tr class="memitem:a5a8b987c056d3b9bbd87f1c622476c31" id="r_a5a8b987c056d3b9bbd87f1c622476c31"><td class="memItemLeft" align="right" valign="top"><a id="a5a8b987c056d3b9bbd87f1c622476c31" name="a5a8b987c056d3b9bbd87f1c622476c31"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>nuc_is_currently_same</b> (uint8_t a, uint8_t b)</td></tr>
+<tr class="memdesc:a5a8b987c056d3b9bbd87f1c622476c31"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicate if two nucs are currently the same. <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Class representing an alignment. </p>

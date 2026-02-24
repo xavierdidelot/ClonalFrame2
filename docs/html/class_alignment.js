@@ -1,12 +1,17 @@
 var class_alignment =
 [
     [ "~Alignment", "class_alignment.html#a8787573a5060136c2a51f40cf229e356", null ],
-    [ "Alignment", "class_alignment.html#a9442717e443b91994dac9c7535190ace", null ],
-    [ "Alignment", "class_alignment.html#ab1fbaad1394981a2ada1cbc0ce16bb9c", null ],
+    [ "Alignment", "class_alignment.html#a73eb0a2a1c46274a1ae100dba87166bb", null ],
+    [ "Alignment", "class_alignment.html#a34228c999f66fb709058cf2199d5fe10", null ],
     [ "Alignment", "class_alignment.html#ac300fd8fce79640f280ebd8d14690a1f", null ],
-    [ "get_data", "class_alignment.html#a962b8178076e8097c4a807ae3b6353cd", null ],
-    [ "get_l", "class_alignment.html#a038eace51c7fe667e32beedd8ae967fa", null ],
-    [ "get_n", "class_alignment.html#a21a5a7b27ce1220e747db61db3a14c49", null ],
-    [ "get_name", "class_alignment.html#a61d525ba266d4705bc437d58d0807323", null ],
-    [ "write", "class_alignment.html#a6c59e54b3505ccc2cdfaaa05a5215e74", null ]
+    [ "dist", "class_alignment.html#a44018d621275b2b6408b7d5f195127cc", null ],
+    [ "get_data", "class_alignment.html#a313cbdbcc821e259dbb6bfa9d19c9a6a", null ],
+    [ "get_l", "class_alignment.html#ad8f2c1e72564ab79990d51c0faea6119", null ],
+    [ "get_n", "class_alignment.html#a1271e258899c0344d080487bce6c9920", null ],
+    [ "get_name", "class_alignment.html#afabc9398fb329cbfc9456e4c2e21076a", null ],
+    [ "get_npat", "class_alignment.html#a1e0f44d98b5fc51e163d25b3092ed915", null ],
+    [ "get_seq", "class_alignment.html#a1f07bee8ef296c8010104f2a4c8019b6", null ],
+    [ "miss_at_random", "class_alignment.html#a678d97350e3b6a5b1f7362735b80e115", null ],
+    [ "pattern_analysis", "class_alignment.html#a24230b405f27998236fef155e7024d5c", null ],
+    [ "write", "class_alignment.html#ae57c0fc945cfa4e5322660c021372d09", null ]
 ];

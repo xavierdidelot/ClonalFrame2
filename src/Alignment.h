@@ -10,6 +10,8 @@
 #include <vector>
 #include "Tree.h"
 
+using std::string,std::cerr,std::cout,std::endl,std::vector;
+
 /*Bit encoding of nucleotide (from right to left)
 Bit1=is_currently(A)
 Bit2=is_currently(C)
@@ -30,7 +32,7 @@ public:
     ///Destructor of alignment
     ~Alignment();
     ///Constructor of alignment from a fasta file
-    explicit Alignment(const std::string &filename);
+    explicit Alignment(const string &filename);
     ///Constructor of non-polymorphic alignment of n genomes of length l
     Alignment(size_t num,size_t len);
     ///Constructor of alignment from a tree
@@ -44,13 +46,13 @@ public:
     ///Return number of patterns
     size_t get_npat();
     ///Write alignment into a fasta file
-    void write(const std::string &filename);
+    void write(const string &filename);
     ///Return name of the i-th genome
-    std::string get_name(size_t i);
+    string get_name(size_t i);
     ///Pairwise distance
     double dist(size_t i, size_t j);
     ///Return a sequence
-    std::vector<uint8_t> * get_seq(size_t i);
+    vector<uint8_t> * get_seq(size_t i);
     ///Make some of the data be missed at random
     void miss_at_random(double x);
     ///Pattern analysis
@@ -70,11 +72,11 @@ private:
     static char decode(uint8_t in);
     size_t n;
     size_t l;
-    std::vector<std::vector<uint8_t>*> data;
-    std::vector<std::string> names;
+    vector<vector<uint8_t>*> data;
+    vector<string> names;
     size_t npat;
-    std::vector<size_t> patindex;
-    std::vector<size_t> weights;
+    vector<size_t> patindex;
+    vector<size_t> weights;
 };
 
 

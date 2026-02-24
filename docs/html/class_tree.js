@@ -1,13 +1,18 @@
 var class_tree =
 [
-    [ "Tree", "class_tree.html#ad376a7c639d857312f5de2ef47482f68", null ],
-    [ "Tree", "class_tree.html#a1f457ab572f8c14493a57d37940e0bd4", null ],
-    [ "Tree", "class_tree.html#ad113e12b01d71dd26b815182c1a0959f", null ],
-    [ "Tree", "class_tree.html#afdc023bc57eff3ed398492463a371ef4", null ],
+    [ "Tree", "class_tree.html#aaa4b04f65277b84733f5d9b9df5a1ec0", null ],
+    [ "Tree", "class_tree.html#a3216a08f012b26cb3c6f227977e829b5", null ],
     [ "~Tree", "class_tree.html#abdc38545cf3f588725b5d8b8075b3866", null ],
-    [ "add_mutations", "class_tree.html#a46ebe6cd46c74a4572863b80aa7704e4", null ],
+    [ "ancestral_reconstruction", "class_tree.html#a4c96e4d16f52d0804864c9412efc4561", null ],
     [ "check_structure", "class_tree.html#ac578842f3f22966760d0b182f51166f1", null ],
-    [ "get_n", "class_tree.html#a220ce16673a69e64c73b87e8718dd24c", null ],
+    [ "count_subs", "class_tree.html#a5aaa117e2d1e3c6075b39218ba5b1d66", null ],
+    [ "get_n", "class_tree.html#a10d0294deb2659ffffc97f87c1f75826", null ],
+    [ "get_node", "class_tree.html#ad89b713fa2d82f736d31f6439914cc85", null ],
+    [ "make_sequences", "class_tree.html#a1726ee4d7a5613e383c554ebfbb4780d", null ],
+    [ "nj", "class_tree.html#ac166fd0e59cf26980389c6bae2fd7897", null ],
+    [ "randomise", "class_tree.html#a0a48019c398bb09e673ff50c7e612923", null ],
+    [ "set_seqs", "class_tree.html#a1aa2b8d2085acf2d3cff4cf489ae9dc9", null ],
+    [ "sum_bra_len", "class_tree.html#a08ca9d06bbd1533b68b489557723bd80", null ],
     [ "to_string", "class_tree.html#af9f500f3ae4668babc62ca3598ed1815", null ],
-    [ "write", "class_tree.html#a2d7d9767395b910e66eeb250be3d63b9", null ]
+    [ "write", "class_tree.html#a5a14fa5d1187e991f8f51c95a2fa5db6", null ]
 ];

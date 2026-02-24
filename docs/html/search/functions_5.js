@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['to_5fstring_0',['to_string',['../class_node.html#a81bc1f00912dc9662dc3d7c624b6ade2',1,'Node::to_string()'],['../class_tree.html#af9f500f3ae4668babc62ca3598ed1815',1,'Tree::to_string()']]],
-  ['tree_1',['Tree',['../class_tree.html#ad376a7c639d857312f5de2ef47482f68',1,'Tree::Tree()'],['../class_tree.html#a1f457ab572f8c14493a57d37940e0bd4',1,'Tree::Tree(int n)'],['../class_tree.html#ad113e12b01d71dd26b815182c1a0959f',1,'Tree::Tree(int n, double avg_bra_len)'],['../class_tree.html#afdc023bc57eff3ed398492463a371ef4',1,'Tree::Tree(Alignment *a)']]]
+  ['make_5fsequences_0',['make_sequences',['../class_node.html#aca326c377a3d7c677779812cefc61f37',1,'Node::make_sequences()'],['../class_tree.html#a1726ee4d7a5613e383c554ebfbb4780d',1,'Tree::make_sequences()']]],
+  ['mcmc_1',['mcmc',['../class_param.html#ae04617c9f875484dd0c8ac150798bc8b',1,'Param']]],
+  ['miss_5fat_5frandom_2',['miss_at_random',['../class_alignment.html#a678d97350e3b6a5b1f7362735b80e115',1,'Alignment']]]
 ];

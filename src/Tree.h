@@ -10,6 +10,8 @@
 #include <vector>
 #include "Node.h"
 
+using std::string,std::cerr,std::cout,std::endl,std::vector;
+
 class Alignment;
 
 /**
@@ -21,16 +23,17 @@ public:
     ///Constructor for a deterministic tree with n leaves
     explicit Tree(size_t n);
     ///Constructor from a newick string
-    explicit Tree(const std::string &filename);
+    explicit Tree(const string &filename);
     ///Return the tree as a newick string
-    std::string to_string();
+    string to_string();
     ///Destructor for a tree
     ~Tree();
     ///Return number of leaves in the tree
     size_t get_n();
+    ///Return node with a given index
     Node * get_node(size_t i);
     ///Write tree as a newick file
-    void write(const std::string &filename);
+    void write(const string &filename);
     ///Check that the tree structure is correct, especially forward/backward links
     bool check_structure();
     ///Add mutations on a tree to generate sequence of length l with mutation rate theta/2
@@ -50,7 +53,7 @@ public:
 
 private:
     size_t n;
-    std::vector <Node*> nodes;
+    vector <Node*> nodes;
 };
 
 

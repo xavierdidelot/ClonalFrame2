@@ -49,7 +49,7 @@ Tree::Tree(const string &filename) {
     file.close();
     nodes=vector<Node *>();
     if (line.back()==';') line.pop_back();
-    Node *root = new Node(line, &nodes);
+    auto root = new Node(line, &nodes);
     root->set_father(nullptr);
     n=(nodes.size()+1)/2;
 }
@@ -103,7 +103,7 @@ void Tree::make_sequences(size_t l, double theta) {
 }
 
 void Tree::randomise(double avg_bra_len) {
-    vector<Node *> to_merge = vector<Node *>(n);
+    auto to_merge = vector<Node *>(n);
     std::exponential_distribution rexp(avg_bra_len);
     for (size_t i = 0; i < n; i++) {
         to_merge[i]=nodes[i];
@@ -133,7 +133,7 @@ void Tree::randomise(double avg_bra_len) {
 
 void Tree::nj(Alignment * ali) {
     for (size_t i = 0; i < n; i++) nodes[i]->set_name(ali->get_name(i));
-    vector<int> to_merge = vector<int>(n);
+    auto to_merge = vector<int>(n);
     for (size_t i = 0; i < n; i++) to_merge[i]=i;
     vector<vector<double> > dist(2 * n, vector<double>(2 * n, 0.0));
     for (size_t i = 0; i < n; i++) for (size_t j = 0; j < i; j++) {

@@ -12,6 +12,7 @@ test_that("Testing pattern analysis.", {
     m=as.numeric(m)
     pali=as.phyDat(ali)
     expect_equal(m,attr(pali,'nr'))
+    system('rm tmp.fasta')
   }
 })
 

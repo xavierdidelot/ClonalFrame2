@@ -16,6 +16,7 @@ test_that("Testing parsimony algorithm.", {
     attr(pali,'weight')=1*(attr(pali,'weight')>0)
     p=parsimony(tree, pali, method = "fitch")
     expect_equal(m[1],p)
+    system('rm tmp.fasta tmp.nwk')
   }
 })
 

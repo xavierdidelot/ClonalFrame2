@@ -17,3 +17,10 @@ enable_testing()
 
 add_subdirectory(src)
 add_subdirectory(tests)
+
+add_custom_target(doc ALL
+        COMMAND doxygen ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Generation API documentation with Doxygen"
+        VERBATIM
+)

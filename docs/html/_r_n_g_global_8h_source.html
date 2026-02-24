@@ -96,9 +96,9 @@ $(function(){initNavTree('_r_n_g_global_8h_source.html','',''); });
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define RNG_GLOBAL_H</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;random&gt;</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span> </div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="keyword">using namespace </span>std;</div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="keyword">inline</span> <span class="keywordtype">bool</span> verbose=<span class="keyword">false</span>; <span class="comment">// Defined as global variable</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">inline</span> mt19937 rng(random_device{}()); <span class="comment">// Global RNG, non-deterministic seed by default</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">inline</span> std::mt19937 rng(std::random_device{}()); <span class="comment">// Global RNG, non-deterministic seed by default</span></div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keyword">inline</span> <span class="keywordtype">void</span> setSeed(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> seed) {</div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>    rng.seed(seed);</div>
