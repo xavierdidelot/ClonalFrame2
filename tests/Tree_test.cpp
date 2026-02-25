@@ -16,7 +16,7 @@ int main() {
     delete(t);
 
     //Random tree
-    t = Tree::random_tree(10,1.0);
+    t = Tree::random_tree(10,0.01);
     n=t->get_n();assert(n==10);
     b=t->check_structure();assert(b);
     cout<<"Expected number of substitutions: "<<t->sum_bra_len()*10/2<<endl;
@@ -28,7 +28,7 @@ int main() {
     delete t2;
 
     //Generating an alignment from a tree
-    t->simulate_sequences(10000,10);
+    t->simulate_sequences(10000);
     auto a=Alignment::make_from_tree(t);
     //a->miss_at_random(0.1);
     a->write("ali.fasta");
@@ -42,6 +42,7 @@ int main() {
     int s2=t->count_subs();
     cout<<"Parsimonious number of substitutions: "<<s1<<" "<<s2<<endl;
     assert(s1==s2);
+    cout<<"Likelihood given ancestral sequences: "<<std::fixed << std::setprecision(6)<<t->likelihood_anc()<<endl;
 
     //NJ algorithm
     delete(t);

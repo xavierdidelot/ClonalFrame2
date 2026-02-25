@@ -57,7 +57,7 @@ public:
     ///Return a newick string for this node and its children
     string to_string();
     ///Add mutations
-    void make_sequences(vector<uint8_t> * above,double theta);
+    void simulate_sequences(vector<uint8_t> * above);
 
 private:
     string name;

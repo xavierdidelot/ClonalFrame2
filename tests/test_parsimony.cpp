@@ -14,7 +14,8 @@ int main() {
     t->set_sequences(a);
     int s1=t->ancestral_reconstruction();
     int s2=t->count_subs();
-    cout<<s1<<","<<s2<<endl;
+    double s3=t->likelihood_anc();
+    cout<<s1<<","<<s2<<","<<std::fixed << std::setprecision(6)<<s3<<endl;
     delete(t);
     delete(a);
 }

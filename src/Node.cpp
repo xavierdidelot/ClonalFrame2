@@ -106,12 +106,12 @@ string Node::to_string() {
     return oss.str();
 }
 
-void Node::make_sequences(vector<uint8_t> * above, double theta) {
+void Node::simulate_sequences(vector<uint8_t> * above) {
     seq=new vector<uint8_t>(*above);
     int l=seq->size();
     std::uniform_int_distribution unif4(0,3);
     std::uniform_int_distribution unif_l(0,l-1);
-    std::poisson_distribution pois(dist_father*theta/2);
+    std::poisson_distribution pois(dist_father*l);
     int m=pois(rng);
     for (int i=0;i<m;i++) {
         int p=unif_l(rng);
@@ -119,8 +119,8 @@ void Node::make_sequences(vector<uint8_t> * above, double theta) {
             seq->at(p)=Alignment::nuc_from_int(unif4(rng));
         }
     }
-    if (left!= nullptr) left ->make_sequences(seq,theta);
-    if (right!=nullptr) right->make_sequences(seq,theta);
+    if (left!= nullptr) left ->simulate_sequences(seq);
+    if (right!=nullptr) right->simulate_sequences(seq);
 }
 
 void Node::set_dist_father(double d) {

@@ -7,11 +7,11 @@
 using std::string,std::cerr,std::cout,std::endl,std::vector;
 
 Param::Param(Tree *t) {
-    tree = t;
+    tree=t;
     theta=10;
     rho=theta/10;
     nu=0.01;
-    delta=0.001;
+    delta=500.0;
 }
 
 Param::~Param() {

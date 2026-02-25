@@ -93,15 +93,15 @@ bool Tree::check_structure() {
     return true;
 }
 
-void Tree::simulate_sequences(size_t l, double theta) {
+void Tree::simulate_sequences(size_t l) {
     delete nodes[n]->get_seq();
     nodes[n]->set_seq(new vector<uint8_t>(l));
     std::uniform_int_distribution unif4(0, 3);
     for (size_t i = 0; i < l; i++) {
         nodes[n]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
     }
-    nodes[n]->get_left ()->make_sequences(nodes[n]->get_seq(),theta);
-    nodes[n]->get_right()->make_sequences(nodes[n]->get_seq(),theta);
+    nodes[n]->get_left ()->simulate_sequences(nodes[n]->get_seq());
+    nodes[n]->get_right()->simulate_sequences(nodes[n]->get_seq());
     Alignment* a = Alignment::make_from_tree(this);//to perform pattern analysis
     set_sequences(a);
 }
@@ -115,7 +115,7 @@ Tree* Tree::random_tree(size_t n,double avg_bra_len) {
         if (i<n) t->nodes[i]->set_name("seq" + std::to_string(i + 1));
     }
     auto to_merge = vector<Node *>(n);
-    std::exponential_distribution rexp(avg_bra_len);
+    std::exponential_distribution rexp(1.0/avg_bra_len);
     for (size_t i = 0; i < n; i++) {
         to_merge[i]=t->nodes[i];
         to_merge[i]->set_dist_father(rexp(rng));
@@ -230,12 +230,11 @@ void Tree::set_sequences(Alignment *ali) {
 
 int Tree::ancestral_reconstruction() {
     int score=0;
-    size_t l=nodes[0]->get_seq()->size();
     for (size_t i=n;i<nodes.size();i++) {
         delete nodes[i]->get_seq();
-        nodes[i]->set_seq(new vector<uint8_t>(l,0b00010000));
+        nodes[i]->set_seq(new vector<uint8_t>(npat,0b00010000));
     }
-    for (size_t pos=0;pos<l;pos++) {
+    for (size_t pos=0;pos<npat;pos++) {
         score+=nodes[n]->fitch_pass1(pos)*weights->at(pos);
         nodes[n]->fitch_pass2(pos);
     }
@@ -244,8 +243,7 @@ int Tree::ancestral_reconstruction() {
 
 int Tree::count_subs() {
     int subs=0;
-    size_t l=nodes[0]->get_seq()->size();
-    for (size_t pos=0;pos<l;pos++) {
+    for (size_t pos=0;pos<npat;pos++) {
         for (size_t i=0;i<nodes.size();i++) {
             if (nodes[i]->get_father()==nullptr) continue;
             if (!Alignment::nuc_is_currently_same(nodes[i]->get_seq()->at(pos),nodes[i]->get_father()->get_seq()->at(pos))) subs+=weights->at(pos);
@@ -263,3 +261,43 @@ double Tree::sum_bra_len() {
     return res;
 }
 
+double Tree::likelihood_anc() {
+    double ll=0.0;
+    double len,ex,pid,pnid;
+    int s1,s2;
+    for (size_t i=0;i<nodes.size();i++) {
+        if (nodes[i]->get_father()==nullptr) continue;
+        len=nodes[i]->get_dist_father();
+        ex=exp(-len);
+        pid =log(0.25+0.75*ex);
+        pnid=log(0.25-0.25*ex);
+        s1=0;
+        s2=0;
+            for (size_t j=0;j<npat;j++) {
+                auto seq1=nodes[i]->get_father()->get_seq();
+                auto seq2=nodes[i]->get_seq();
+                if (Alignment::nuc_is_currently_same(seq1->at(j),seq2->at(j)))
+                    s1+=weights->at(j);
+                else s2+=weights->at(j);
+        }
+        ll+=pid*s1+pnid*s2;
+    }
+    ll=ll+log(0.25)*patindex->size();
+    return ll;
+}
+
+/*n=Ntip(tree)
+w=attr(seqs,'weight')
+nsites=length(attr(seqs,'index'))
+for (i in 1:nrow(tree$edge)) {
+    if (tree$edge[i,2]<=n) bottom=seqs[[tree$tip.label[tree$edge[i,2]]]]
+    else bottom=anc[[tree$node.label[tree$edge[i,2]-n]]]
+    top=anc[[tree$node.label[tree$edge[i,1]-n]]]
+    l=tree$edge.length[i]
+    ex=exp(-l)
+    pid =log(1/4+3/4*ex)
+    pnid=log(1/4-1/4*ex)
+    ll=ll+pid *sum(w[top==bottom])
+    ll=ll+pnid*sum(w[top!=bottom])
+  }
+    ll=ll+nsites*log(1/4)*/
