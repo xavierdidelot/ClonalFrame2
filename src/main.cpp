@@ -57,7 +57,7 @@ int main(int argc, const char *argv[]) {
         auto a = Alignment::read_fasta(inputfile);
         if (verbose) cout << "Building initial tree..." << endl;
         auto t = Tree::nj(a);
-        t->set_seqs(a);
+        t->set_sequences(a);
         if (verbose) cout << "Performing initial ancestral reconstruction..." << endl;
         t->ancestral_reconstruction();
         auto p = new Param(t);

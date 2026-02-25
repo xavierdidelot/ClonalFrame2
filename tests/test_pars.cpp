@@ -11,7 +11,7 @@ using namespace std;
 int main() {
     auto a = Alignment::read_fasta("tmp.fasta");
     auto t = Tree::read_newick("tmp.nwk");
-    t->set_seqs(a);
+    t->set_sequences(a);
     int s1=t->ancestral_reconstruction();
     int s2=t->count_subs();
     cout<<s1<<","<<s2<<endl;

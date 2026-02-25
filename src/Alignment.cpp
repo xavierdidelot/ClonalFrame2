@@ -35,9 +35,9 @@ Alignment * Alignment::read_fasta(const string &filename) {
     }
     file.clear();
     file.seekg(0);
-    a->data=vector<vector<uint8_t>*>(n);
-    for (size_t i=0;i<n;i++) a->data.at(i)=new vector<uint8_t>(l);
-    a->names=vector<string>(n);
+    a->data=new vector<vector<uint8_t>*>(n);
+    for (size_t i=0;i<n;i++) a->data->at(i)=new vector<uint8_t>(l);
+    a->names=new vector<string>(n);
     n=0;
     l=0;
     std::regex reg("[> ]");
@@ -46,9 +46,9 @@ Alignment * Alignment::read_fasta(const string &filename) {
         if (file.eof()) break;
         if (line.empty()) continue;
         if (line.at(0)=='#') continue;
-        if (line.at(0)=='>') {l=0;n++;a->names[n-1]=regex_replace(line,reg,"");continue;}
+        if (line.at(0)=='>') {l=0;n++;a->names->at(n-1)=regex_replace(line,reg,"");continue;}
         for (size_t i=0;i<line.length();i++) {
-            a->data.at(n-1)->at(l)=encode(line[i]);
+            a->data->at(n-1)->at(l)=encode(line[i]);
             l++;
         }
     }
@@ -60,66 +60,64 @@ Alignment * Alignment::read_fasta(const string &filename) {
     return a;
 }
 
-Alignment::Alignment(size_t num, size_t len) {
-    n=num;
-    l=len;
-    data=vector<vector<uint8_t>*>(n);
-    for (size_t i=0;i<n;i++) data.at(i)=new vector<uint8_t>(l,1);
-    pattern_analysis();
+Alignment* Alignment::make_nonpoly(size_t n, size_t l) {
+    auto a = new Alignment();
+    a->n=n;
+    a->l=l;
+    a->data=new vector<vector<uint8_t>*>(n);
+    for (size_t i=0;i<n;i++) a->data->at(i)=new vector<uint8_t>(l,1);
+    a->pattern_analysis();
+    return a;
 }
 
-Alignment::Alignment(Tree *t) {
-    n=t->get_n();
-    names=vector<string>(n);
-    data=vector<vector<uint8_t>*>(n);
-    for (size_t i=0;i<n;i++) {
-        names[i]=t->get_node(i)->get_name();
-        data[i]=t->get_node(i)->get_seq();
+Alignment* Alignment::make_from_tree(Tree *t) {
+    auto a = new Alignment();
+    a->n=t->get_n();
+    a->names=new vector<string>(a->n);
+    a->data=new vector<vector<uint8_t>*>(a->n);
+    for (size_t i=0;i<a->n;i++) {
+        a->names->at(i)=t->get_node(i)->get_name();
+        a->data->at(i)=t->get_node(i)->get_seq();
     }
-    l=data[0]->size();
-    pattern_analysis();
+    a->l=a->data->at(0)->size();
+    a->pattern_analysis();
+    return a;
 }
 
 void Alignment::pattern_analysis() {
     if (verbose) cout<<"Starting pattern analysis"<<endl;
-    auto data2=vector<vector<uint8_t>*>(n);
-    for (size_t i=0;i<n;i++) data2.at(i)=new vector<uint8_t>(l);
+    auto data2=new vector<vector<uint8_t>*>(n);
+    for (size_t i=0;i<n;i++) data2->at(i)=new vector<uint8_t>(l);
     npat=0;
-    patindex=vector<size_t>(l,0);
-    weights =vector<size_t>(l,0);
+    patindex=new vector<size_t>(l,0);
+    weights =new vector<size_t>(l,0);
     for (size_t j=0;j<l;j++) {
         bool toadd=true;
         size_t j2=0;
         for (j2=0;j2<npat;j2++) {
             bool samepat=true;
             for (size_t i=0;i<n;i++) {
-                if (data[i]->at(j)!=data2[i]->at(j2)) {samepat=false;break;}
+                if (data->at(i)->at(j)!=data2->at(i)->at(j2)) {samepat=false;break;}
             }
             if (samepat) {toadd=false;break;}
         }
         if (toadd) {
             for (size_t i=0;i<n;i++) {
-                data2[i]->at(npat)=data[i]->at(j);
+                data2->at(i)->at(npat)=data->at(i)->at(j);
             }
             j2=npat;
             npat++;
         }
-        patindex[j]=j2;
-        weights[j2]++;
+        patindex->at(j)=j2;
+        weights->at(j2)++;
     }
-    weights.resize(npat);
-    for (size_t i=0;i<n;i++) data2[i]->resize(npat);
+    weights->resize(npat);
+    for (size_t i=0;i<n;i++) data2->at(i)->resize(npat);
     data=data2;
     if (verbose) cout<<"Finished pattern analysis and found "<<npat<<" patterns"<<endl;
 }
 
-char Alignment::get_data(size_t i, size_t j) {return data[i]->at(patindex[j]);}
-
-size_t Alignment::get_n() {return n;}
-
-size_t Alignment::get_l() {return l;}
-
-size_t Alignment::get_npat() {return npat;}
+char Alignment::get_data(size_t i, size_t j) {return data->at(i)->at(patindex->at(j));}
 
 uint8_t Alignment::encode(char in) {
     switch (in) {
@@ -154,7 +152,7 @@ void Alignment::write(const string &filename) {
         return;
     }
     for (size_t i=0;i<n;i++) {
-        file<<">"<<names[i]<<endl;
+        file<<">"<<names->at(i)<<endl;
         for (size_t j=0;j<l;j++) {
             file<<decode(get_data(i,j));
         }
@@ -163,28 +161,28 @@ void Alignment::write(const string &filename) {
     file.close();
 }
 
-string Alignment::get_name(size_t i) {return names[i];}
+string Alignment::get_name(size_t i) {return names->at(i);}
 
 double Alignment::dist(size_t i, size_t j) {
     size_t num=0,den=0;
     for (size_t a=0;a<l;a++) {
         if (nuc_is_unsure(get_data(i,a))) continue;
         if (nuc_is_unsure(get_data(j,a))) continue;
-        den+=weights[j];
-        if (get_data(i,a)!=get_data(j,a)) num+=weights[j];
+        den+=weights->at(j);
+        if (get_data(i,a)!=get_data(j,a)) num+=weights->at(j);
     }
     return(-0.75*log(1.0-4.0/3.0*num/den));
 }
 
 vector<uint8_t> * Alignment::get_seq(size_t i) {
-    return(data[i]);
+    return(data->at(i));
 }
 
 void Alignment::miss_at_random(double x) {
     std::uniform_real_distribution unif(0.0, 1.0);
     for (size_t i=0;i<n;i++) {
         for (size_t j=0;j<npat;j++) {
-            if (unif(rng)<x) data[i]->at(j)=data[i]->at(j)|0b00010000;
+            if (unif(rng)<x) data->at(i)->at(j)=data->at(i)->at(j)|0b00010000;
         }
     }
 }

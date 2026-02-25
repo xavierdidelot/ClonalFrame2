@@ -13,7 +13,6 @@ test_that("Testing parsimony algorithm.", {
     m=as.numeric(unlist(strsplit(m,',')))
     expect_equal(m[1],m[2])
     pali=as.phyDat(ali)
-    attr(pali,'weight')=1*(attr(pali,'weight')>0)
     p=parsimony(tree, pali, method = "fitch")
     expect_equal(m[1],p)
     system('rm tmp.fasta tmp.nwk')

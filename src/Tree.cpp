@@ -93,7 +93,7 @@ bool Tree::check_structure() {
     return true;
 }
 
-void Tree::make_sequences(size_t l, double theta) {
+void Tree::simulate_sequences(size_t l, double theta) {
     delete nodes[n]->get_seq();
     nodes[n]->set_seq(new vector<uint8_t>(l));
     std::uniform_int_distribution unif4(0, 3);
@@ -102,6 +102,8 @@ void Tree::make_sequences(size_t l, double theta) {
     }
     nodes[n]->get_left ()->make_sequences(nodes[n]->get_seq(),theta);
     nodes[n]->get_right()->make_sequences(nodes[n]->get_seq(),theta);
+    Alignment* a = Alignment::make_from_tree(this);//to perform pattern analysis
+    set_sequences(a);
 }
 
 Tree* Tree::random_tree(size_t n,double avg_bra_len) {
@@ -218,9 +220,12 @@ Tree* Tree::nj(Alignment * ali) {
     return t;
 }
 
-void Tree::set_seqs(Alignment *ali) {
+void Tree::set_sequences(Alignment *ali) {
     for (size_t i=0;i<ali->get_n();i++) for (size_t j=0;j<n;j++)
         if (get_node(j)->get_name()==ali->get_name(i)) get_node(j)->set_seq(ali->get_seq(i));
+    npat=ali->get_npat();
+    patindex=ali->get_patindex();
+    weights=ali->get_weights();
 }
 
 int Tree::ancestral_reconstruction() {
@@ -231,7 +236,7 @@ int Tree::ancestral_reconstruction() {
         nodes[i]->set_seq(new vector<uint8_t>(l,0b00010000));
     }
     for (size_t pos=0;pos<l;pos++) {
-        score+=nodes[n]->fitch_pass1(pos);
+        score+=nodes[n]->fitch_pass1(pos)*weights->at(pos);
         nodes[n]->fitch_pass2(pos);
     }
     return(score);
@@ -243,7 +248,7 @@ int Tree::count_subs() {
     for (size_t pos=0;pos<l;pos++) {
         for (size_t i=0;i<nodes.size();i++) {
             if (nodes[i]->get_father()==nullptr) continue;
-            if (!Alignment::nuc_is_currently_same(nodes[i]->get_seq()->at(pos),nodes[i]->get_father()->get_seq()->at(pos))) subs++;
+            if (!Alignment::nuc_is_currently_same(nodes[i]->get_seq()->at(pos),nodes[i]->get_father()->get_seq()->at(pos))) subs+=weights->at(pos);
         }
     }
     return subs;

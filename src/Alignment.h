@@ -31,20 +31,20 @@ class Alignment {
 public:
     ///Create an alignment from a fasta file
     static Alignment* read_fasta(const string &filename);
-    ///Constructor of non-polymorphic alignment of n genomes of length l
-    Alignment(size_t num,size_t len);
-    ///Constructor of alignment from a tree
-    explicit Alignment(Tree * t);
+    ///Create a non-polymorphic alignment of n genomes of length l
+    static Alignment* make_nonpoly(size_t n,size_t l);
+    ///Create an alignment from a tree
+    static Alignment* make_from_tree(Tree * t);
     ///Destructor of alignment
     ~Alignment();
     ///Return data for genome i position j
     char get_data(size_t i, size_t j);
     ///Return number of genomes in alignment
-    size_t get_n();
+    size_t get_n() {return n;};
     ///Return length of the alignment
-    size_t get_l();
+    size_t get_l() {return l;};
     ///Return number of patterns
-    size_t get_npat();
+    size_t get_npat() {return npat;};
     ///Write alignment into a fasta file
     void write(const string &filename);
     ///Return name of the i-th genome
@@ -66,6 +66,8 @@ public:
     static inline void nuc_set_as(uint8_t * a,const uint8_t b) {*a=((*a)&0b11110000) | (b&0b00001111);}
     ///Indicate if two nucs are currently the same
     static inline bool nuc_is_currently_same(uint8_t a,uint8_t b) {return (a&0b00001111)==(b&0b00001111);};
+    vector<size_t> * get_patindex()  {return patindex;}
+    vector<size_t> * get_weights()  {return weights;}
 
 private:
     Alignment() = default;
@@ -73,11 +75,14 @@ private:
     static char decode(uint8_t in);
     size_t n;
     size_t l;
-    vector<vector<uint8_t>*> data;
-    vector<string> names;
+
+
+private:
+    vector<vector<uint8_t>*>* data;
+    vector<string>* names;
     size_t npat;
-    vector<size_t> patindex;
-    vector<size_t> weights;
+    vector<size_t>* patindex;
+    vector<size_t>* weights;
 };
 
 

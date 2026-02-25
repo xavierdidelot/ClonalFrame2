@@ -1,7 +1,5 @@
 var class_alignment =
 [
-    [ "Alignment", "class_alignment.html#a34228c999f66fb709058cf2199d5fe10", null ],
-    [ "Alignment", "class_alignment.html#ac300fd8fce79640f280ebd8d14690a1f", null ],
     [ "~Alignment", "class_alignment.html#a8787573a5060136c2a51f40cf229e356", null ],
     [ "dist", "class_alignment.html#a44018d621275b2b6408b7d5f195127cc", null ],
     [ "get_data", "class_alignment.html#a313cbdbcc821e259dbb6bfa9d19c9a6a", null ],

@@ -28,8 +28,8 @@ int main() {
     delete t2;
 
     //Generating an alignment from a tree
-    t->make_sequences(10000,10);
-    auto a=new Alignment(t);
+    t->simulate_sequences(10000,10);
+    auto a=Alignment::make_from_tree(t);
     //a->miss_at_random(0.1);
     a->write("ali.fasta");
 
@@ -48,7 +48,7 @@ int main() {
     t=Tree::nj(a);
     b=t->check_structure();assert(b);
     t->write("nj.nwk");
-    t->set_seqs(a);
+    t->set_sequences(a);
     delete(t);
     delete(a);
 }

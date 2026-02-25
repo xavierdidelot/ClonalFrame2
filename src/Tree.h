@@ -41,9 +41,9 @@ public:
     ///Check that the tree structure is correct, especially forward/backward links
     bool check_structure();
     ///Add mutations on a tree to generate sequence of length l with mutation rate theta/2
-    void make_sequences(size_t l,double theta);
+    void simulate_sequences(size_t l,double theta);
     ///Assign sequences from alignment to the tree leaves
-    void set_seqs(Alignment * ali);
+    void set_sequences(Alignment * ali);
     ///Ancestral state reconstruction, returning number of substitutions in patterns
     int ancestral_reconstruction();
     ///Count number of substitutions in patterns
@@ -55,6 +55,9 @@ private:
     Tree() = default;
     size_t n;
     vector <Node*> nodes;
+    size_t npat;
+    vector<size_t>* patindex;
+    vector<size_t>* weights;
 };
 
 
