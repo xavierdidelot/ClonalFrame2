@@ -90,7 +90,6 @@ Node::Node(const string &s, vector <Node*> * nodes) {
 }
 
 Node::~Node() {
-    delete seq;
 }
 
 string Node::to_string() {
@@ -106,7 +105,7 @@ string Node::to_string() {
     return oss.str();
 }
 
-void Node::simulate_sequences(vector<uint8_t> * above) {
+int Node::simulate_sequences(vector<uint8_t> * above) {
     seq=new vector<uint8_t>(*above);
     int l=seq->size();
     std::uniform_int_distribution unif4(0,3);
@@ -119,8 +118,9 @@ void Node::simulate_sequences(vector<uint8_t> * above) {
             seq->at(p)=Alignment::nuc_from_int(unif4(rng));
         }
     }
-    if (left!= nullptr) left ->simulate_sequences(seq);
-    if (right!=nullptr) right->simulate_sequences(seq);
+    if (left!= nullptr) m+=left ->simulate_sequences(seq);
+    if (right!=nullptr) m+=right->simulate_sequences(seq);
+    return m;
 }
 
 void Node::set_dist_father(double d) {

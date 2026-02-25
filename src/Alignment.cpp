@@ -70,17 +70,26 @@ Alignment* Alignment::make_nonpoly(size_t n, size_t l) {
     return a;
 }
 
-Alignment* Alignment::make_from_tree(Tree *t) {
+Alignment* Alignment::make_from_tree(Tree *t, bool include_ancestors, bool need_pattern_analysis) {
     auto a = new Alignment();
-    a->n=t->get_n();
-    a->names=new vector<string>(a->n);
-    a->data=new vector<vector<uint8_t>*>(a->n);
-    for (size_t i=0;i<a->n;i++) {
+    size_t n=t->get_n();
+    if (include_ancestors) n=n*2-1;
+    a->n=n;
+    a->names=new vector<string>(n);
+    a->data=new vector<vector<uint8_t>*>(n);
+    for (size_t i=0;i<n;i++) {
         a->names->at(i)=t->get_node(i)->get_name();
         a->data->at(i)=t->get_node(i)->get_seq();
     }
-    a->l=a->data->at(0)->size();
-    a->pattern_analysis();
+    if (need_pattern_analysis) {
+        a->l=a->data->at(0)->size();
+        a->pattern_analysis();
+    } else {
+        a->npat=t->get_npat();
+        a->weights=t->get_weights();
+        a->patindex=t->get_patindex();
+        a->l=a->patindex->size();
+    }
     return a;
 }
 

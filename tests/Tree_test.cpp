@@ -19,7 +19,7 @@ int main() {
     t = Tree::random_tree(10,0.01);
     n=t->get_n();assert(n==10);
     b=t->check_structure();assert(b);
-    cout<<"Expected number of substitutions: "<<t->sum_bra_len()*10/2<<endl;
+    cout<<"Expected number of substitutions: "<<t->sum_bra_len()*10000<<endl;
 
     //Writing and re-reading a tree
     t->write("true.nwk");
@@ -28,14 +28,15 @@ int main() {
     delete t2;
 
     //Generating an alignment from a tree
-    t->simulate_sequences(10000);
-    auto a=Alignment::make_from_tree(t);
+    int m=t->simulate_sequences(10000);
+    cout<<"Simulated number of substitutions: "<<m<<endl;
+    auto a=Alignment::make_from_tree(t,false,false);
     //a->miss_at_random(0.1);
     a->write("ali.fasta");
 
     //Counting number of substitutions in the tree
     int truth=t->count_subs();
-    cout<<"Actual number of substitutions: "<<truth<<endl;
+    cout<<"Counted number of substitutions: "<<truth<<endl;
 
     //Ancestral reconstruction
     int s1=t->ancestral_reconstruction();
@@ -49,7 +50,7 @@ int main() {
     t=Tree::nj(a);
     b=t->check_structure();assert(b);
     t->write("nj.nwk");
-    t->set_sequences(a);
+    t->set_sequences(a,false);
     delete(t);
     delete(a);
 }

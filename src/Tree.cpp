@@ -93,17 +93,19 @@ bool Tree::check_structure() {
     return true;
 }
 
-void Tree::simulate_sequences(size_t l) {
+int Tree::simulate_sequences(size_t l) {
     delete nodes[n]->get_seq();
     nodes[n]->set_seq(new vector<uint8_t>(l));
     std::uniform_int_distribution unif4(0, 3);
     for (size_t i = 0; i < l; i++) {
         nodes[n]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
     }
-    nodes[n]->get_left ()->simulate_sequences(nodes[n]->get_seq());
-    nodes[n]->get_right()->simulate_sequences(nodes[n]->get_seq());
-    Alignment* a = Alignment::make_from_tree(this);//to perform pattern analysis
-    set_sequences(a);
+    int m=0;
+    m+=nodes[n]->get_left ()->simulate_sequences(nodes[n]->get_seq());
+    m+=nodes[n]->get_right()->simulate_sequences(nodes[n]->get_seq());
+    Alignment* a = Alignment::make_from_tree(this,true,true);//to perform pattern analysis
+    set_sequences(a,true);
+    return(m);
 }
 
 Tree* Tree::random_tree(size_t n,double avg_bra_len) {
@@ -220,9 +222,13 @@ Tree* Tree::nj(Alignment * ali) {
     return t;
 }
 
-void Tree::set_sequences(Alignment *ali) {
-    for (size_t i=0;i<ali->get_n();i++) for (size_t j=0;j<n;j++)
-        if (get_node(j)->get_name()==ali->get_name(i)) get_node(j)->set_seq(ali->get_seq(i));
+void Tree::set_sequences(Alignment *ali,bool is_ordered) {
+    if (is_ordered) {
+        for (size_t i=0;i<ali->get_n();i++) get_node(i)->set_seq(ali->get_seq(i));
+    } else {
+        for (size_t i=0;i<ali->get_n();i++) for (size_t j=0;j<nodes.size();j++)
+            if (get_node(j)->get_name()==ali->get_name(i)) get_node(j)->set_seq(ali->get_seq(i));
+    }
     npat=ali->get_npat();
     patindex=ali->get_patindex();
     weights=ali->get_weights();
@@ -285,19 +291,3 @@ double Tree::likelihood_anc() {
     ll=ll+log(0.25)*patindex->size();
     return ll;
 }
-
-/*n=Ntip(tree)
-w=attr(seqs,'weight')
-nsites=length(attr(seqs,'index'))
-for (i in 1:nrow(tree$edge)) {
-    if (tree$edge[i,2]<=n) bottom=seqs[[tree$tip.label[tree$edge[i,2]]]]
-    else bottom=anc[[tree$node.label[tree$edge[i,2]-n]]]
-    top=anc[[tree$node.label[tree$edge[i,1]-n]]]
-    l=tree$edge.length[i]
-    ex=exp(-l)
-    pid =log(1/4+3/4*ex)
-    pnid=log(1/4-1/4*ex)
-    ll=ll+pid *sum(w[top==bottom])
-    ll=ll+pnid*sum(w[top!=bottom])
-  }
-    ll=ll+nsites*log(1/4)*/

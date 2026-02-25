@@ -34,7 +34,7 @@ public:
     ///Create a non-polymorphic alignment of n genomes of length l
     static Alignment* make_nonpoly(size_t n,size_t l);
     ///Create an alignment from a tree
-    static Alignment* make_from_tree(Tree * t);
+    static Alignment* make_from_tree(Tree * t, bool include_ancestors, bool need_pattern_analysis);
     ///Destructor of alignment
     ~Alignment();
     ///Return data for genome i position j
