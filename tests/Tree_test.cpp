@@ -32,7 +32,7 @@ int main() {
     cout<<"Simulated number of substitutions: "<<m<<endl;
     auto a=Alignment::make_from_tree(t,false,false);
     //a->miss_at_random(0.1);
-    a->write("ali.fasta");
+    a->write("ali.fasta",true);
 
     //Counting number of substitutions in the tree
     int truth=t->count_subs();

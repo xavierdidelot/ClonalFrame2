@@ -21,7 +21,7 @@ int main() {
     out.close();
     auto a = Alignment::read_fasta("tmp.fasta");
     remove("tmp.fasta");
-    a->write("tmp2.fasta");
+    a->write("tmp2.fasta",true);
     remove("tmp2.fasta");
     size_t n=a->get_n();assert(n==3);
     size_t l=a->get_l();assert(l==8);

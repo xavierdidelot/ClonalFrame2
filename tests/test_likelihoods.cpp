@@ -15,7 +15,7 @@ int main() {
     t->ancestral_reconstruction();
     a=Alignment::make_from_tree(t,true,false);
     t->write("tmp2.nwk");
-    a->write("tmp2.fasta");
+    a->write("tmp2.fasta",false);
     double s3=t->likelihood_anc();
     cout<<std::fixed << std::setprecision(6)<<s3<<endl;
     delete(t);

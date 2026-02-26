@@ -46,7 +46,7 @@ public:
     ///Return number of patterns
     size_t get_npat() {return npat;};
     ///Write alignment into a fasta file
-    void write(const string &filename);
+    void write(const string &filename, bool include_uncertainty);
     ///Return name of the i-th genome
     string get_name(size_t i) {return names->at(i);}
     ///Pairwise distance

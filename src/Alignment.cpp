@@ -154,7 +154,7 @@ char Alignment::decode(uint8_t in) {
 }
 
 
-void Alignment::write(const string &filename) {
+void Alignment::write(const string &filename, bool include_uncertainty) {
     std::ofstream file;
     file.open(filename);
     if (file.is_open()==false) {
@@ -164,7 +164,8 @@ void Alignment::write(const string &filename) {
     for (size_t i=0;i<n;i++) {
         file<<">"<<names->at(i)<<endl;
         for (size_t j=0;j<l;j++) {
-            file<<decode(get_data(i,j));
+            if (include_uncertainty) file<<decode(get_data(i,j));
+            else file<<decode(get_data(i,j)&0b00001111);
         }
         file<<endl;
     }
