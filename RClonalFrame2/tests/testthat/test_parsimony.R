@@ -15,12 +15,6 @@ test_that("Testing parsimony algorithm.", {
     pali=as.phyDat(ali)
     p=parsimony(tree, pali, method = "fitch")
     expect_equal(m[1],p)
-    tree$node.label=paste0('N',1:tree$Nnode)
-    anc=phangorn::ancestral.pars(tree,pali,return='ancestral')
-    anc=anc[tree$node.label]
-    r=likelihood_anc(tree,pali,anc,method='mine')
-    print(c(m[3],r))
-    #expect_equal(m[3],r)
     system('rm tmp.fasta tmp.nwk')
   }
 })

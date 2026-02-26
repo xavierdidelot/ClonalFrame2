@@ -57,19 +57,12 @@ Tree* Tree::read_newick(const string &filename) {
 }
 
 string Tree::to_string() {
+    for (size_t i=n;i<nodes.size();i++) nodes[i]->set_name("NODE"+std::to_string(i));
     return nodes[n]->to_string() + ";";
 }
 
 Tree::~Tree() {
     for (size_t i = 0; i < nodes.size(); i++) {delete nodes[i];}
-}
-
-size_t Tree::get_n() {
-    return n;
-}
-
-Node *Tree::get_node(size_t i) {
-    return nodes[i];
 }
 
 void Tree::write(const string &filename) {

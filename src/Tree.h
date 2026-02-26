@@ -33,9 +33,9 @@ public:
     ///Destructor for a tree
     ~Tree();
     ///Return number of leaves in the tree
-    size_t get_n();
+    size_t get_n() {return n;}
     ///Return node with a given index
-    Node * get_node(size_t i);
+    Node * get_node(size_t i) {return nodes[i];}
     ///Write tree as a newick file
     void write(const string &filename);
     ///Check that the tree structure is correct, especially forward/backward links

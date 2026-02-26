@@ -7,42 +7,6 @@
 
 using std::string,std::cerr,std::cout,std::endl,std::vector;
 
-string Node::get_name() {
-    return name;
-}
-
-void Node::set_name(const string &s) {
-    name = s;
-}
-
-Node * Node::get_left() {
-    return left;
-}
-
-void Node::set_left(Node *l) {
-    left=l;
-}
-
-Node * Node::get_right() {
-    return right;
-}
-
-void Node::set_right(Node *r) {
-    right=r;
-}
-
-Node * Node::get_father() {
-    return father;
-}
-
-void Node::set_father(Node *f) {
-    father=f;
-}
-
-double Node::get_dist_father() {
-    return dist_father;
-}
-
 Node::Node() {
     left = nullptr;
     right = nullptr;
@@ -60,8 +24,13 @@ Node::Node(const string &s, vector <Node*> * nodes) {
     if (s.front()=='(') {
         size_t last=s.size()-1;
         while (s[last]!=')') last--;
-        if (last<s.size()-1) {
-            dist_father=stof(s.substr(last+2));
+        std::istringstream iss(s.substr(last+1));
+        string b;
+        getline(iss,b,':');
+        set_name(b);
+        if (iss.peek() != EOF) {
+            getline(iss,b);
+            set_dist_father(stof(b));
         }
         size_t mid=1;
         int counter=0;
@@ -81,15 +50,12 @@ Node::Node(const string &s, vector <Node*> * nodes) {
     } else {
         nodes->insert(nodes->begin(),this);
         std::istringstream iss(s);
-        string tmp;
-        getline(iss,tmp,':');
-        set_name(tmp);
-        getline(iss,tmp);
-        set_dist_father(stof(tmp));
+        string b;
+        getline(iss,b,':');
+        set_name(b);
+        getline(iss,b);
+        set_dist_father(stof(b));
     }
-}
-
-Node::~Node() {
 }
 
 string Node::to_string() {
@@ -101,7 +67,7 @@ string Node::to_string() {
     oss << ",";
     oss << right->to_string();
     oss << std::scientific << std::setprecision(6) << ":" << right->get_dist_father();
-    oss << ")";
+    oss << ")"<<name;
     return oss.str();
 }
 
@@ -121,18 +87,6 @@ int Node::simulate_sequences(vector<uint8_t> * above) {
     if (left!= nullptr) m+=left ->simulate_sequences(seq);
     if (right!=nullptr) m+=right->simulate_sequences(seq);
     return m;
-}
-
-void Node::set_dist_father(double d) {
-    dist_father=d;
-}
-
-vector<uint8_t> * Node::get_seq() {
-    return seq;
-}
-
-void Node::set_seq(vector<uint8_t> *s) {
-    seq=s;
 }
 
 int Node::fitch_pass1(size_t pos) {

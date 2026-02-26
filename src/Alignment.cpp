@@ -73,7 +73,10 @@ Alignment* Alignment::make_nonpoly(size_t n, size_t l) {
 Alignment* Alignment::make_from_tree(Tree *t, bool include_ancestors, bool need_pattern_analysis) {
     auto a = new Alignment();
     size_t n=t->get_n();
-    if (include_ancestors) n=n*2-1;
+    if (include_ancestors) {
+        n=n*2-1;
+        for (size_t i=t->get_n();i<n;i++) t->get_node(i)->set_name("NODE"+std::to_string(i));
+    }
     a->n=n;
     a->names=new vector<string>(n);
     a->data=new vector<vector<uint8_t>*>(n);
@@ -126,8 +129,6 @@ void Alignment::pattern_analysis() {
     if (verbose) cout<<"Finished pattern analysis and found "<<npat<<" patterns"<<endl;
 }
 
-char Alignment::get_data(size_t i, size_t j) {return data->at(i)->at(patindex->at(j));}
-
 uint8_t Alignment::encode(char in) {
     switch (in) {
         case 'a': return 0b00000001;
@@ -170,8 +171,6 @@ void Alignment::write(const string &filename) {
     file.close();
 }
 
-string Alignment::get_name(size_t i) {return names->at(i);}
-
 double Alignment::dist(size_t i, size_t j) {
     size_t num=0,den=0;
     for (size_t a=0;a<l;a++) {
@@ -181,10 +180,6 @@ double Alignment::dist(size_t i, size_t j) {
         if (get_data(i,a)!=get_data(j,a)) num+=weights->at(j);
     }
     return(-0.75*log(1.0-4.0/3.0*num/den));
-}
-
-vector<uint8_t> * Alignment::get_seq(size_t i) {
-    return(data->at(i));
 }
 
 void Alignment::miss_at_random(double x) {

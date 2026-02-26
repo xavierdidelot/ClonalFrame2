@@ -38,7 +38,7 @@ public:
     ///Destructor of alignment
     ~Alignment();
     ///Return data for genome i position j
-    char get_data(size_t i, size_t j);
+    char get_data(size_t i, size_t j) {return data->at(i)->at(patindex->at(j));}
     ///Return number of genomes in alignment
     size_t get_n() {return n;};
     ///Return length of the alignment
@@ -48,11 +48,11 @@ public:
     ///Write alignment into a fasta file
     void write(const string &filename);
     ///Return name of the i-th genome
-    string get_name(size_t i);
+    string get_name(size_t i) {return names->at(i);}
     ///Pairwise distance
     double dist(size_t i, size_t j);
     ///Return a sequence
-    vector<uint8_t> * get_seq(size_t i);
+    vector<uint8_t> * get_seq(size_t i) {return(data->at(i));}
     ///Make some of the data be missed at random
     void miss_at_random(double x);
     ///Pattern analysis

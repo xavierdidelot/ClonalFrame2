@@ -20,29 +20,29 @@ using std::string,std::cerr,std::cout,std::endl,std::vector;
 class Node {
 public:
     ///Return name of the node
-    string get_name();
+    string get_name() {return name;}
     ///Set name of the node
-    void set_name(const string &);
+    void set_name(const string & s) {name = s;}
     ///Return node on the left
-    Node * get_left();
+    Node * get_left() {return left;}
     ///Set node on the left
-    void set_left(Node *);
+    void set_left(Node *l) {left = l;}
     ///Return node on the right
-    Node * get_right();
+    Node * get_right() {return right;}
     ///Set node on the right
-    void set_right(Node *);
+    void set_right(Node * r) {right = r;}
     ///Return father node
-    Node * get_father();
+    Node * get_father() {return father;}
     ///Set father node
-    void set_father(Node *);
+    void set_father(Node * f) {father=f;};
     ///Return distance to father
-    double get_dist_father();
+    double get_dist_father() {return dist_father;}
     ///Set distance to father
-    void set_dist_father(double);
+    void set_dist_father(double d) {dist_father=d;};
     ///Return sequence
-    vector<uint8_t> * get_seq();
+    vector<uint8_t> * get_seq() {return seq;};
     ///Sets sequence
-    void set_seq(vector<uint8_t> *);
+    void set_seq(vector<uint8_t> * s) {seq = s;};
     ///Fitch algorithm, first pass, returns score
     int fitch_pass1(size_t pos);
     ///Fitch algorithm, second pass
@@ -53,7 +53,7 @@ public:
     ///Constructor for a new node from a Newick string
     Node(const string &s,vector <Node*> * nodes);
     ///Destructor for a node
-    ~Node();
+    ~Node() = default;
     ///Return a newick string for this node and its children
     string to_string();
     ///Add mutations
