@@ -39,7 +39,7 @@ int main() {
     cout<<"Counted number of substitutions: "<<truth<<endl;
 
     //Ancestral reconstruction
-    int s1=t->ancestral_reconstruction();
+    int s1=t->parsimony();
     int s2=t->count_subs();
     cout<<"Parsimonious number of substitutions: "<<s1<<" "<<s2<<endl;
     assert(s1==s2);

@@ -59,7 +59,7 @@ int main(int argc, const char *argv[]) {
         auto t = Tree::nj(a);
         t->set_sequences(a,false);
         if (verbose) cout << "Performing initial ancestral reconstruction..." << endl;
-        t->ancestral_reconstruction();
+        t->parsimony();
         auto p = new Param(t);
         p->mcmc(burn, nbit, thin);
         t->write(outfile);

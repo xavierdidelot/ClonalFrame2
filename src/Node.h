@@ -44,18 +44,18 @@ public:
     ///Sets sequence
     void set_seq(vector<uint8_t> * s) {seq = s;};
     ///Fitch algorithm, first pass, returns score
-    int fitch_pass1(size_t pos);
+    int fitch_pass1(size_t pos);//recursive
     ///Fitch algorithm, second pass
-    void fitch_pass2(size_t pos);
+    void fitch_pass2(size_t pos);//recursive
 
     ///Constructor for a new node
     Node();
     ///Constructor for a new node from a Newick string
-    Node(const string &s,vector <Node*> * nodes);
+    Node(const string &s,vector <Node*> * nodes);//recursive
     ///Destructor for a node
     ~Node() = default;
     ///Return a newick string for this node and its children
-    string to_string();
+    string to_string();//recursive
     ///Add mutations
     int simulate_sequences(vector<uint8_t> * above);
 

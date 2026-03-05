@@ -44,8 +44,10 @@ public:
     int simulate_sequences(size_t l);
     ///Assign sequences from alignment to the tree leaves
     void set_sequences(Alignment * ali, bool is_ordered);
-    ///Ancestral state reconstruction, returning number of substitutions in patterns
-    int ancestral_reconstruction();
+    ///Parsimonious ancestral state reconstruction, returning number of substitutions in patterns
+    int parsimony();
+    ///Parsimonious ancestral state reconstruction, returning number of substitutions in patterns, recursive version
+    int parsimony_recursive();
     ///Count number of substitutions in patterns
     int count_subs();
     ///Sum of branch lengths

@@ -12,7 +12,7 @@ int main() {
     auto a = Alignment::read_fasta("tmp.fasta");
     auto t = Tree::read_newick("tmp.nwk");
     t->set_sequences(a,false);
-    int s1=t->ancestral_reconstruction();
+    int s1=t->parsimony();
     int s2=t->count_subs();
     double s3=t->likelihood_anc();
     cout<<s1<<","<<s2<<","<<std::fixed << std::setprecision(6)<<s3<<endl;

@@ -216,6 +216,10 @@ Tree* Tree::nj(Alignment * ali) {
 }
 
 void Tree::set_sequences(Alignment *ali,bool is_ordered) {
+    for (size_t i=n;i<nodes.size();i++) {
+        delete nodes[i]->get_seq();
+        nodes[i]->set_seq(new vector<uint8_t>(ali->get_npat(),0b00010000));
+    }
     if (is_ordered) {
         for (size_t i=0;i<ali->get_n();i++) get_node(i)->set_seq(ali->get_seq(i));
     } else {
@@ -227,12 +231,54 @@ void Tree::set_sequences(Alignment *ali,bool is_ordered) {
     weights=ali->get_weights();
 }
 
-int Tree::ancestral_reconstruction() {
-    int score=0;
-    for (size_t i=n;i<nodes.size();i++) {
-        delete nodes[i]->get_seq();
-        nodes[i]->set_seq(new vector<uint8_t>(npat,0b00010000));
+int Tree::parsimony() {
+    //Determine order
+    vector<Node*> todo;
+    todo.push_back(nodes[n]);
+    size_t i=0;
+    while (i<todo.size()) {
+        if (todo[i]->get_left()!=nullptr) {
+            todo.push_back(todo[i]->get_left());
+            todo.push_back(todo[i]->get_right());
+        }
+        i++;
     }
+
+    //Fitch first pass
+    int score=0;
+    for (i=todo.size()-1;true;i--) {
+        for (size_t pos=0;pos<npat;pos++) {
+            if (todo[i]->get_left()==nullptr) {
+                if (Alignment::nuc_is_unsure(todo[i]->get_seq()->at(pos))) todo[i]->get_seq()->at(pos)=0b00011111;
+            } else {
+                uint8_t toset=todo[i]->get_left()->get_seq()->at(pos)&todo[i]->get_right()->get_seq()->at(pos)&0b00001111;//intersect
+                if (toset==0u) {
+                    score+=weights->at(pos);
+                    toset=todo[i]->get_left()->get_seq()->at(pos)|todo[i]->get_right()->get_seq()->at(pos);//union
+                }
+                Alignment::nuc_set_as(&(todo[i]->get_seq()->at(pos)),toset);//preserve missing status
+            }
+        }
+        if (i==0) break;
+    }
+
+    //Fitch second pass
+    for (i=0;i<todo.size();i++) for (size_t pos=0;pos<npat;pos++) {
+        uint8_t toset;
+        if (todo[i]->get_father()==nullptr) toset=todo[i]->get_seq()->at(pos)&0b00001111;
+        else {
+            toset=todo[i]->get_seq()->at(pos)&todo[i]->get_father()->get_seq()->at(pos)&0b00001111;
+            if (toset==0u) toset=todo[i]->get_seq()->at(pos)&0b00001111;
+        }
+        toset=toset&-toset;//pick first common bit
+        Alignment::nuc_set_as(&(todo[i]->get_seq()->at(pos)),toset);//preserve missing status
+
+    }
+    return(score);
+}
+
+int Tree::parsimony_recursive() {
+    int score=0;
     for (size_t pos=0;pos<npat;pos++) {
         score+=nodes[n]->fitch_pass1(pos)*weights->at(pos);
         nodes[n]->fitch_pass2(pos);

@@ -101,7 +101,7 @@ int Node::fitch_pass1(size_t pos) {
         s++;
         toset=left->seq->at(pos)|right->seq->at(pos);//union
     }
-    Alignment::nuc_set_as(&seq->at(pos),toset);
+    Alignment::nuc_set_as(&seq->at(pos),toset);//preserve missing status
     return s;
 }
 
