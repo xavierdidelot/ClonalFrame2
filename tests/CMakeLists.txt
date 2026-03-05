@@ -23,3 +23,6 @@ target_link_libraries(test_patterns cf2_lib)# GSL::gsl GSL::gslcblas)
 
 add_executable(test_likelihoods test_likelihoods.cpp)
 target_link_libraries(test_likelihoods cf2_lib)# GSL::gsl GSL::gslcblas)
+
+add_executable(profile_parsimony profile_parsimony.cpp)
+target_link_libraries(profile_parsimony cf2_lib)# GSL::gsl GSL::gslcblas)

@@ -6,5 +6,5 @@ else
 g++ -g -O0 -fsanitize=address *.cpp -o /tmp/ClonalFrame2
 fi
 rm version.h
-/tmp/ClonalFrame2
-/tmp/ClonalFrame2 ../data/simu.fasta /tmp/out
+MallocNanoZone=0 ASAN_OPTIONS=detect_leaks=1 /tmp/ClonalFrame2 -v
+MallocNanoZone=0 ASAN_OPTIONS=detect_leaks=1 /tmp/ClonalFrame2 -v ../data/simu.fasta /tmp/out

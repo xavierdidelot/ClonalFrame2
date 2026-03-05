@@ -62,6 +62,7 @@ string Tree::to_string() {
 }
 
 Tree::~Tree() {
+    for (size_t i = n; i < nodes.size(); i++) {delete nodes[i]->get_seq();}
     for (size_t i = 0; i < nodes.size(); i++) {delete nodes[i];}
 }
 
@@ -97,6 +98,7 @@ int Tree::simulate_sequences(size_t l) {
     m+=nodes[n]->get_left ()->simulate_sequences(nodes[n]->get_seq());
     m+=nodes[n]->get_right()->simulate_sequences(nodes[n]->get_seq());
     Alignment* a = Alignment::make_from_tree(this,true,true);//to perform pattern analysis
+    for (size_t i=0;i<nodes.size();i++) nodes[i]->set_seq(nullptr);
     set_sequences(a,true);
     return(m);
 }

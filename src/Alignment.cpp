@@ -10,7 +10,11 @@
 using std::string,std::cerr,std::cout,std::endl,std::vector;
 
 Alignment::~Alignment() {
-
+    for (size_t i=0;i<data->size();i++) delete data->at(i);
+    delete data;
+    delete names;
+    delete patindex;
+    delete weights;
 }
 
 Alignment * Alignment::read_fasta(const string &filename) {
@@ -125,6 +129,8 @@ void Alignment::pattern_analysis() {
     }
     weights->resize(npat);
     for (size_t i=0;i<n;i++) data2->at(i)->resize(npat);
+    for (size_t i=0;i<n;i++) delete data->at(i);
+    delete data;
     data=data2;
     if (verbose) cout<<"Finished pattern analysis and found "<<npat<<" patterns"<<endl;
 }

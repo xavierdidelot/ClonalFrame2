@@ -57,7 +57,7 @@ public:
     ///Return a newick string for this node and its children
     string to_string();//recursive
     ///Add mutations
-    int simulate_sequences(vector<uint8_t> * above);
+    int simulate_sequences(vector<uint8_t> * above);//recursive
 
 private:
     string name;
