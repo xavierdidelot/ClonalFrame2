@@ -43,7 +43,7 @@ public:
     ///Add mutations on a tree to generate sequence of length l with mutation rate theta/2
     int simulate_sequences(size_t l);
     ///Assign sequences from alignment to the tree leaves
-    void set_sequences(Alignment * ali, bool is_ordered);
+    void set_sequences(Alignment * ali);
     ///Parsimonious ancestral state reconstruction, returning number of substitutions in patterns
     int parsimony();
     ///Parsimonious ancestral state reconstruction, returning number of substitutions in patterns, recursive version
@@ -54,6 +54,8 @@ public:
     double sum_bra_len();
     ///Likelihood given ancestral sequences
     double likelihood_anc();
+    ///Reorder nodes
+    void reorder();
     size_t get_npat() {return npat;}
     vector<size_t> * get_patindex()  {return patindex;}
     vector<size_t> * get_weights()  {return weights;}

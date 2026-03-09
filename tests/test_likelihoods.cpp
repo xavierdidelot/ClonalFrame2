@@ -11,7 +11,7 @@ using namespace std;
 int main() {
     auto a = Alignment::read_fasta("tmp.fasta");
     auto t = Tree::read_newick("tmp.nwk");
-    t->set_sequences(a,false);
+    t->set_sequences(a);
     t->parsimony();
     a=Alignment::make_from_tree(t,true,false);
     t->write("tmp2.nwk");

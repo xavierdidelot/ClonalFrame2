@@ -33,6 +33,8 @@ Tree * Tree::deterministic_tree(size_t n) {
     t->nodes[n+n-2]->set_right(t->nodes[n-1]);
     t->nodes[n-1]->set_father(t->nodes[n+n-2]);
     t->nodes[n-1]->set_dist_father(1.0);
+    std::swap(t->nodes[n*2-2],t->nodes[n]);
+    t->reorder();
     return t;
 }
 
@@ -53,12 +55,14 @@ Tree* Tree::read_newick(const string &filename) {
     auto root = new Node(line, &t->nodes);
     root->set_father(nullptr);
     t->n=(t->nodes.size()+1)/2;
+    std::swap(t->nodes[t->n*2-2],t->nodes[t->n]);
+    t->reorder();
     return t;
 }
 
 string Tree::to_string() {
     for (size_t i=n;i<nodes.size();i++) nodes[i]->set_name("NODE"+std::to_string(i));
-    return nodes[n]->to_string() + ";";
+    return nodes[2*n-2]->to_string() + ";";
 }
 
 Tree::~Tree() {
@@ -79,7 +83,7 @@ void Tree::write(const string &filename) {
 
 bool Tree::check_structure() {
     if (n * 2 - 1 - nodes.size() != 0) return false;
-    if (nodes[n]->get_father()!=nullptr) return false;
+    if (nodes[2*n-2]->get_father()!=nullptr) return false;
     for (size_t i = 0; i < nodes.size(); i++) {
         if (nodes[i]->get_left() != nullptr && nodes[i]->get_left()->get_father() != nodes[i]) return false;
         if (nodes[i]->get_right() != nullptr && nodes[i]->get_right()->get_father() != nodes[i]) return false;
@@ -88,18 +92,18 @@ bool Tree::check_structure() {
 }
 
 int Tree::simulate_sequences(size_t l) {
-    delete nodes[n]->get_seq();
-    nodes[n]->set_seq(new vector<uint8_t>(l));
+    delete nodes[2*n-2]->get_seq();
+    nodes[2*n-2]->set_seq(new vector<uint8_t>(l));
     std::uniform_int_distribution unif4(0, 3);
     for (size_t i = 0; i < l; i++) {
-        nodes[n]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
+        nodes[2*n-2]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
     }
     int m=0;
-    m+=nodes[n]->get_left ()->simulate_sequences(nodes[n]->get_seq());
-    m+=nodes[n]->get_right()->simulate_sequences(nodes[n]->get_seq());
+    m+=nodes[2*n-2]->get_left ()->simulate_sequences(nodes[2*n-2]->get_seq());
+    m+=nodes[2*n-2]->get_right()->simulate_sequences(nodes[2*n-2]->get_seq());
     Alignment* a = Alignment::make_from_tree(this,true,true);//to perform pattern analysis
     for (size_t i=0;i<nodes.size();i++) nodes[i]->set_seq(nullptr);
-    set_sequences(a,true);
+    set_sequences(a);
     return(m);
 }
 
@@ -137,6 +141,8 @@ Tree* Tree::random_tree(size_t n,double avg_bra_len) {
     t->nodes[n]->set_right(to_merge[1]);
     to_merge[0]->set_father(t->nodes[n]);
     to_merge[1]->set_father(t->nodes[n]);
+    std::swap(t->nodes[n*2-2],t->nodes[n]);
+    t->reorder();
     return t;
 }
 
@@ -211,69 +217,55 @@ Tree* Tree::nj(Alignment * ali) {
     t->nodes[n+m]->set_dist_father(0.0);
     t->nodes[n+m]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father()*0.5);
     t->nodes[to_merge[2]]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father()*0.5);
-    std::swap(t->nodes[n+m+1],t->nodes[n]);
-    t->nodes[n]->set_father(nullptr);
+    //std::swap(t->nodes[n+m+1],t->nodes[n]);
+    t->nodes[n+m+1]->set_father(nullptr);
     //for (i=0;i<nodes.size();i++) if (nodes[i]->get_dist_father()<=0.0) nodes[i]->set_dist_father(1e-5);
+    t->reorder();
     return t;
 }
 
-void Tree::set_sequences(Alignment *ali,bool is_ordered) {
+void Tree::set_sequences(Alignment *ali) {
     for (size_t i=n;i<nodes.size();i++) {
         delete nodes[i]->get_seq();
         nodes[i]->set_seq(new vector<uint8_t>(ali->get_npat(),0b00010000));
     }
-    if (is_ordered) {
-        for (size_t i=0;i<ali->get_n();i++) get_node(i)->set_seq(ali->get_seq(i));
-    } else {
-        for (size_t i=0;i<ali->get_n();i++) for (size_t j=0;j<nodes.size();j++)
-            if (get_node(j)->get_name()==ali->get_name(i)) get_node(j)->set_seq(ali->get_seq(i));
-    }
+    for (size_t i=0;i<ali->get_n();i++) for (size_t j=0;j<nodes.size();j++)
+        if (get_node(j)->get_name()==ali->get_name(i)) get_node(j)->set_seq(ali->get_seq(i));
     npat=ali->get_npat();
     patindex=ali->get_patindex();
     weights=ali->get_weights();
 }
 
 int Tree::parsimony() {
-    //Determine order
-    vector<Node*> todo;
-    todo.push_back(nodes[n]);
-    size_t i=0;
-    while (i<todo.size()) {
-        if (todo[i]->get_left()!=nullptr) {
-            todo.push_back(todo[i]->get_left());
-            todo.push_back(todo[i]->get_right());
-        }
-        i++;
-    }
-
     //Fitch first pass
+    size_t i=0;
     int score=0;
-    for (i=todo.size()-1;true;i--) {
+    for (i=nodes.size()-1;true;i--) {
         for (size_t pos=0;pos<npat;pos++) {
-            if (todo[i]->get_left()==nullptr) {
-                if (Alignment::nuc_is_unsure(todo[i]->get_seq()->at(pos))) todo[i]->get_seq()->at(pos)=0b00011111;
+            if (nodes[i]->get_left()==nullptr) {
+                if (Alignment::nuc_is_unsure(nodes[i]->get_seq()->at(pos))) nodes[i]->get_seq()->at(pos)=0b00011111;
             } else {
-                uint8_t toset=todo[i]->get_left()->get_seq()->at(pos)&todo[i]->get_right()->get_seq()->at(pos)&0b00001111;//intersect
+                uint8_t toset=nodes[i]->get_left()->get_seq()->at(pos)&nodes[i]->get_right()->get_seq()->at(pos)&0b00001111;//intersect
                 if (toset==0u) {
                     score+=weights->at(pos);
-                    toset=todo[i]->get_left()->get_seq()->at(pos)|todo[i]->get_right()->get_seq()->at(pos);//union
+                    toset=nodes[i]->get_left()->get_seq()->at(pos)|nodes[i]->get_right()->get_seq()->at(pos);//union
                 }
-                Alignment::nuc_set_as(&(todo[i]->get_seq()->at(pos)),toset);//preserve missing status
+                Alignment::nuc_set_as(&(nodes[i]->get_seq()->at(pos)),toset);//preserve missing status
             }
         }
         if (i==0) break;
     }
 
     //Fitch second pass
-    for (i=0;i<todo.size();i++) for (size_t pos=0;pos<npat;pos++) {
+    for (i=0;i<nodes.size();i++) for (size_t pos=0;pos<npat;pos++) {
         uint8_t toset;
-        if (todo[i]->get_father()==nullptr) toset=todo[i]->get_seq()->at(pos)&0b00001111;
+        if (nodes[i]->get_father()==nullptr) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
         else {
-            toset=todo[i]->get_seq()->at(pos)&todo[i]->get_father()->get_seq()->at(pos)&0b00001111;
-            if (toset==0u) toset=todo[i]->get_seq()->at(pos)&0b00001111;
+            toset=nodes[i]->get_seq()->at(pos)&nodes[i]->get_father()->get_seq()->at(pos)&0b00001111;
+            if (toset==0u) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
         }
         toset=toset&-toset;//pick first common bit
-        Alignment::nuc_set_as(&(todo[i]->get_seq()->at(pos)),toset);//preserve missing status
+        Alignment::nuc_set_as(&(nodes[i]->get_seq()->at(pos)),toset);//preserve missing status
 
     }
     return(score);
@@ -282,8 +274,8 @@ int Tree::parsimony() {
 int Tree::parsimony_recursive() {
     int score=0;
     for (size_t pos=0;pos<npat;pos++) {
-        score+=nodes[n]->fitch_pass1(pos)*weights->at(pos);
-        nodes[n]->fitch_pass2(pos);
+        score+=nodes[2*n-2]->fitch_pass1(pos)*weights->at(pos);
+        nodes[2*n-2]->fitch_pass2(pos);
     }
     return(score);
 }
@@ -331,4 +323,23 @@ double Tree::likelihood_anc() {
     }
     ll=ll+log(0.25)*patindex->size();
     return ll;
+}
+
+void Tree::reorder() {
+    vector<Node*> todo;
+    todo.push_back(nodes[2*n-2]);
+    size_t i=0,j=0;
+    while (i<todo.size()) {
+        if (todo[i]->get_left()!=nullptr) {
+            todo.push_back(todo[i]->get_left());
+            todo.push_back(todo[i]->get_right());
+        }
+        i++;
+    }
+    for (i=0;i<2*n-1;i++) {
+        if (todo[2*n-2-i]->get_left()!=nullptr) {
+            nodes[n+j]=todo[2*n-2-i];
+            j++;
+        }
+    }
 }

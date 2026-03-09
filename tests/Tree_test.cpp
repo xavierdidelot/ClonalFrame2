@@ -50,7 +50,7 @@ int main() {
     t=Tree::nj(a);
     b=t->check_structure();assert(b);
     t->write("nj.nwk");
-    t->set_sequences(a,false);
+    t->set_sequences(a);
     delete(t);
     delete(a);
 }

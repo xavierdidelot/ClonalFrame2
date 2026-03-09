@@ -11,7 +11,7 @@ using namespace std;
 int main() {
     auto a = Alignment::read_fasta("tmp.fasta");
     auto t = Tree::read_newick("tmp.nwk");
-    t->set_sequences(a,false);
+    t->set_sequences(a);
     int s1=t->parsimony();
     int s2=t->count_subs();
     double s3=t->likelihood_anc();
