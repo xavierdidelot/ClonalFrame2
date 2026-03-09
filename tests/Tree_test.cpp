@@ -41,10 +41,17 @@ int main() {
     //Ancestral reconstruction
     int s1=t->parsimony();
     int s2=t->count_subs();
-    cout<<"Parsimonious number of substitutions: "<<s1<<" "<<s2<<endl;
+    int s3=t->parsimony_recursive();
+    int s4=t->count_subs();
+    cout<<"Parsimonious number of substitutions: "<<s1<<" "<<s2<<" "<<s3<<" "<<s4<<endl;
     assert(s1==s2);
-    cout<<"Likelihood given ancestral sequences: "<<std::fixed << std::setprecision(6)<<t->likelihood_anc()<<endl;
-
+    assert(s2==s3);
+    assert(s3==s4);
+    cout<<"Likelihood given parsimony ancestral sequences: "<<std::fixed << std::setprecision(6)<<t->likelihood_anc()<<endl;
+    double l1=t->jointml();
+    double l2=t->likelihood_anc();
+    cout<<"Likelihoods given ML ancestral sequences: "<<std::fixed << std::setprecision(6)<<l1<<" "<<std::fixed << std::setprecision(6)<<l2<<endl;
+    assert(round(l1*1e6)==round(l2*1e6));
     //NJ algorithm
     delete(t);
     t=Tree::nj(a);

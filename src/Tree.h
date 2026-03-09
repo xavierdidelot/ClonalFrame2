@@ -47,6 +47,8 @@ public:
     ///Parsimonious ancestral state reconstruction, returning number of substitutions in patterns
     int parsimony();
     ///Parsimonious ancestral state reconstruction, returning number of substitutions in patterns, recursive version
+    double jointml();
+    ///Joint ML ancestral state reconstruction, using Pupko et al algorithm, return likelihood
     int parsimony_recursive();
     ///Count number of substitutions in patterns
     int count_subs();

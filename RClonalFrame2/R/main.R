@@ -17,7 +17,7 @@ loadSeqs <- function(filename) {
 #' @returns Log-likelihood
 #' @export
 #'
-likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='phangorn') {
+likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
   if (method=='phangorn') {
     if (is.null(workenv)) workenv=list()#use a list, not an environment
     new_tree=phangorn::add.tips(tree=tree,tips=names(anc),where=names(anc),edge.length=rep(0,length(anc)))

@@ -58,6 +58,8 @@ public:
     string to_string();//recursive
     ///Add mutations
     int simulate_sequences(vector<uint8_t> * above);//recursive
+    size_t get_index() {return index;};
+    void set_index(size_t i) {index = i;};
 
 private:
     string name;
@@ -66,6 +68,7 @@ private:
     Node *right;
     Node *father;
     double dist_father;
+    size_t index;
 };
 
 #endif //CLONALFRAME2_NODE_H

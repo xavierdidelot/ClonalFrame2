@@ -18,6 +18,9 @@ target_link_libraries(test_nj cf2_lib)# GSL::gsl GSL::gslcblas)
 add_executable(test_parsimony test_parsimony.cpp)
 target_link_libraries(test_parsimony cf2_lib)# GSL::gsl GSL::gslcblas)
 
+add_executable(test_jointml test_jointml.cpp)
+target_link_libraries(test_jointml cf2_lib)# GSL::gsl GSL::gslcblas)
+
 add_executable(test_patterns test_patterns.cpp)
 target_link_libraries(test_patterns cf2_lib)# GSL::gsl GSL::gslcblas)
 

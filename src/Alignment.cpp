@@ -159,6 +159,26 @@ char Alignment::decode(uint8_t in) {
     }
 }
 
+size_t Alignment::decode_int(uint8_t in) {
+    switch (in) {
+        case 0b00000001: return 0;
+        case 0b00000010: return 1;
+        case 0b00000100: return 2;
+        case 0b00001000: return 3;
+        default        : return 100;
+    }
+}
+
+uint8_t Alignment::encode_int(size_t in) {
+    switch (in) {
+        case 0:  return 0b00000001;
+        case 1:  return 0b00000010;
+        case 2:  return 0b00000100;
+        case 3:  return 0b00001000;
+        default: return 0b00010000;
+    }
+}
+
 
 void Alignment::write(const string &filename, bool include_uncertainty) {
     std::ofstream file;

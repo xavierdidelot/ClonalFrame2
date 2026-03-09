@@ -4,7 +4,7 @@
 \alias{likelihood_anc}
 \title{Likelihood function given ancestral sequences}
 \usage{
-likelihood_anc(tree, seqs, anc, workenv = NULL, method = "phangorn")
+likelihood_anc(tree, seqs, anc, workenv = NULL, method = "mine")
 }
 \arguments{
 \item{tree}{Phylogeny in ape::phylo format}

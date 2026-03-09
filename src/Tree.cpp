@@ -87,6 +87,7 @@ bool Tree::check_structure() {
     for (size_t i = 0; i < nodes.size(); i++) {
         if (nodes[i]->get_left() != nullptr && nodes[i]->get_left()->get_father() != nodes[i]) return false;
         if (nodes[i]->get_right() != nullptr && nodes[i]->get_right()->get_father() != nodes[i]) return false;
+        if (nodes[i]->get_index() != i) return false;
     }
     return true;
 }
@@ -240,7 +241,7 @@ int Tree::parsimony() {
     //Fitch first pass
     size_t i=0;
     int score=0;
-    for (i=nodes.size()-1;true;i--) {
+    for (i=0;i<nodes.size();i++) {
         for (size_t pos=0;pos<npat;pos++) {
             if (nodes[i]->get_left()==nullptr) {
                 if (Alignment::nuc_is_unsure(nodes[i]->get_seq()->at(pos))) nodes[i]->get_seq()->at(pos)=0b00011111;
@@ -253,20 +254,22 @@ int Tree::parsimony() {
                 Alignment::nuc_set_as(&(nodes[i]->get_seq()->at(pos)),toset);//preserve missing status
             }
         }
-        if (i==0) break;
     }
 
     //Fitch second pass
-    for (i=0;i<nodes.size();i++) for (size_t pos=0;pos<npat;pos++) {
-        uint8_t toset;
-        if (nodes[i]->get_father()==nullptr) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
-        else {
-            toset=nodes[i]->get_seq()->at(pos)&nodes[i]->get_father()->get_seq()->at(pos)&0b00001111;
-            if (toset==0u) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
-        }
-        toset=toset&-toset;//pick first common bit
-        Alignment::nuc_set_as(&(nodes[i]->get_seq()->at(pos)),toset);//preserve missing status
+    for (i=nodes.size()-1;true;i--) {
+        for (size_t pos=0;pos<npat;pos++) {
+            uint8_t toset;
+            if (nodes[i]->get_father()==nullptr) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
+            else {
+                toset=nodes[i]->get_seq()->at(pos)&nodes[i]->get_father()->get_seq()->at(pos)&0b00001111;
+                if (toset==0u) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
+            }
+            toset=toset&-toset;//pick first common bit
+            Alignment::nuc_set_as(&(nodes[i]->get_seq()->at(pos)),toset);//preserve missing status
 
+        }
+        if (i==0) break;
     }
     return(score);
 }
@@ -342,4 +345,72 @@ void Tree::reorder() {
             j++;
         }
     }
+    for (i=0;i<2*n-1;i++) nodes[i]->set_index(i);
+}
+
+double Tree::jointml() {
+    vector<vector<double> > L(nodes.size(), vector<double>(4, 0.0));
+    vector<vector<uint8_t> > C(nodes.size(), vector<uint8_t>(4, 0));
+    vector<double> tmp(4, 0.0);
+    double res = 0.0;
+    size_t z,w;
+    double ex, pid, pnid;
+
+    for (size_t pos = 0; pos < npat; pos++) {
+        //First pass from leaves to root (excluded)
+        for (z = 0; z < nodes.size()-1; z++) {
+            size_t zind=nodes[z]->get_index();
+            ex = exp(-nodes[z]->get_dist_father());
+            pid = log(0.25 + 0.75 * ex);
+            pnid = log(0.25 - 0.25 * ex);
+
+            for (size_t i = 0; i < 4; i++) {
+                if (nodes[z]->get_left() == nullptr) {
+                    if (Alignment::nuc_is_unsure(nodes[z]->get_seq()->at(pos))) {
+                        L[zind][i] = pid;
+                        C[zind][i] = Alignment::encode_int(i);
+                        cout<<"not happening"<<endl;
+                    } else {
+                        C[zind][i] = nodes[z]->get_seq()->at(pos);
+                        if (i == Alignment::decode_int(nodes[z]->get_seq()->at(pos)))
+                            L[zind][i] = pid;
+                        else
+                            L[zind][i] = pnid;
+                    }
+                } else {
+                    int left=nodes[z]->get_left()->get_index();
+                    int right=nodes[z]->get_right()->get_index();
+                    for (size_t j=0;j<4;j++) {
+                        tmp[j]=L[left][j]+L[right][j];
+                        if (i==j) tmp[j]+=pid; else tmp[j]+=pnid;
+                    }
+                    w=0;
+                    for (size_t j=1;j<4;j++) {if (tmp[j]>tmp[w]) w=j;}
+                    L[zind][i]=tmp[w];
+                    C[zind][i]=Alignment::encode_int(w);
+                }
+            }
+        }
+
+        //Root
+        z=nodes.size()-1;
+        int left=nodes[z]->get_left()->get_index();
+        int right=nodes[z]->get_right()->get_index();
+        for (size_t j=0;j<4;j++) {
+            L[z][j]=L[left][j]+L[right][j]+log(0.25);
+        }
+        w=0;
+        for (size_t j=1;j<4;j++) {if (L[z][j]>L[z][w]) w=j;}
+        res+=L[z][w]*weights->at(pos);
+        Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), Alignment::encode_int(w)); //preserve missing status
+
+        //Second pass from root (excluded) to leaves
+        for (z = nodes.size()-2;true; z--) {
+            size_t zind=nodes[z]->get_index();
+            size_t i=Alignment::decode_int(nodes[z]->get_father()->get_seq()->at(pos));
+            Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), C[zind][i]); //preserve missing status
+            if (z == 0) break;
+        }
+    }
+    return (res);
 }
