@@ -14,7 +14,7 @@ int main() {
     t->set_sequences(a);
     double s1=t->jointml();
     double s2=t->likelihood_anc();
-    cout<<std::setprecision(6)<<s1<<","<<std::setprecision(6)<<s2<<endl;
+    cout<<std::fixed<<std::setprecision(6)<<s1<<","<<std::fixed<<std::setprecision(6)<<s2<<endl;
     delete(t);
     delete(a);
 }

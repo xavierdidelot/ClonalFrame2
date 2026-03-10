@@ -156,7 +156,7 @@ Tree* Tree::nj(Alignment * ali) {
         t->nodes[i]=new Node();
         if (i<n) t->nodes[i]->set_name(ali->get_name(i));
     }
-    auto to_merge = vector<int>(n);
+    auto to_merge = vector<size_t>(n);
     for (size_t i = 0; i < n; i++) to_merge[i]=i;
     vector<vector<double> > dist(2 * n, vector<double>(2 * n, 0.0));
     for (size_t i = 0; i < n; i++) for (size_t j = 0; j < i; j++) {
@@ -166,7 +166,7 @@ Tree* Tree::nj(Alignment * ali) {
     vector<vector<double> > q(2 * n, vector<double>(2 * n, 0.0));
     vector<double> r(2 * n, 0.0);
 
-    int m = 0;
+    size_t m = 0;
     while (true) {
         for (size_t i = 0; i < to_merge.size(); i++) {
             r[to_merge[i]] = 0;
@@ -354,35 +354,38 @@ double Tree::jointml() {
     vector<double> tmp(4, 0.0);
     double res = 0.0;
     size_t z,w;
-    double ex, pid, pnid;
+
+    vector<double> pid(nodes.size(),0);
+    vector<double> pnid(nodes.size(),0);
+    for (z = 0; z < nodes.size()-1; z++) {
+        double ex = exp(-nodes[z]->get_dist_father());
+        pid[z] = log(0.25 + 0.75 * ex);
+        pnid[z] = log(0.25 - 0.25 * ex);
+    }
 
     for (size_t pos = 0; pos < npat; pos++) {
         //First pass from leaves to root (excluded)
         for (z = 0; z < nodes.size()-1; z++) {
             size_t zind=nodes[z]->get_index();
-            ex = exp(-nodes[z]->get_dist_father());
-            pid = log(0.25 + 0.75 * ex);
-            pnid = log(0.25 - 0.25 * ex);
 
             for (size_t i = 0; i < 4; i++) {
                 if (nodes[z]->get_left() == nullptr) {
                     if (Alignment::nuc_is_unsure(nodes[z]->get_seq()->at(pos))) {
-                        L[zind][i] = pid;
+                        L[zind][i] = pid[z];
                         C[zind][i] = Alignment::encode_int(i);
-                        cout<<"not happening"<<endl;
                     } else {
                         C[zind][i] = nodes[z]->get_seq()->at(pos);
                         if (i == Alignment::decode_int(nodes[z]->get_seq()->at(pos)))
-                            L[zind][i] = pid;
+                            L[zind][i] = pid[z];
                         else
-                            L[zind][i] = pnid;
+                            L[zind][i] = pnid[z];
                     }
                 } else {
                     int left=nodes[z]->get_left()->get_index();
                     int right=nodes[z]->get_right()->get_index();
                     for (size_t j=0;j<4;j++) {
                         tmp[j]=L[left][j]+L[right][j];
-                        if (i==j) tmp[j]+=pid; else tmp[j]+=pnid;
+                        if (i==j) tmp[j]+=pid[z]; else tmp[j]+=pnid[z];
                     }
                     w=0;
                     for (size_t j=1;j<4;j++) {if (tmp[j]>tmp[w]) w=j;}
@@ -407,7 +410,7 @@ double Tree::jointml() {
         //Second pass from root (excluded) to leaves
         for (z = nodes.size()-2;true; z--) {
             size_t zind=nodes[z]->get_index();
-            size_t i=Alignment::decode_int(nodes[z]->get_father()->get_seq()->at(pos));
+            size_t i=Alignment::decode_int(nodes[z]->get_father()->get_seq()->at(pos)&0b00001111);
             Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), C[zind][i]); //preserve missing status
             if (z == 0) break;
         }
