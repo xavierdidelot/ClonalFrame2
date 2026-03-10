@@ -34,6 +34,9 @@ int main() {
     //a->miss_at_random(0.1);
     a->write("ali.fasta",true);
 
+    //Likelihood calculation
+    cout<<"Likelihood: "<<std::fixed << std::setprecision(6)<<t->likelihood()<<endl;
+
     //Counting number of substitutions in the tree
     int truth=t->count_subs();
     cout<<"Counted number of substitutions: "<<truth<<endl;
@@ -52,6 +55,7 @@ int main() {
     double l2=t->likelihood_anc();
     cout<<"Likelihoods given ML ancestral sequences: "<<std::fixed << std::setprecision(6)<<l1<<" "<<std::fixed << std::setprecision(6)<<l2<<endl;
     assert(round(l1*1e6)==round(l2*1e6));
+
     //NJ algorithm
     delete(t);
     t=Tree::nj(a);

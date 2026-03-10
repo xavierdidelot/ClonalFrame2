@@ -11,12 +11,17 @@ test_that("Testing likelihood functions.", {
     write.FASTA(ali,'tmp.fasta')
     m=system('../../../build-debug/tests/test_likelihoods',intern=T)
     a=as.numeric(unlist(strsplit(m,',')))
+    ll=likelihood(tree,as.phyDat(ali),method='pruning')
+    expect_equal(a[1],ll)
+
     tree2=read.tree('tmp2.nwk')
     anc2=as.phyDat(read.FASTA('tmp2.fasta'))
     seqs2=anc2[tree2$tip.label]
     anc2=anc2[tree2$node.label]
     b=likelihood_anc(tree2,seqs2,anc2,method='mine')
-    expect_equal(a,b)
+    c=likelihood_anc(tree2,seqs2,anc2,method='phangorn')
+    expect_equal(a[2],b)
+    expect_equal(b,c)
     system('rm tmp.fasta tmp.nwk tmp2.fasta tmp2.nwk')
   }
 })

@@ -310,7 +310,7 @@ double Tree::likelihood_anc() {
     for (size_t i=0;i<nodes.size();i++) {
         if (nodes[i]->get_father()==nullptr) continue;
         len=nodes[i]->get_dist_father();
-        ex=exp(-len);
+        ex = exp(-4.0*len/3.0);
         pid =log(0.25+0.75*ex);
         pnid=log(0.25-0.25*ex);
         s1=0;
@@ -358,9 +358,10 @@ double Tree::jointml() {
     vector<double> pid(nodes.size(),0);
     vector<double> pnid(nodes.size(),0);
     for (z = 0; z < nodes.size()-1; z++) {
-        double ex = exp(-nodes[z]->get_dist_father());
-        pid[z] = log(0.25 + 0.75 * ex);
-        pnid[z] = log(0.25 - 0.25 * ex);
+        size_t zind=nodes[z]->get_index();
+        double ex = exp(-4.0*nodes[z]->get_dist_father()/3.0);
+        pid[zind] = log(0.25 + 0.75 * ex);
+        pnid[zind] = log(0.25 - 0.25 * ex);
     }
 
     for (size_t pos = 0; pos < npat; pos++) {
@@ -371,21 +372,21 @@ double Tree::jointml() {
             for (size_t i = 0; i < 4; i++) {
                 if (nodes[z]->get_left() == nullptr) {
                     if (Alignment::nuc_is_unsure(nodes[z]->get_seq()->at(pos))) {
-                        L[zind][i] = pid[z];
+                        L[zind][i] = pid[zind];
                         C[zind][i] = Alignment::encode_int(i);
                     } else {
                         C[zind][i] = nodes[z]->get_seq()->at(pos);
                         if (i == Alignment::decode_int(nodes[z]->get_seq()->at(pos)))
-                            L[zind][i] = pid[z];
+                            L[zind][i] = pid[zind];
                         else
-                            L[zind][i] = pnid[z];
+                            L[zind][i] = pnid[zind];
                     }
                 } else {
-                    int left=nodes[z]->get_left()->get_index();
-                    int right=nodes[z]->get_right()->get_index();
+                    size_t left=nodes[z]->get_left()->get_index();
+                    size_t right=nodes[z]->get_right()->get_index();
                     for (size_t j=0;j<4;j++) {
                         tmp[j]=L[left][j]+L[right][j];
-                        if (i==j) tmp[j]+=pid[z]; else tmp[j]+=pnid[z];
+                        if (i==j) tmp[j]+=pid[zind]; else tmp[j]+=pnid[zind];
                     }
                     w=0;
                     for (size_t j=1;j<4;j++) {if (tmp[j]>tmp[w]) w=j;}
@@ -416,4 +417,52 @@ double Tree::jointml() {
         }
     }
     return (res);
+}
+
+double Tree::likelihood() {
+    vector<vector<double> > L(nodes.size(), vector<double>(4, 0.0));
+    double res = 0.0;
+
+    vector<double> pid(nodes.size(),0);
+    vector<double> pnid(nodes.size(),0);
+    for (size_t z = 0; z < nodes.size()-1; z++) {
+        size_t zind=nodes[z]->get_index();
+        double ex = exp(-4.0*nodes[z]->get_dist_father()/3.0);
+        pid[zind] = (0.25 + 0.75 * ex);
+        pnid[zind] = (0.25 - 0.25 * ex);
+    }
+
+    for (size_t pos = 0; pos < npat; pos++) {
+        //Pass from leaves to root (included)
+        for (size_t z = 0; z < nodes.size(); z++) {
+            size_t zind=nodes[z]->get_index();
+            for (size_t a = 0; a < 4; a++) {
+                if (nodes[z]->get_left() == nullptr) {
+                    if (Alignment::nuc_is_unsure(nodes[z]->get_seq()->at(pos))) {
+                        L[zind][a] = 1;
+                        cout<<"not happening"<<endl;
+                    } else {
+                        if (a == Alignment::decode_int(nodes[z]->get_seq()->at(pos)))
+                            L[zind][a] = 1;
+                        else
+                            L[zind][a] = 0;
+                    }
+                } else {
+                    size_t left=nodes[z]->get_left()->get_index();
+                    size_t right=nodes[z]->get_right()->get_index();
+                    double l=0,r=0;
+                    for (size_t b=0;b<4;b++) {
+                        l+=L[left][b]*(a==b?pid[left]:pnid[left]);
+                    }
+                    for (size_t c=0;c<4;c++) {
+                        r+=L[right][c]*(a==c?pid[right]:pnid[right]);
+                    }
+                    L[zind][a]=l*r;
+                }
+            }
+        }
+        size_t root=nodes.size()-1;
+        res+=log(0.25*(L[root][0]+L[root][1]+L[root][2]+L[root][3]))*weights->at(pos);
+    }
+    return res;
 }

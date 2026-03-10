@@ -41,7 +41,7 @@ likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
       else bottom=anc[[tree$node.label[tree$edge[i,2]-n]]]
       top=anc[[tree$node.label[tree$edge[i,1]-n]]]
       l=tree$edge.length[i]
-      ex=exp(-l)
+      ex=exp(-l*4/3)
       pid =log(1/4+3/4*ex)
       pnid=log(1/4-1/4*ex)
       ll=ll+pid *sum(w[top==bottom])
