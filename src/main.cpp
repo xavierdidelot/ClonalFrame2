@@ -64,7 +64,7 @@ int main(int argc, const char *argv[]) {
             auto t0 = Tree::random_tree(100,1e-4);
             if (verbose) cout << "Generating simulated alignment..." << endl;
             t0->simulate_sequences(1e6);
-            a = Alignment::make_from_tree(t0,false,true);
+            a = Alignment::make_from_tree(t0,false,false);
             delete t0;
             outfile="";
         } else {

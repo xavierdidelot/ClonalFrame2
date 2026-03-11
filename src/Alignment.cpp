@@ -105,6 +105,8 @@ void Alignment::pattern_analysis() {
     auto data2=new vector<vector<uint8_t>*>(n);
     for (size_t i=0;i<n;i++) data2->at(i)=new vector<uint8_t>(l);
     npat=0;
+    delete patindex;
+    delete weights;
     patindex=new vector<size_t>(l,0);
     weights =new vector<size_t>(l,0);
     for (size_t j=0;j<l;j++) {
@@ -200,11 +202,11 @@ void Alignment::write(const string &filename, bool include_uncertainty) {
 
 double Alignment::dist(size_t i, size_t j) {
     size_t num=0,den=0;
-    for (size_t a=0;a<l;a++) {
-        if (nuc_is_unsure(get_data(i,a))) continue;
-        if (nuc_is_unsure(get_data(j,a))) continue;
-        den+=weights->at(j);
-        if (get_data(i,a)!=get_data(j,a)) num+=weights->at(j);
+    for (size_t a=0;a<npat;a++) {
+        if (nuc_is_unsure(data->at(i)->at(a))) continue;
+        if (nuc_is_unsure(data->at(j)->at(a))) continue;
+        den+=weights->at(a);
+        if (data->at(i)->at(a)!=data->at(j)->at(a)) num+=weights->at(a);
     }
     return(-0.75*log(1.0-4.0/3.0*num/den));
 }

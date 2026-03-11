@@ -117,6 +117,8 @@ int Tree::simulate_sequences(size_t l) {
     Alignment* a = Alignment::make_from_tree(this,true,true);//to perform pattern analysis
     for (size_t i=0;i<nodes.size();i++) nodes[i]->set_seq(nullptr);
     set_sequences(a);
+    a->unlink();
+    delete(a);
     return(m);
 }
 
@@ -254,12 +256,14 @@ Tree* Tree::nj(Alignment * ali) {
 }
 
 void Tree::set_sequences(Alignment *ali) {
-    for (size_t i=n;i<nodes.size();i++) {
+    for (size_t i=0;i<nodes.size();i++) {
         delete nodes[i]->get_seq();
-        nodes[i]->set_seq(new vector<uint8_t>(ali->get_npat(),0b00010000));
     }
     for (size_t i=0;i<ali->get_n();i++) for (size_t j=0;j<nodes.size();j++)
         if (get_node(j)->get_name()==ali->get_name(i)) get_node(j)->set_seq(ali->get_seq(i));
+    for (size_t i=0;i<nodes.size();i++) {
+        if (nodes[i]->get_seq()==nullptr) nodes[i]->set_seq(new vector<uint8_t>(ali->get_npat(),0b00010000));
+    }
     npat=ali->get_npat();
     patindex=ali->get_patindex();
     weights=ali->get_weights();
