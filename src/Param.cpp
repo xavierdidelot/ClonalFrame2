@@ -17,6 +17,7 @@ Param::Param(Tree *t) {
 Param::~Param() {
 }
 
-void Param::mcmc(int burn, int nbit, int thin) {
+void Param::mcmc(int burn, int nbit, int thin, string outfile) {
     cout<<burn<<" "<<nbit<<" "<<thin<<endl;
+    if (!outfile.empty()) tree->write(outfile);
 }

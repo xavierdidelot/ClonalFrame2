@@ -40,8 +40,10 @@ public:
     void write(const string &filename);
     ///Check that the tree structure is correct, especially forward/backward links
     bool check_structure();
-    ///Add mutations on a tree to generate sequence of length l with mutation rate theta/2
+    ///Add mutations on a tree to generate sequence of length l
     int simulate_sequences(size_t l);
+    ///Add mutations on a tree to generate sequence of length l, recursive version
+    int simulate_sequences_recursive(size_t l);
     ///Assign sequences from alignment to the tree leaves
     void set_sequences(Alignment * ali);
     ///Parsimonious ancestral state reconstruction, returning number of substitutions in patterns

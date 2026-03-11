@@ -93,6 +93,34 @@ bool Tree::check_structure() {
 }
 
 int Tree::simulate_sequences(size_t l) {
+    for (int i=0;i<2*n-1;i++) delete nodes[i]->get_seq();
+    nodes[2*n-2]->set_seq(new vector<uint8_t>(l));
+    std::uniform_int_distribution unif4(0, 3);
+    std::uniform_int_distribution unif_l(0,static_cast<int>(l)-1);
+    for (size_t i = 0; i < l; i++) {
+        nodes[2*n-2]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
+    }
+    int m=0;
+    for (int z=2*n-3;z>=0;z--) {
+        vector<uint8_t>*above=nodes[z]->get_father()->get_seq();
+        nodes[z]->set_seq(new vector<uint8_t>(*above));
+        std::poisson_distribution pois(nodes[z]->get_dist_father()*l);
+        int m2=pois(rng);
+        for (int i=0;i<m2;i++) {
+            int p=unif_l(rng);
+            while (above->at(p)==nodes[z]->get_seq()->at(p)) {
+                nodes[z]->get_seq()->at(p)=Alignment::nuc_from_int(unif4(rng));
+            }
+        }
+        m+=m2;
+    }
+    Alignment* a = Alignment::make_from_tree(this,true,true);//to perform pattern analysis
+    for (size_t i=0;i<nodes.size();i++) nodes[i]->set_seq(nullptr);
+    set_sequences(a);
+    return(m);
+}
+
+int Tree::simulate_sequences_recursive(size_t l) {
     delete nodes[2*n-2]->get_seq();
     nodes[2*n-2]->set_seq(new vector<uint8_t>(l));
     std::uniform_int_distribution unif4(0, 3);
@@ -239,7 +267,7 @@ void Tree::set_sequences(Alignment *ali) {
 
 int Tree::parsimony() {
     //Fitch first pass
-    size_t i=0;
+    int i=0;
     int score=0;
     for (i=0;i<nodes.size();i++) {
         for (size_t pos=0;pos<npat;pos++) {
@@ -257,7 +285,7 @@ int Tree::parsimony() {
     }
 
     //Fitch second pass
-    for (i=nodes.size()-1;true;i--) {
+    for (i=nodes.size()-1;i>=0;i--) {
         for (size_t pos=0;pos<npat;pos++) {
             uint8_t toset;
             if (nodes[i]->get_father()==nullptr) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
@@ -267,9 +295,7 @@ int Tree::parsimony() {
             }
             toset=toset&-toset;//pick first common bit
             Alignment::nuc_set_as(&(nodes[i]->get_seq()->at(pos)),toset);//preserve missing status
-
         }
-        if (i==0) break;
     }
     return(score);
 }
@@ -353,7 +379,7 @@ double Tree::jointml() {
     vector<vector<uint8_t> > C(nodes.size(), vector<uint8_t>(4, 0));
     vector<double> tmp(4, 0.0);
     double res = 0.0;
-    size_t z,w;
+    int z,w;
 
     vector<double> pid(nodes.size(),0);
     vector<double> pnid(nodes.size(),0);
@@ -409,11 +435,10 @@ double Tree::jointml() {
         Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), Alignment::encode_int(w)); //preserve missing status
 
         //Second pass from root (excluded) to leaves
-        for (z = nodes.size()-2;true; z--) {
+        for (z = nodes.size()-2;z>=0; z--) {
             size_t zind=nodes[z]->get_index();
             size_t i=Alignment::decode_int(nodes[z]->get_father()->get_seq()->at(pos)&0b00001111);
             Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), C[zind][i]); //preserve missing status
-            if (z == 0) break;
         }
     }
     return (res);
