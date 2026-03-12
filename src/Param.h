@@ -13,8 +13,6 @@ class Param {
 public:
     ///Constructor given a tree
     explicit Param(Tree * t);
-    double get_theta() {return theta;}
-    void set_theta(double theta) {this->theta = theta;}
     double get_rho() {return rho;}
     void set_rho(double rho) {this->rho = rho;}
     double get_delta() {return delta;}
@@ -32,11 +30,12 @@ public:
     void mcmc(int burn,int nbit,int thin,string outfile);
 
 private:
+    void print_progress(int current, int total);
     Tree * tree;
-    double theta;
     double rho;
     double delta;
     double nu;
+    double ll;
 };
 
 

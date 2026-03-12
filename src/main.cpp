@@ -14,7 +14,7 @@ static string help =
 
     Options:
     -x NUM      Sets the number of burn-in iterations (default is 10000)
-    -y NUM      Sets the number of iterations after burn-in (default is 10000)
+    -y NUM      Total number of iterations (default is 20000)
     -z NUM      Sets the number of iterations between samples (default is 10)
     -s NUM      Use given seed to initiate random number generator
     -S          Generate a simulated dataset and run on it
@@ -25,7 +25,7 @@ int main(int argc, const char *argv[]) {
     auto start = std::chrono::high_resolution_clock::now();
     auto *orphan = new Node();orphan->set_dist_father(1.0); //just to test leak detection is working
 
-    int burn = 10000, nbit = 10000, thin = 10;
+    int burn = 10000, nbit = 20000, thin = 10;
     int i=1;
     bool simu=false;
     vector<string> remainder;
@@ -78,7 +78,9 @@ int main(int argc, const char *argv[]) {
         if (verbose) cout << "Performing initial ancestral reconstruction..." << endl;
         t->jointml();
         auto p = new Param(t);
+        if (verbose) cout << "Starting MCMC..." << endl;
         p->mcmc(burn, nbit, thin, outfile);
+        if (verbose) cout << "Finished MCMC." << endl;
         delete(a);
         delete(t);
         delete(p);

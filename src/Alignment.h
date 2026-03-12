@@ -70,8 +70,6 @@ public:
     static inline bool nuc_is_currently_same(uint8_t a,uint8_t b) {return (a&0b00001111)==(b&0b00001111);};
     vector<size_t> * get_patindex()  {return patindex;}
     vector<size_t> * get_weights()  {return weights;}
-    static size_t decode_int(uint8_t in);
-    static uint8_t encode_int(size_t in);
 
 private:
     Alignment() = default;
