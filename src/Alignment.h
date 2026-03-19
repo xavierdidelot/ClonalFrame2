@@ -57,6 +57,9 @@ public:
     void unlink() {for (size_t i=0;i<n;i++) data->at(i)=nullptr;weights=nullptr;patindex=nullptr;}
     ///Make some of the data be missed at random
     void miss_at_random(double x);
+    ///Pairwise distance matrix
+    vector<vector<double>> * distmat();
+
     ///Pattern analysis
     void pattern_analysis();
 
@@ -70,6 +73,7 @@ public:
     static inline bool nuc_is_currently_same(uint8_t a,uint8_t b) {return (a&0b00001111)==(b&0b00001111);};
     vector<size_t> * get_patindex()  {return patindex;}
     vector<size_t> * get_weights()  {return weights;}
+    vector<string> * get_names()  {return names;}
 
 private:
     Alignment() = default;

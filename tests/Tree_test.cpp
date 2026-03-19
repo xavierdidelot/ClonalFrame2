@@ -58,10 +58,18 @@ int main() {
 
     //NJ algorithm
     delete(t);
-    t=Tree::nj(a);
+    auto mat=a->distmat();
+    t = Tree::nj(mat,a->get_names());
+    delete mat;
     b=t->check_structure();assert(b);
     t->write("nj.nwk");
     t->set_sequences(a);
+
+    //Noisy algorithm
+    auto t3=Tree::noise_tree(t,0.01);
+    b=t3->check_structure();assert(b);
+    t3->write("nj_noise.nwk");
+    delete t3;
     delete(t);
     delete(a);
 }

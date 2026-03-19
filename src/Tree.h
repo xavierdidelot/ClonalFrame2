@@ -25,9 +25,11 @@ public:
     ///Create a random tree with n leaves
     static Tree* random_tree(size_t n,double avg_bra_len);
     ///Create a tree using the NJ algorithm
-    static Tree* nj(Alignment * ali);
+    static Tree* nj(vector<vector<double>> * d,vector<string> * names);
     ///Create a tree from a Newick string
     static Tree* read_newick(const string &filename);
+    ///Create a tree by adding noise to a tree
+    static Tree* noise_tree(Tree * t, double eps);
     ///Return the tree as a newick string
     string to_string();
     ///Destructor for a tree
@@ -62,6 +64,8 @@ public:
     double likelihood_anc();
     ///Reorder nodes
     void reorder();
+    ///Compute pairwise distance matrix
+    vector<vector<double>> * distmat();
     size_t get_npat() {return npat;}
     vector<size_t> * get_patindex()  {return patindex;}
     vector<size_t> * get_weights()  {return weights;}

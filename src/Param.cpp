@@ -20,13 +20,10 @@ void Param::print_progress(int current, int total) {
     int bar_width=60;
     float fraction = static_cast<float>(current) / total;
     int filled = static_cast<int>(fraction * bar_width);
-
     string bar(filled, '=');
     if (filled < bar_width) bar += '>';
     bar += string(bar_width - bar.size(), ' ');
-
     cout << "\r[" << bar << "] " << static_cast<int>(fraction * 100) << "%  " << std::flush;
-
     if (current == total) cout << '\n';
 }
 

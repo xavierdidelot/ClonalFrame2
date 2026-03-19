@@ -177,20 +177,20 @@ Tree* Tree::random_tree(size_t n,double avg_bra_len) {
     return t;
 }
 
-Tree* Tree::nj(Alignment * ali) {
-    size_t n=ali->get_n();
+Tree* Tree::nj(vector<vector<double>> * d,vector<string> * names) {
+    size_t n=names->size();
     auto t = new Tree();
     t->n=n;
     t->nodes=vector<Node *>(n+n-1);
     for (size_t i = 0; i < 2*n-1; i++) {
         t->nodes[i]=new Node();
-        if (i<n) t->nodes[i]->set_name(ali->get_name(i));
+        if (i<n) t->nodes[i]->set_name(names->at(i));
     }
     auto to_merge = vector<size_t>(n);
     for (size_t i = 0; i < n; i++) to_merge[i]=i;
     vector<vector<double> > dist(2 * n, vector<double>(2 * n, 0.0));
     for (size_t i = 0; i < n; i++) for (size_t j = 0; j < i; j++) {
-        dist[i][j] = ali->dist(i, j);
+        dist[i][j] = (*d)[i][j];
         dist[j][i] = dist[i][j];
     }
     vector<vector<double> > q(2 * n, vector<double>(2 * n, 0.0));
@@ -249,7 +249,7 @@ Tree* Tree::nj(Alignment * ali) {
     t->nodes[n+m]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father()*0.5);
     t->nodes[to_merge[2]]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father()*0.5);
     t->nodes[n+m+1]->set_father(nullptr);
-    //for (i=0;i<nodes.size();i++) if (nodes[i]->get_dist_father()<=0.0) nodes[i]->set_dist_father(1e-5);
+    for (size_t i=0;i<t->nodes.size();i++) if (t->nodes[i]->get_dist_father()<=0.0) t->nodes[i]->set_dist_father(1e-5);
     t->reorder();
     return t;
 }
@@ -377,6 +377,35 @@ void Tree::reorder() {
     for (i=0;i<2*n-1;i++) nodes[i]->set_index(i);
 }
 
+vector<vector<double>> * Tree::distmat() {
+    auto d=new vector<vector<double>>(n, vector<double>(n, 0.0));
+    for (size_t i = 0; i < n; i++) for (size_t j = 0; j < i; j++) {
+        vector<Node*> path1;
+        path1.push_back(nodes[i]);
+        while (path1.back()->get_father()!=nullptr) path1.push_back(path1.back()->get_father());
+        vector<Node*> path2;
+        path2.push_back(nodes[j]);
+        while (path2.back()->get_father()!=nullptr) {
+            path2.push_back(path2.back()->get_father());
+            if (std::find(path1.begin(), path1.end(), path2.back()) != path1.end()) break;
+        }
+        double di=0;
+        Node * cur=nodes[i];
+        while (cur!=path2.back()) {
+            di+=cur->get_dist_father();
+            cur=cur->get_father();
+        }
+        cur=nodes[j];
+        while (cur!=path2.back()) {
+            di+=cur->get_dist_father();
+            cur=cur->get_father();
+        }
+        (*d)[i][j] = di;
+        (*d)[j][i] = (*d)[i][j];
+    }
+    return d;
+}
+
 double Tree::jointml() {
     vector<vector<double> > L(nodes.size(), vector<double>(4, 0.0));
     vector<vector<uint8_t> > C(nodes.size(), vector<uint8_t>(4, 0));
@@ -494,3 +523,20 @@ double Tree::likelihood() {
     }
     return res;
 }
+
+Tree* Tree::noise_tree(Tree * t,double eps) {
+    size_t n=t->get_n();
+    auto d=t->distmat();
+    auto names=new vector<string>();
+    for (size_t i=0;i<n;i++) names->push_back(t->get_node(i)->get_name());
+    std::normal_distribution rnorm(0.0,eps);
+    for (size_t i = 0; i < n; i++) for (size_t j = 0; j < i; j++) {
+        (*d)[i][j] = abs((*d)[i][j]+rnorm(rng));
+        (*d)[j][i] = (*d)[i][j];
+    }
+    auto t2=nj(d,names);
+    delete names;
+    delete d;
+    return t2;
+}
+

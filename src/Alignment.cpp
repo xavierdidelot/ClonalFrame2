@@ -199,3 +199,12 @@ void Alignment::miss_at_random(double x) {
         }
     }
 }
+
+vector<vector<double>> * Alignment::distmat() {
+    auto d=new vector<vector<double>>(n, vector<double>(n, 0.0));
+    for (size_t i = 0; i < n; i++) for (size_t j = 0; j < i; j++) {
+        (*d)[i][j] = dist(i, j);
+        (*d)[j][i] = (*d)[i][j];
+    }
+    return d;
+}

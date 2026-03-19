@@ -73,7 +73,9 @@ int main(int argc, const char *argv[]) {
             a = Alignment::read_fasta(inputfile);
         }
         if (verbose) cout << "Building initial tree..." << endl;
-        auto t = Tree::nj(a);
+        auto mat=a->distmat();
+        auto t = Tree::nj(mat,a->get_names());
+        delete mat;
         t->set_sequences(a);
         if (verbose) cout << "Performing initial ancestral reconstruction..." << endl;
         t->jointml();
