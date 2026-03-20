@@ -6,8 +6,6 @@
 
 #include <iostream>
 
-using std::string,std::cerr,std::cout,std::endl,std::vector;
-
 Tree * Tree::deterministic_tree(size_t n) {
     auto t = new Tree();
     t->n=n;
@@ -42,10 +40,10 @@ Tree* Tree::read_newick(const string &filename) {
     auto t=new Tree();
     string line;
     std::ifstream file;
-    if (verbose) cout << "Opening file " << filename << endl;
+    if (verbose) std::println("Opening file {}",filename);
     file.open(filename);
     if (file.is_open() == false) {
-        cerr << "Error opening file " << filename << endl;
+        std::println(std::cerr,"Error opening file {}",filename);
         exit(1);
     }
     getline(file, line);
@@ -74,10 +72,10 @@ void Tree::write(const string &filename) {
     std::ofstream file;
     file.open(filename);
     if (file.is_open() == false) {
-        cerr << "Error opening file " << filename << endl;
+        std::println(std::cerr,"Error opening file {}",filename);
         return;
     }
-    file << to_string() << endl;
+    std::println(file,"{}",to_string());
     file.close();
 }
 
@@ -497,7 +495,6 @@ double Tree::likelihood() {
                 if (nodes[z]->get_left() == nullptr) {
                     if (Alignment::nuc_is_unsure(nodes[z]->get_seq()->at(pos))) {
                         L[zind][a] = 1;
-                        cout<<"not happening"<<endl;
                     } else {
                         if (a == __builtin_ctz(nodes[z]->get_seq()->at(pos)))
                             L[zind][a] = 1;

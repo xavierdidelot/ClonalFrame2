@@ -11,7 +11,7 @@
 #include <iomanip>
 #include "RNGGlobal.h"
 
-using std::string,std::cerr,std::cout,std::endl,std::vector;
+using std::string,std::vector;
 
 /**
  * @class Node

@@ -4,8 +4,6 @@
 
 #include "Param.h"
 
-using std::string,std::cerr,std::cout,std::endl,std::vector;
-
 Param::Param(Tree *t) {
     tree=t;
     rho=1;
@@ -23,28 +21,28 @@ void Param::print_progress(int current, int total) {
     string bar(filled, '=');
     if (filled < bar_width) bar += '>';
     bar += string(bar_width - bar.size(), ' ');
-    cout << "\r[" << bar << "] " << static_cast<int>(fraction * 100) << "%  " << std::flush;
-    if (current == total) cout << '\n';
+    std::print("\r[{}] {}%  ", bar, static_cast<int>(fraction * 100));
+    if (current == total) std::println("");;
 }
 
 void Param::mcmc(int burn, int nbit, int thin, string outfile) {
     std::ofstream file;
     if (!outfile.empty()) {
         file.open(outfile);
-        if (file.is_open() == false) cerr << "Error opening file " << outfile << endl;
+        if (file.is_open() == false) std::println(std::cerr,"Error opening file {}",outfile);
     }
 
     for (int i=0;i<nbit;i++) {
         if (verbose==false && floor(i/nbit*100)==0) print_progress(i,nbit);
-        if (verbose) cout<<"Starting iteration "<<i<<endl;
+        if (verbose) std::println("Starting iteration {}",i);
         ll=tree->likelihood();
         tree->jointml();
         ll=tree->likelihood_anc();
         if (i>burn && i%thin==0) {
-            file << tree->to_string() << endl;
+            std::println(file,"{}",tree->to_string());
         }
     }
     if (verbose==false) print_progress(nbit,nbit);
-    cout<<endl;
+    std::println(file,"");
     file.close();
 }

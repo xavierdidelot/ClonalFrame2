@@ -7,8 +7,6 @@
 #include "RNGGlobal.h"
 #include "version.h"
 
-using std::string,std::vector,std::cerr,std::cout,std::endl;
-
 static string help =
         R"(Usage: ClonalFrame2 [OPTIONS] inputfile outputfile
 
@@ -39,30 +37,29 @@ int main(int argc, const char *argv[]) {
                 case('s'):setSeed(std::stoi(argv[++i]));break;
                 case('S'):simu = true;break;
                 case('v'):verbose = true;break;
-                default:cout << "Ignoring incorrect option -" << arg[1] << endl;
+                default:std::println("Ignoring incorrect option -{}",arg[1]);
             }
         } else remainder.push_back(arg);
         i++;
     }
 
+    std::println("This is ClonalFrame2, version {}",VERSION_STRING);
     if (remainder.size() != 2 && simu==false) {
-        cout << "This is ClonalFrame2, version " << VERSION_STRING << endl;
-        cout << "Need two non-option arguments but found " << remainder.size() << endl;
-        cout << help << endl;
+        std::println("Need two non-option arguments but found {}",remainder.size());
+        std::println("{}",help);
     } else {
         if (verbose) {
-            cout << "This is ClonalFrame2, version " << VERSION_STRING << endl;
-            cout << "Command used: ";
-            for (i = 0; i < argc; i++) cout << argv[i] << " ";
-            cout << endl;
+            std::print("Command used: ");
+            for (i = 0; i < argc; i++) std::print("{} ",argv[i]);
+            std::println("");
         }
 
         Alignment * a;
         string outfile;
         if (simu) {
-            if (verbose) cout << "Generating true tree..." << endl;
+            if (verbose) std::println("Generating true tree...");
             auto t0 = Tree::random_tree(100,1e-4);
-            if (verbose) cout << "Generating simulated alignment..." << endl;
+            if (verbose) std::println("Generating simulated alignment...");
             t0->simulate_sequences(1e6);
             a = Alignment::make_from_tree(t0,false,false);
             delete t0;
@@ -72,17 +69,17 @@ int main(int argc, const char *argv[]) {
             outfile = string(remainder[1]);
             a = Alignment::read_fasta(inputfile);
         }
-        if (verbose) cout << "Building initial tree..." << endl;
+        if (verbose) std::println("Building initial tree...");
         auto mat=a->distmat();
         auto t = Tree::nj(mat,a->get_names());
         delete mat;
         t->set_sequences(a);
-        if (verbose) cout << "Performing initial ancestral reconstruction..." << endl;
+        if (verbose) std::println("Performing initial ancestral reconstruction...");
         t->jointml();
         auto p = new Param(t);
-        if (verbose) cout << "Starting MCMC..." << endl;
+        if (verbose) std::println("Starting MCMC...");
         p->mcmc(burn, nbit, thin, outfile);
-        if (verbose) cout << "Finished MCMC." << endl;
+        if (verbose) std::println("Finished MCMC.");
         delete(a);
         delete(t);
         delete(p);
@@ -90,7 +87,7 @@ int main(int argc, const char *argv[]) {
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
-    if (verbose) cout << "Time spent running: " << elapsed.count() << " seconds" << endl;
-    if (verbose) cout << "End of ClonalFrame2 run." << endl;
+    if (verbose) std::println("Time spent running: {} seconds",elapsed.count());
+    if (verbose) std::println("End of ClonalFrame2 run.");
     return 0;
 }

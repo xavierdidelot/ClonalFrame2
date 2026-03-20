@@ -6,8 +6,6 @@
 
 #include <string>
 
-using namespace std;
-
 int main() {
     auto t = Tree::random_tree(10,0.01);
     t->simulate_sequences(10000);

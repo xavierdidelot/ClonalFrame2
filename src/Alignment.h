@@ -10,7 +10,7 @@
 #include <vector>
 #include "Tree.h"
 
-using std::string,std::cerr,std::cout,std::endl,std::vector;
+using std::string,std::vector;
 
 /*Bit encoding of nucleotide (from right to left)
 Bit1=is_currently(A)

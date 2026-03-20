@@ -5,8 +5,6 @@
 
 #include <string>
 
-using namespace std;
-
 //This testing main function reads the alignment in tmp.fasta, creates a NJ tree and writes it into nj.nwk
 int main() {
     auto a = Alignment::read_fasta("tmp.fasta");

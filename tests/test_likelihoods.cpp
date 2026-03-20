@@ -5,8 +5,6 @@
 
 #include <string>
 
-using namespace std;
-
 //This testing main function reads the alignment in tmp.fasta and the tree in tmp.nwk, performs parsimonious reconstruction, outputs it, and returns the likelihood
 int main() {
     auto a = Alignment::read_fasta("tmp.fasta");
@@ -18,5 +16,5 @@ int main() {
     t->write("tmp2.nwk");
     a->write("tmp2.fasta",false);
     double s3=t->likelihood_anc();
-    cout<<std::fixed << std::setprecision(6)<<l<<","<<std::fixed << std::setprecision(6)<<s3<<endl;
+    std::println("{},{}",l,s3);
 }

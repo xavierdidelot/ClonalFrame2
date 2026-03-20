@@ -5,8 +5,6 @@
 #include "Node.h"
 #include "Alignment.h"
 
-using std::string,std::cerr,std::cout,std::endl,std::vector;
-
 Node::Node() {
     left = nullptr;
     right = nullptr;
@@ -61,13 +59,7 @@ Node::Node(const string &s, vector <Node*> * nodes) {
 string Node::to_string() {
     if (left == nullptr) return name;
     std::ostringstream oss;
-    oss << "(";
-    oss << left->to_string();
-    oss << std::scientific << std::setprecision(6) << ":" << left ->get_dist_father();
-    oss << ",";
-    oss << right->to_string();
-    oss << std::scientific << std::setprecision(6) << ":" << right->get_dist_father();
-    oss << ")"<<name;
+    std::print(oss,"({}:{},{}:{}){}",left->to_string(),left ->get_dist_father(),right->to_string(),right->get_dist_father(),name);
     return oss.str();
 }
 

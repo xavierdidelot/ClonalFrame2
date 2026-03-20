@@ -1,8 +1,6 @@
 #include "../src/Alignment.h"
 #include <cassert>
 
-using std::string;
-
 static string fasta=
     R"(
 >seq1
@@ -17,7 +15,7 @@ ACGTACGA
 int main() {
     verbose=true;
     std::ofstream out("tmp.fasta");
-    out << fasta;
+    std::println(out,"{}",fasta);
     out.close();
     auto a = Alignment::read_fasta("tmp.fasta");
     remove("tmp.fasta");

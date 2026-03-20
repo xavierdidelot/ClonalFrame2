@@ -7,8 +7,6 @@
 #include <iostream>
 #include <regex>
 
-using std::string,std::cerr,std::cout,std::endl,std::vector;
-
 Alignment::~Alignment() {
     for (size_t i=0;i<data->size();i++) delete data->at(i);
     delete data;
@@ -21,10 +19,10 @@ Alignment * Alignment::read_fasta(const string &filename) {
     auto a = new Alignment();
     string line;
     std::ifstream file;
-    if (verbose) cout<<"Opening file "<<filename<<endl;
+    if (verbose) std::println("Opening file {}",filename);
     file.open(filename);
     if (file.is_open()==false) {
-        cerr<<"Error opening file "<<filename<<endl;
+        std::println("Error opening file {}",filename);
         exit(1);
     }
     size_t n=0;
@@ -56,7 +54,7 @@ Alignment * Alignment::read_fasta(const string &filename) {
             l++;
         }
     }
-    if (verbose) cout<<"Finished reading file made of "<<n<<" genomes of length "<<l<<endl;
+    if (verbose) std::println("Finished reading file made of {} genomes of length {}",n,l);
     file.close();
     a->n=n;
     a->l=l;
@@ -101,7 +99,7 @@ Alignment* Alignment::make_from_tree(Tree *t, bool include_ancestors, bool need_
 }
 
 void Alignment::pattern_analysis() {
-    if (verbose) cout<<"Starting pattern analysis"<<endl;
+    if (verbose) std::println("Starting pattern analysis");
     auto data2=new vector<vector<uint8_t>*>(n);
     for (size_t i=0;i<n;i++) data2->at(i)=new vector<uint8_t>(l);
     npat=0;
@@ -134,7 +132,7 @@ void Alignment::pattern_analysis() {
     for (size_t i=0;i<n;i++) delete data->at(i);
     delete data;
     data=data2;
-    if (verbose) cout<<"Finished pattern analysis and found "<<npat<<" patterns"<<endl;
+    if (verbose) std::println("Finished pattern analysis and found {} patterns",npat);
 }
 
 uint8_t Alignment::encode(char in) {
@@ -166,16 +164,16 @@ void Alignment::write(const string &filename, bool include_uncertainty) {
     std::ofstream file;
     file.open(filename);
     if (file.is_open()==false) {
-        cerr<<"Error opening file "<<filename<<endl;
+        std::println("Error opening file {}",filename);
         return;
     }
     for (size_t i=0;i<n;i++) {
-        file<<">"<<names->at(i)<<endl;
+        std::println(file,">{}",names->at(i));
         for (size_t j=0;j<l;j++) {
-            if (include_uncertainty) file<<decode(get_data(i,j));
-            else file<<decode(get_data(i,j)&0b00001111);
+            if (include_uncertainty) std::print(file,"{}",decode(get_data(i,j)));
+            else std::print(file,"{}",decode(get_data(i,j)&0b00001111));
         }
-        file<<endl;
+        std::println(file,"");
     }
     file.close();
 }

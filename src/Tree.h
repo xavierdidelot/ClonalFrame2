@@ -10,7 +10,7 @@
 #include <vector>
 #include "Node.h"
 
-using std::string,std::cerr,std::cout,std::endl,std::vector;
+using std::string,std::vector;
 
 class Alignment;
 
