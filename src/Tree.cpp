@@ -80,12 +80,27 @@ void Tree::write(const string &filename) {
 }
 
 bool Tree::check_structure() {
-    if (n * 2 - 1 - nodes.size() != 0) return false;
-    if (nodes[2*n-2]->get_father()!=nullptr) return false;
+    if (n * 2 - 1 - nodes.size() != 0) {
+        std::println(std::cerr,"Incorrect number of nodes");
+        return false;
+    }
+    if (nodes[2*n-2]->get_father()!=nullptr) {
+        std::println(std::cerr,"Root is not last");
+        return false;
+    }
     for (size_t i = 0; i < nodes.size(); i++) {
-        if (nodes[i]->get_left() != nullptr && nodes[i]->get_left()->get_father() != nodes[i]) return false;
-        if (nodes[i]->get_right() != nullptr && nodes[i]->get_right()->get_father() != nodes[i]) return false;
-        if (nodes[i]->get_index() != i) return false;
+        if (nodes[i]->get_left() != nullptr && nodes[i]->get_left()->get_father() != nodes[i]) {
+            std::println(std::cerr,"Incorrect left pointer");
+            return false;
+        }
+        if (nodes[i]->get_right() != nullptr && nodes[i]->get_right()->get_father() != nodes[i]) {
+            std::println(std::cerr,"Incorrect right pointer");
+            return false;
+        }
+        if (nodes[i]->get_index() != i) {
+            std::println(std::cerr,"Incorrect node index");
+            return false;
+        }
     }
     return true;
 }
@@ -357,7 +372,9 @@ double Tree::likelihood_anc() {
 
 void Tree::reorder() {
     vector<Node*> todo;
-    todo.push_back(nodes[2*n-2]);
+    int a=0;
+    while (nodes[2*n-2-a]->get_father()!=nullptr) a++;
+    todo.push_back(nodes[2*n-2-a]);
     size_t i=0,j=0;
     while (i<todo.size()) {
         if (todo[i]->get_left()!=nullptr) {
@@ -537,3 +554,44 @@ Tree* Tree::noise_tree(Tree * t,double eps) {
     return t2;
 }
 
+
+void Tree::rSPR() {
+    //First select which node is moving, which can be any node other than the root
+    std::uniform_int_distribution unif(0,2*static_cast<int>(n)-3);
+    size_t moving=unif(rng);
+    //Next select the new brother which can be any node (including root) other than the node itself
+    size_t newbro;
+    bool checked=false;
+    while (checked==false) {
+        newbro=unif(rng);
+        if (newbro==moving) newbro++;
+        Node*cur=nodes[newbro];
+        checked=true;
+        while (cur->get_father()!=nullptr) {cur=cur->get_father();if (cur->get_index()==moving) checked=false;}
+        if (newbro==nodes[moving]->get_father()->get_index()) checked=false;
+    }
+    //Pruning
+    size_t oldf=nodes[moving]->get_father()->get_index();
+    size_t oldbro=nodes[oldf]->get_left()->get_index();
+    if (oldbro==moving) oldbro=nodes[oldf]->get_right()->get_index();
+    double d=nodes[oldbro]->get_dist_father();
+    if (nodes[oldf]->get_father()!=nullptr) {
+        d+=nodes[oldf]->get_dist_father();
+        int oldgf=nodes[oldf]->get_father()->get_index();
+        if (nodes[oldgf]->get_left()->get_index()!=oldf) nodes[oldgf]->set_right(nodes[oldbro]); else nodes[oldgf]->set_left(nodes[oldbro]);
+    }
+    nodes[oldbro]->set_father(nodes[oldf]->get_father());
+    nodes[oldbro]->set_dist_father(d);
+    //Regrafting
+    if (nodes[newbro]->get_father()!=nullptr) {
+        int newbrof=nodes[newbro]->get_father()->get_index();
+        if (nodes[newbrof]->get_left()->get_index()!=newbro) nodes[newbrof]->set_right(nodes[oldf]); else nodes[newbrof]->set_left(nodes[oldf]);
+    }
+    nodes[oldf]->set_father(nodes[newbro]->get_father());
+    nodes[oldf]->set_dist_father(0);
+    nodes[oldf]->set_left(nodes[moving]);
+    nodes[oldf]->set_right(nodes[newbro]);
+    nodes[newbro]->set_father(nodes[oldf]);
+    //Update node matrix
+    reorder();
+}

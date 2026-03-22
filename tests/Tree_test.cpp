@@ -6,6 +6,7 @@
 #include <string>
 
 int main() {
+    setSeed(0);
 
     //Creating a tree
     auto t = Tree::deterministic_tree(10);
@@ -62,6 +63,20 @@ int main() {
     b=t->check_structure();assert(b);
     t->write("nj.nwk");
     t->set_sequences(a);
+
+    //rSPR algorithm
+    delete(t);
+    t=Tree::random_tree(20,0.01);
+    double br=t->sum_bra_len();
+    for (int i=0;i<100;i++) {
+        t->rSPR();
+        b=t->check_structure();
+        assert(b);
+        //double br2=t->sum_bra_len();
+        //std::cout<<br<<" "<<br2<<std::endl;
+        //assert(round(br*1e6)==round(br2*1e6));
+
+    }
 
     //Noisy algorithm
     auto t3=Tree::noise_tree(t,0.01);

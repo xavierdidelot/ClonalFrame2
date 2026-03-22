@@ -66,9 +66,14 @@ public:
     void reorder();
     ///Compute pairwise distance matrix
     vector<vector<double>> * distmat();
+    ///Return number of patterns
     size_t get_npat() {return npat;}
+    ///Return vector of pattern indexes
     vector<size_t> * get_patindex()  {return patindex;}
+    ///Return weights of patterns
     vector<size_t> * get_weights()  {return weights;}
+    ///Perform SPR move
+    void rSPR();
 
 private:
     Tree() = default;
