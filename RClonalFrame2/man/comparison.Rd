@@ -9,6 +9,7 @@ comparison(
   l = 10000,
   mu = 0.01,
   niter = 100,
+  eps = 0.01,
   showProgress = T,
   showPlot = T,
   showTimes = T
@@ -22,6 +23,8 @@ comparison(
 \item{mu}{Mutation rate per site per branch length}
 
 \item{niter}{Number of iterations}
+
+\item{eps}{Standard deviation of normal noise to apply to distances}
 
 \item{showProgress}{Whether to show a progress bar}
 

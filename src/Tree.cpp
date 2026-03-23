@@ -262,7 +262,7 @@ Tree* Tree::nj(vector<vector<double>> * d,vector<string> * names) {
     t->nodes[n+m]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father()*0.5);
     t->nodes[to_merge[2]]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father()*0.5);
     t->nodes[n+m+1]->set_father(nullptr);
-    for (size_t i=0;i<t->nodes.size();i++) if (t->nodes[i]->get_dist_father()<=0.0) t->nodes[i]->set_dist_father(1e-5);
+    for (size_t i=0;i<t->nodes.size();i++) if (t->nodes[i]->get_dist_father()<=0.0) t->nodes[i]->set_dist_father(1e-6);
     t->reorder();
     return t;
 }

@@ -67,7 +67,7 @@ int main() {
     //rSPR algorithm
     delete(t);
     t=Tree::random_tree(20,0.01);
-    double br=t->sum_bra_len();
+    //double br=t->sum_bra_len();
     for (int i=0;i<100;i++) {
         t->rSPR();
         b=t->check_structure();
