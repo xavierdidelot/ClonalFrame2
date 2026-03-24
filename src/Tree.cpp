@@ -60,7 +60,8 @@ Tree* Tree::read_newick(const string &filename) {
 
 string Tree::to_string() {
     for (size_t i=n;i<nodes.size();i++) nodes[i]->set_name("NODE"+std::to_string(i));
-    return nodes[2*n-2]->to_string() + ";";
+    Node * root=nodes[2*n-2];
+    return "("+root->get_left()->get_left()->to_string() +","+root->get_left()->get_right()->to_string()+","+root->get_right()->to_string() + ")"+root->get_name()+";";
 }
 
 Tree::~Tree() {
@@ -86,6 +87,14 @@ bool Tree::check_structure() {
     }
     if (nodes[2*n-2]->get_father()!=nullptr) {
         std::println(std::cerr,"Root is not last");
+        return false;
+    }
+    if (nodes[2*n-2]->get_left()->get_left()==nullptr) {
+        std::println(std::cerr,"Invalid root");
+        return false;
+    }
+    if (nodes[2*n-2]->get_left()->get_dist_father()!=0.0) {
+        std::println(std::cerr,"Invalid root distance");
         return false;
     }
     for (size_t i = 0; i < nodes.size(); i++) {
@@ -259,11 +268,12 @@ Tree* Tree::nj(vector<vector<double>> * d,vector<string> * names) {
     t->nodes[to_merge[2]]->set_father(t->nodes[n+m+1]);
     t->nodes[n+m]->set_father(t->nodes[n+m+1]);
     t->nodes[n+m]->set_dist_father(0.0);
-    t->nodes[n+m]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father()*0.5);
-    t->nodes[to_merge[2]]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father()*0.5);
+    t->nodes[n+m]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father());
+    t->nodes[to_merge[2]]->set_dist_father(0.0);
     t->nodes[n+m+1]->set_father(nullptr);
     t->reorder();
-    for (size_t i=0;i<t->nodes.size()-1;i++) if (t->nodes[i]->get_dist_father()<=1e-6) t->nodes[i]->set_dist_father(1e-6);
+    for (size_t i=0;i<t->nodes.size()-1;i++)
+        if (t->nodes[i]!=t->nodes[2*n-2]->get_left() && t->nodes[i]->get_dist_father()<=1e-6) t->nodes[i]->set_dist_father(1e-6);
     return t;
 }
 
@@ -384,9 +394,21 @@ double Tree::likelihood_anc() {
 
 void Tree::reorder() {
     vector<Node*> todo;
+    //Find the root
     int a=0;
     while (nodes[2*n-2-a]->get_father()!=nullptr) a++;
     todo.push_back(nodes[2*n-2-a]);
+    //If only a single leaf on the left of the root, swap left and right
+    if (todo[0]->get_left()->get_left()==nullptr) {
+        Node * n=todo[0]->get_left();
+        todo[0]->set_left(todo[0]->get_right());
+        todo[0]->set_right(n);
+    }
+    //Make the left branch of length zero
+    double l=todo[0]->get_left()->get_dist_father();
+    todo[0]->get_right()->set_dist_father(todo[0]->get_right()->get_dist_father()+l);
+    todo[0]->get_left()->set_dist_father(0.0);
+    //Order the nodes
     size_t i=0,j=0;
     while (i<todo.size()) {
         if (todo[i]->get_left()!=nullptr) {
@@ -500,46 +522,7 @@ double Tree::jointml() {
             Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), C[zind][i]); //preserve missing status
         }
     }
-    //Root likelihood correction, so that likelihood returned is that of unrooted tree
-    double correction=0.0;
-    double len,ex,ppid,ppnid;
-    int s1,s2;
-    vector<uint8_t> * seq1;
-    vector<uint8_t> * seq2;
-    double sign;
-    Node * root=nodes[nodes.size()-1];
-    for (size_t i=0;i<3;i++) {
-        if (i==0) {
-            sign=1;
-            seq1=root->get_left()->get_seq();
-            seq2=root->get_right()->get_seq();
-            len=root->get_left()->get_dist_father()+root->get_right()->get_dist_father();
-        }
-        if (i==1) {
-            sign=-1;
-            seq1=root->get_seq();
-            seq2=root->get_left()->get_seq();
-            len=root->get_left()->get_dist_father();
-        }
-        if (i==2) {
-            sign=-1;
-            seq1=root->get_seq();
-            seq2=root->get_right()->get_seq();
-            len=root->get_right()->get_dist_father();
-        }
-        ex = exp(-4.0*len/3.0);
-        ppid =log(0.25+0.75*ex);
-        ppnid=log(0.25-0.25*ex);
-        s1=0;
-        s2=0;
-        for (size_t j=0;j<npat;j++) {
-            if (Alignment::nuc_is_currently_same(seq1->at(j),seq2->at(j)))
-                s1+=weights->at(j);
-            else s2+=weights->at(j);
-        }
-        correction+=sign*(ppid*s1+ppnid*s2);
-    }
-    return (res+correction);
+    return (res);
 }
 
 double Tree::likelihood() {

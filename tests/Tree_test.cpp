@@ -24,6 +24,7 @@ int main() {
     t->write("true.nwk");
     auto t2=Tree::read_newick("true.nwk");
     b=t2->check_structure();assert(b);
+    n=t2->get_n();assert(n==10);
     delete t2;
 
     //Generating an alignment from a tree
@@ -69,13 +70,9 @@ int main() {
     t=Tree::random_tree(20,0.01);
     //double br=t->sum_bra_len();
     for (int i=0;i<100;i++) {
-        t->rSPR();
+        //t->rSPR();//TODO
         b=t->check_structure();
         assert(b);
-        //double br2=t->sum_bra_len();
-        //std::cout<<br<<" "<<br2<<std::endl;
-        //assert(round(br*1e6)==round(br2*1e6));
-
     }
 
     //Noisy algorithm

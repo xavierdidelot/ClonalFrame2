@@ -19,7 +19,7 @@ loadSeqs <- function(filename) {
 #'
 likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
   if (method=='phangorn') {
-    nanc=setdiff(names(anc),tree$node.label[1])#remove root
+    nanc=names(anc)#setdiff(names(anc),tree$node.label[1])#remove root
     if (is.null(workenv)) workenv=list()#use a list, not an environment
     new_tree=phangorn::add.tips(tree=tree,tips=nanc,where=nanc,edge.length=rep(0,length(anc)))
     #both=phangorn:::rbind.phyDat(seqs,anc)#slow so replaced with below
@@ -37,23 +37,11 @@ likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
     n=Ntip(tree)
     w=attr(seqs,'weight')
     nsites=length(attr(seqs,'index'))
-    rootdone=F
     for (i in 1:nrow(tree$edge)) {
-      if (tree$edge[i,1]==(n+1)) {
-        if (rootdone) next
-        rootdone=T
-        if (tree$edge[i,2]<=n) bottom=seqs[[tree$tip.label[tree$edge[i,2]]]]
-        else bottom=anc[[tree$node.label[tree$edge[i,2]-n]]]
-        o=setdiff(which(tree$edge[,1]==n+1),i)
-        if (tree$edge[o,2]<=n) top=seqs[[tree$tip.label[tree$edge[o,2]]]]
-        else top=anc[[tree$node.label[tree$edge[o,2]-n]]]
-        l=tree$edge.length[i]+tree$edge.length[o]
-      } else {
-        if (tree$edge[i,2]<=n) bottom=seqs[[tree$tip.label[tree$edge[i,2]]]]
-        else bottom=anc[[tree$node.label[tree$edge[i,2]-n]]]
-        top=anc[[tree$node.label[tree$edge[i,1]-n]]]
-        l=tree$edge.length[i]
-      }
+      if (tree$edge[i,2]<=n) bottom=seqs[[tree$tip.label[tree$edge[i,2]]]]
+      else bottom=anc[[tree$node.label[tree$edge[i,2]-n]]]
+      top=anc[[tree$node.label[tree$edge[i,1]-n]]]
+      l=tree$edge.length[i]
       ex=exp(-l*4/3)
       pid =log(1/4+3/4*ex)
       pnid=log(1/4-1/4*ex)
@@ -74,6 +62,7 @@ likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
 #' @export
 #'
 likelihood <- function(tree,seqs,method='pruning',workenv=NULL) {
+  tree=unroot(tree)
   if (is.null(workenv)) workenv=list()#use a list, not an environment
 
     if (method=='pruning') {
