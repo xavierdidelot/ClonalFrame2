@@ -13,15 +13,29 @@ Node::Node() {
     seq=nullptr;
 }
 
-Node::Node(const string &s, vector <Node*> * nodes) {
+Node::Node(string s, vector <Node*> * nodes) {
     left=nullptr;
     right=nullptr;
     father=nullptr;
     seq=nullptr;
     dist_father=0;
     if (s.front()=='(') {
+        //Find last closing bracket
         size_t last=s.size()-1;
         while (s[last]!=')') last--;
+        //Test for multifurcation and if so add brackets
+        vector<int> commas=vector<int>();
+        int counter=0;
+        for (size_t cur=1;cur<s.size()-1;cur++) {
+            if (s[cur]=='(') counter++;
+            if (s[cur]==')') counter--;
+            if (s[cur]==',' && counter==0) commas.push_back(cur);
+        }
+        if (commas.size()>1) {
+            s.insert(last-1,"):0.0");
+            s.insert(commas[0]+1,"(");
+        }
+
         std::istringstream iss(s.substr(last+1));
         string b;
         getline(iss,b,':');
@@ -31,7 +45,7 @@ Node::Node(const string &s, vector <Node*> * nodes) {
             set_dist_father(stof(b));
         }
         size_t mid=1;
-        int counter=0;
+        counter=0;
         while (true) {
             if (s[mid]=='(') counter++;
             if (s[mid]==')') counter--;
