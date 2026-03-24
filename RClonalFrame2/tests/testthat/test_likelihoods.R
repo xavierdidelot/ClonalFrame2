@@ -23,7 +23,7 @@ test_that("Testing likelihood functions.", {
     b=likelihood_anc(tree2,seqs2,anc2,method='mine')
     c=likelihood_anc(tree2,seqs2,anc2,method='phangorn')
     expect_equal(b,c)
-    #expect_equal(a[2],b)#TODO
+    expect_equal(a[2],b)
     system('rm tmp.fasta tmp.nwk tmp2.fasta tmp2.nwk')
   }
 })

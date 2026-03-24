@@ -349,17 +349,29 @@ double Tree::likelihood_anc() {
     double ll=0.0;
     double len,ex,pid,pnid;
     int s1,s2;
+    bool rootdone=false;
+    vector<uint8_t> * seq1;
+    vector<uint8_t> * seq2;
+    Node * root=nodes[nodes.size()-1];
     for (size_t i=0;i<nodes.size();i++) {
         if (nodes[i]->get_father()==nullptr) continue;
-        len=nodes[i]->get_dist_father();
+        if (nodes[i]->get_father()->get_father()==nullptr) {
+            if (rootdone) continue;
+            rootdone=true;
+            seq1=root->get_left()->get_seq();
+            seq2=root->get_right()->get_seq();
+            len=root->get_left()->get_dist_father()+root->get_right()->get_dist_father();
+        } else {
+            seq1=nodes[i]->get_father()->get_seq();
+            seq2=nodes[i]->get_seq();
+            len=nodes[i]->get_dist_father();
+        }
         ex = exp(-4.0*len/3.0);
         pid =log(0.25+0.75*ex);
         pnid=log(0.25-0.25*ex);
         s1=0;
         s2=0;
             for (size_t j=0;j<npat;j++) {
-                auto seq1=nodes[i]->get_father()->get_seq();
-                auto seq2=nodes[i]->get_seq();
                 if (Alignment::nuc_is_currently_same(seq1->at(j),seq2->at(j)))
                     s1+=weights->at(j);
                 else s2+=weights->at(j);
@@ -488,7 +500,46 @@ double Tree::jointml() {
             Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), C[zind][i]); //preserve missing status
         }
     }
-    return (res);
+    //Root likelihood correction, so that likelihood returned is that of unrooted tree
+    double correction=0.0;
+    double len,ex,ppid,ppnid;
+    int s1,s2;
+    vector<uint8_t> * seq1;
+    vector<uint8_t> * seq2;
+    double sign;
+    Node * root=nodes[nodes.size()-1];
+    for (size_t i=0;i<3;i++) {
+        if (i==0) {
+            sign=1;
+            seq1=root->get_left()->get_seq();
+            seq2=root->get_right()->get_seq();
+            len=root->get_left()->get_dist_father()+root->get_right()->get_dist_father();
+        }
+        if (i==1) {
+            sign=-1;
+            seq1=root->get_seq();
+            seq2=root->get_left()->get_seq();
+            len=root->get_left()->get_dist_father();
+        }
+        if (i==2) {
+            sign=-1;
+            seq1=root->get_seq();
+            seq2=root->get_right()->get_seq();
+            len=root->get_right()->get_dist_father();
+        }
+        ex = exp(-4.0*len/3.0);
+        ppid =log(0.25+0.75*ex);
+        ppnid=log(0.25-0.25*ex);
+        s1=0;
+        s2=0;
+        for (size_t j=0;j<npat;j++) {
+            if (Alignment::nuc_is_currently_same(seq1->at(j),seq2->at(j)))
+                s1+=weights->at(j);
+            else s2+=weights->at(j);
+        }
+        correction+=sign*(ppid*s1+ppnid*s2);
+    }
+    return (res+correction);
 }
 
 double Tree::likelihood() {

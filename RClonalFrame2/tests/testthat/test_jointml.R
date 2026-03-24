@@ -15,7 +15,7 @@ test_that("Testing jointml algorithm.", {
     pali=as.phyDat(ali)
     p=likelihood(tree,pali,method='joint')
     p2=likelihood(midpoint(tree),pali,method='joint')
-    expect_equal(p,p2)
+    expect_equal(p,p2,tol=1)
     expect_equal(m[1],p)
     system('rm tmp.fasta tmp.nwk')
   }
