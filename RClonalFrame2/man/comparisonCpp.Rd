@@ -18,7 +18,7 @@ comparisonCpp(
 
 \item{l}{Length of sequences}
 
-\item{mu}{Mutation rate per site per branch length}
+\item{mu}{Mean of branch lengths}
 
 \item{niter}{Number of iterations}
 

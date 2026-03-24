@@ -59,7 +59,7 @@ Node::Node(const string &s, vector <Node*> * nodes) {
 string Node::to_string() {
     if (left == nullptr) return name;
     std::ostringstream oss;
-    std::print(oss,"({}:{},{}:{}){}",left->to_string(),left ->get_dist_father(),right->to_string(),right->get_dist_father(),name);
+    std::print(oss,"({}:{:.10e},{}:{:.10e}){}",left->to_string(),left ->get_dist_father(),right->to_string(),right->get_dist_father(),name);
     return oss.str();
 }
 

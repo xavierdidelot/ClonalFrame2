@@ -61,6 +61,7 @@ likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
 #' @export
 #'
 likelihood <- function(tree,seqs,method='pruning',workenv=NULL) {
+  tree=unroot(tree)
   if (is.null(workenv)) workenv=list()#use a list, not an environment
 
     if (method=='pruning') {

@@ -85,4 +85,16 @@ int main() {
     delete t3;
     delete(t);
     delete(a);
+
+    //Distance matrix
+    std::ofstream out("tmp.nwk");
+    std::println(out,"{}","((seq2:1,seq1:2):1,seq0:3);");
+    out.close();
+    t=Tree::read_newick("tmp.nwk");
+    n=t->get_n();assert(n==3);
+    vector<vector<double>> * d=t->distmat();
+    assert((*d)[0][0]==0);
+    assert((*d)[0][1]==6);
+    assert((*d)[0][2]==5);
+    delete(t);
 }

@@ -1,7 +1,7 @@
 #' Comparison of likelihood functions
 #' @param n Number of sequences
 #' @param l Length of sequences
-#' @param mu Mutation rate per site per branch length
+#' @param mu Mean of branch lengths
 #' @param niter Number of iterations
 #' @param eps Standard deviation of normal noise to apply to distances
 #' @param showProgress Whether to show a progress bar
@@ -11,9 +11,10 @@
 #' @export
 #'
 comparison=function(n=20,l=10000,mu=0.01,niter=100,eps=0.01,showProgress=T,showPlot=T,showTimes=T) {
-  tree=rtree(n)
-  tree$edge.length=tree$edge.length*mu
+  tree=rtree(n,br=function (n) rexp(n,rate=1/mu))
+  extrees=read.tree('tmp.nwk');tree=extrees[[1]]#toremove
   seqs=phangorn::simSeq(tree,l=l)
+  seqs=as.phyDat(read.FASTA('tmp.fasta'))#toremove
   methods=c('pruning','joint','parsimony')#can also add 'marginal'
   allres=matrix(NA,niter,length(methods))
   colnames(allres)<-methods
@@ -28,7 +29,8 @@ comparison=function(n=20,l=10000,mu=0.01,niter=100,eps=0.01,showProgress=T,showP
     for (i in 1:niter) {
       if (showProgress) setTxtProgressBar(pb, i+(j-1)*niter)
       if (j==1) trees[[i]]=tree_noise(tree,eps)
-        allres[i,j]=likelihood(trees[[i]],seqs,method=methods[j])
+      if (j==1) trees[[i]]=midpoint(extrees[[i+1]])#toremove
+      allres[i,j]=likelihood(trees[[i]],seqs,method=methods[j])
     }
     tims[j]=difftime(Sys.time(),start,units='secs')
   }
@@ -47,16 +49,18 @@ comparison=function(n=20,l=10000,mu=0.01,niter=100,eps=0.01,showProgress=T,showP
 #'
 tree_noise=function(tree,eps=0.01) {
   d=cophenetic.phylo(tree)
+  d=as.dist(d)
   d=abs(d+rnorm(length(d),0,eps))
   p=nj(d)
   p$edge.length=pmax(p$edge.length,1e-6)
+  p=midpoint(p)
   return(p)
 }
 
 #' Comparison of likelihood functions in C++
 #' @param n Number of sequences
 #' @param l Length of sequences
-#' @param mu Mutation rate per site per branch length
+#' @param mu Mean of branch lengths
 #' @param niter Number of iterations
 #' @param eps Standard deviation of normal noise to apply to distances
 #' @param showPlot Whether to show a plot of the results
