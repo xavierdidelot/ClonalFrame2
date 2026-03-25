@@ -22,7 +22,7 @@ likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
     nanc=names(anc)#setdiff(names(anc),tree$node.label[1])#remove root
     if (is.null(workenv)) workenv=list()#use a list, not an environment
     new_tree=phangorn::add.tips(tree=tree,tips=nanc,where=nanc,edge.length=rep(0,length(anc)))
-    #both=phangorn:::rbind.phyDat(seqs,anc)#slow so replaced with below
+    #both=phangorn:::rbind.phyDat(seqs,anc)#slow so replaced with below which assumes same patterns
     both=seqs;both[nanc]=anc[nanc]
     if (is.null(workenv$pml2)) {
       workenv$pml2=phangorn::pml(new_tree,both,model='JC')

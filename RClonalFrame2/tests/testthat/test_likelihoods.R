@@ -17,7 +17,10 @@ test_that("Testing likelihood functions.", {
     expect_equal(a[1],ll)
 
     tree2=read.tree('tmp2.nwk')
+    expect_equal(path.dist(tree,tree2,use.weight = T),0,tolerance=1e-6)
     anc2=as.phyDat(read.FASTA('tmp2.fasta'))
+    tmp=as.DNAbin(anc2)
+    for (i in tree$tip.label) expect_equal(all(tmp[i,]==ali[i,]),T)
     seqs2=anc2[tree2$tip.label]
     anc2=anc2[tree2$node.label]
     b=likelihood_anc(tree2,seqs2,anc2,method='mine')

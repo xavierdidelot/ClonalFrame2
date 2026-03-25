@@ -11,7 +11,7 @@ int main() {
     auto t = Tree::read_newick("tmp.nwk");
     t->set_sequences(a);
     double l = t->likelihood();
-    t->jointml();
+    t->parsimony();
     a=Alignment::make_from_tree(t,true,false);
     t->write("tmp2.nwk");
     a->write("tmp2.fasta",false);

@@ -359,23 +359,13 @@ double Tree::likelihood_anc() {
     double ll=0.0;
     double len,ex,pid,pnid;
     int s1,s2;
-    bool rootdone=false;
     vector<uint8_t> * seq1;
     vector<uint8_t> * seq2;
-    Node * root=nodes[nodes.size()-1];
     for (size_t i=0;i<nodes.size();i++) {
         if (nodes[i]->get_father()==nullptr) continue;
-        if (nodes[i]->get_father()->get_father()==nullptr) {
-            if (rootdone) continue;
-            rootdone=true;
-            seq1=root->get_left()->get_seq();
-            seq2=root->get_right()->get_seq();
-            len=root->get_left()->get_dist_father()+root->get_right()->get_dist_father();
-        } else {
-            seq1=nodes[i]->get_father()->get_seq();
-            seq2=nodes[i]->get_seq();
-            len=nodes[i]->get_dist_father();
-        }
+        seq1=nodes[i]->get_father()->get_seq();
+        seq2=nodes[i]->get_seq();
+        len=nodes[i]->get_dist_father();
         ex = exp(-4.0*len/3.0);
         pid =log(0.25+0.75*ex);
         pnid=log(0.25-0.25*ex);
@@ -386,6 +376,8 @@ double Tree::likelihood_anc() {
                     s1+=weights->at(j);
                 else s2+=weights->at(j);
         }
+        if (s2>0  && len==0.0) std::println("Problem: there are substitutions on a branch of length zero!");
+        if (s2==0 && len==0.0) pnid=0.0;//otherwise get nan below
         ll+=pid*s1+pnid*s2;
     }
     ll=ll+log(0.25)*patindex->size();
