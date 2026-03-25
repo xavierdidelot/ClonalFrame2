@@ -106,6 +106,7 @@ int Node::fitch_pass1(size_t pos) {
     if (toset==0u) {
         s++;
         toset=left->seq->at(pos)|right->seq->at(pos);//union
+        if (get_father()==nullptr) toset=get_left()->get_seq()->at(pos);//special case for root since working with unrooted trees
     }
     Alignment::nuc_set_as(&seq->at(pos),toset);//preserve missing status
     return s;

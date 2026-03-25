@@ -304,6 +304,7 @@ int Tree::parsimony() {
                 if (toset==0u) {
                     score+=weights->at(pos);
                     toset=nodes[i]->get_left()->get_seq()->at(pos)|nodes[i]->get_right()->get_seq()->at(pos);//union
+                    if (nodes[i]->get_father()==nullptr) toset=nodes[i]->get_left()->get_seq()->at(pos);//special case for root since working with unrooted trees
                 }
                 Alignment::nuc_set_as(&(nodes[i]->get_seq()->at(pos)),toset);//preserve missing status
             }
@@ -317,6 +318,7 @@ int Tree::parsimony() {
             if (nodes[i]->get_father()==nullptr) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
             else {
                 toset=nodes[i]->get_seq()->at(pos)&nodes[i]->get_father()->get_seq()->at(pos)&0b00001111;
+                if (toset==0u && nodes[i]->get_dist_father()==0) std::println("Problem: adding a substitution on a branch of length zero!");
                 if (toset==0u) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
             }
             toset=toset&-toset;//pick first common bit
