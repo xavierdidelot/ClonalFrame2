@@ -68,11 +68,13 @@ int main() {
     //rSPR algorithm
     delete(t);
     t=Tree::random_tree(20,0.01);
-    //double br=t->sum_bra_len();
+    double br=t->sum_bra_len();
     for (int i=0;i<100;i++) {
-        //t->rSPR();//TODO
+        t->rSPR();
         b=t->check_structure();
         assert(b);
+        double br2=t->sum_bra_len();
+        assert(round(br*1e6)==round(br2*1e6));
     }
 
     //Noisy algorithm

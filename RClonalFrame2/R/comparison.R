@@ -12,9 +12,7 @@
 #'
 comparison=function(n=20,l=10000,mu=0.01,niter=100,eps=0.01,showProgress=T,showPlot=T,showTimes=T) {
   tree=rtree(n,br=function (n) rexp(n,rate=1/mu))
-  extrees=read.tree('tmp.nwk');tree=extrees[[1]]#toremove
   seqs=phangorn::simSeq(tree,l=l)
-  seqs=as.phyDat(read.FASTA('tmp.fasta'))#toremove
   methods=c('pruning','joint','parsimony')#can also add 'marginal'
   allres=matrix(NA,niter,length(methods))
   colnames(allres)<-methods
@@ -29,7 +27,6 @@ comparison=function(n=20,l=10000,mu=0.01,niter=100,eps=0.01,showProgress=T,showP
     for (i in 1:niter) {
       if (showProgress) setTxtProgressBar(pb, i+(j-1)*niter)
       if (j==1) trees[[i]]=tree_noise(tree,eps)
-      if (j==1) trees[[i]]=midpoint(extrees[[i+1]])#toremove
       allres[i,j]=likelihood(trees[[i]],seqs,method=methods[j])
     }
     tims[j]=difftime(Sys.time(),start,units='secs')

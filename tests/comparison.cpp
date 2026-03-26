@@ -15,9 +15,9 @@ int main(int argc, const char *argv[]) {
     t->simulate_sequences(l);
     auto a=Alignment::make_from_tree(t,false,false);
     std::ofstream file;
-    file.open("tmp.nwk");
+    //file.open("tmp.nwk");
     std::println(file,"{}",t->to_string());
-    a->write("tmp.fasta",true);
+    //a->write("tmp.fasta",true);
     for (int i=0;i<niter;i++) {
         auto t2=Tree::noise_tree(t,eps);
         std::println(file,"{}",t2->to_string());

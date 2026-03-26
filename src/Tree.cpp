@@ -97,7 +97,15 @@ bool Tree::check_structure() {
         std::println(std::cerr,"Invalid root distance");
         return false;
     }
+    if (nodes[2*n-3]!=nodes[2*n-2]->get_left()) {
+        std::println(std::cerr,"Null node is not penultimate");
+        return false;
+    }
     for (size_t i = 0; i < nodes.size(); i++) {
+        if (i<nodes.size()-2 && nodes[i]->get_dist_father()==0.0) {
+            std::println(std::cerr,"Node with distance zero other than root or null node");
+            return false;
+        }
         if (nodes[i]->get_left() != nullptr && nodes[i]->get_left()->get_father() != nodes[i]) {
             std::println(std::cerr,"Incorrect left pointer");
             return false;
@@ -584,10 +592,10 @@ Tree* Tree::noise_tree(Tree * t,double eps) {
 
 
 void Tree::rSPR() {
-    //First select which node is moving, which can be any node other than the root
-    std::uniform_int_distribution unif(0,2*static_cast<int>(n)-3);
+    //First select which node is moving, which can be any node other than the root or null node
+    std::uniform_int_distribution unif(0,2*static_cast<int>(n)-4);
     size_t moving=unif(rng);
-    //Next select the new brother which can be any node (including root) other than the node itself
+    //Next select the new brother which can be any node other than root, null node, moving or its descendents
     size_t newbro;
     bool checked=false;
     while (checked==false) {
@@ -610,16 +618,21 @@ void Tree::rSPR() {
     }
     nodes[oldbro]->set_father(nodes[oldf]->get_father());
     nodes[oldbro]->set_dist_father(d);
+    //nodes[moving]->set_dist_father(optim);//currently not optimising new branch length
     //Regrafting
     if (nodes[newbro]->get_father()!=nullptr) {
         int newbrof=nodes[newbro]->get_father()->get_index();
         if (nodes[newbrof]->get_left()->get_index()!=newbro) nodes[newbrof]->set_right(nodes[oldf]); else nodes[newbrof]->set_left(nodes[oldf]);
     }
     nodes[oldf]->set_father(nodes[newbro]->get_father());
-    nodes[oldf]->set_dist_father(0);
+    double m=nodes[newbro]->get_dist_father();
+    std::uniform_real_distribution unifm(0.0,m);
+    double x=unifm(rng);
+    nodes[oldf]->set_dist_father(x);
     nodes[oldf]->set_left(nodes[moving]);
     nodes[oldf]->set_right(nodes[newbro]);
     nodes[newbro]->set_father(nodes[oldf]);
+    nodes[newbro]->set_dist_father(m-x);
     //Update node matrix
     reorder();
 }
