@@ -600,10 +600,12 @@ void Tree::rSPR() {
     bool checked=false;
     while (checked==false) {
         newbro=unif(rng);
-        if (newbro==moving) newbro++;
         Node*cur=nodes[newbro];
         checked=true;
-        while (cur->get_father()!=nullptr) {cur=cur->get_father();if (cur->get_index()==moving) checked=false;}
+        while (cur!=nullptr) {
+            if (cur->get_index()==moving) {checked=false;break;}
+            cur=cur->get_father();
+        }
         if (newbro==nodes[moving]->get_father()->get_index()) checked=false;
     }
     //Pruning

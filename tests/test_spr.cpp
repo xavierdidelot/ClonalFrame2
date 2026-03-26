@@ -12,6 +12,6 @@ int main(int argc, const char *argv[]) {
     auto t = Tree::random_tree(n,0.01);
     for (int i=0;i<niter;i++) {
         std::println("{}",t->to_string());
-        t->rSPR();
+        for (int j=0;j<10;j++) t->rSPR();
     }
 }
