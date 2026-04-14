@@ -34,7 +34,7 @@ public:
     ///Create a non-polymorphic alignment of n genomes of length l
     static Alignment* make_nonpoly(size_t n,size_t l);
     ///Create an alignment from a tree
-    static Alignment* make_from_tree(Tree * t, bool include_ancestors, bool need_pattern_analysis);
+    static Alignment* make_from_tree(Tree * t, bool include_ancestors);
     ///Destructor of alignment
     ~Alignment();
     ///Return data for genome i position j
@@ -53,8 +53,6 @@ public:
     double dist(size_t i, size_t j);
     ///Return a sequence
     vector<uint8_t> * get_seq(size_t i) {return(data->at(i));}
-    ///Unlink
-    void unlink() {for (size_t i=0;i<n;i++) data->at(i)=nullptr;weights=nullptr;patindex=nullptr;}
     ///Make some of the data be missed at random
     void miss_at_random(double x);
     ///Pairwise distance matrix

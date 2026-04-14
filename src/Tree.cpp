@@ -65,7 +65,6 @@ string Tree::to_string() {
 }
 
 Tree::~Tree() {
-    for (size_t i = n; i < nodes.size(); i++) {delete nodes[i]->get_seq();}
     for (size_t i = 0; i < nodes.size(); i++) {delete nodes[i];}
 }
 
@@ -144,29 +143,30 @@ int Tree::simulate_sequences(size_t l) {
         }
         m+=m2;
     }
-    Alignment* a = Alignment::make_from_tree(this,true,true);//to perform pattern analysis
-    for (size_t i=0;i<nodes.size();i++) nodes[i]->set_seq(nullptr);
-    set_sequences(a);
-    a->unlink();
+    //Perform pattern analysis on alignment without ancestors while keeping ancestor sequences
+    npat=l;
+    weights=new vector<size_t>(l,1);
+    patindex=new vector<size_t>(l,0);
+    for (size_t j=0;j<l;j++) patindex->at(j)=j;
+    Alignment* a  = Alignment::make_from_tree(this,true);
+    Alignment* a2 = Alignment::make_from_tree(this,false);a2->pattern_analysis();
+    npat=a2->get_npat();
+    delete weights;
+    delete patindex;
+    weights=new vector(*a2->get_weights());
+    patindex=new vector(*a2->get_patindex());
+    vector<size_t> anti(npat);
+    for (size_t j=0;j<l;j++) anti[a2->get_patindex()->at(j)]=j;
+    for (size_t i=0;i<nodes.size();i++) {
+        delete nodes[i]->get_seq();
+        nodes[i]->set_seq(new vector<uint8_t>(npat));
+        for (size_t j=0;j<npat;j++) nodes[i]->get_seq()->at(j)=a->get_data(i,anti[j]);
+    }
     delete(a);
+    delete(a2);
     return(m);
 }
 
-int Tree::simulate_sequences_recursive(size_t l) {
-    delete nodes[2*n-2]->get_seq();
-    nodes[2*n-2]->set_seq(new vector<uint8_t>(l));
-    std::uniform_int_distribution unif4(0, 3);
-    for (size_t i = 0; i < l; i++) {
-        nodes[2*n-2]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
-    }
-    int m=0;
-    m+=nodes[2*n-2]->get_left ()->simulate_sequences(nodes[2*n-2]->get_seq());
-    m+=nodes[2*n-2]->get_right()->simulate_sequences(nodes[2*n-2]->get_seq());
-    Alignment* a = Alignment::make_from_tree(this,true,true);//to perform pattern analysis
-    for (size_t i=0;i<nodes.size();i++) nodes[i]->set_seq(nullptr);
-    set_sequences(a);
-    return(m);
-}
 
 Tree* Tree::random_tree(size_t n,double avg_bra_len) {
     auto t = new Tree();
@@ -290,13 +290,13 @@ void Tree::set_sequences(Alignment *ali) {
         delete nodes[i]->get_seq();
     }
     for (size_t i=0;i<ali->get_n();i++) for (size_t j=0;j<nodes.size();j++)
-        if (get_node(j)->get_name()==ali->get_name(i)) get_node(j)->set_seq(ali->get_seq(i));
+        if (get_node(j)->get_name()==ali->get_name(i)) get_node(j)->set_seq(new vector(*ali->get_seq(i)));
     for (size_t i=0;i<nodes.size();i++) {
         if (nodes[i]->get_seq()==nullptr) nodes[i]->set_seq(new vector<uint8_t>(ali->get_npat(),0b00010000));
     }
     npat=ali->get_npat();
-    patindex=ali->get_patindex();
-    weights=ali->get_weights();
+    patindex=new vector(*ali->get_patindex());
+    weights=new vector(*ali->get_weights());
 }
 
 int Tree::parsimony() {
@@ -587,6 +587,34 @@ Tree* Tree::noise_tree(Tree * t,double eps) {
     auto t2=nj(d,names);
     delete names;
     delete d;
+    return t2;
+}
+
+Tree * Tree::copy_tree(Tree * t) {
+    Tree * t2=new Tree();
+    size_t n=t->n;
+    t2->n=n;
+    t2->npat=t->npat;
+    t2->patindex=t->patindex;
+    t2->weights=t->weights;
+    t2->nodes=vector<Node *>(n+n-1);
+    for (size_t i = 0; i < n+n-1; i++) {
+        auto node = new Node();
+        node->set_name(t->get_node(i)->get_name());
+        node->set_dist_father(t->get_node(i)->get_dist_father());
+        node->set_index(i);
+        node->set_seq(new vector<uint8_t>(*t->get_node(i)->get_seq()));
+        t2->nodes[i]=node;
+    }
+    Node * assign;
+    for (size_t i = 0; i < n+n-1; i++) {
+        if (i==n+n-2) assign=nullptr; else assign=t2->get_node(t->get_node(i)->get_father()->get_index());
+        t2->get_node(i)->set_father(assign);
+        if (i<n) assign=nullptr; else assign=t2->get_node(t->get_node(i)->get_left()->get_index());
+        t2->get_node(i)->set_left(assign);
+        if (i<n) assign=nullptr; else assign=t2->get_node(t->get_node(i)->get_right()->get_index());
+        t2->get_node(i)->set_right(assign);
+    }
     return t2;
 }
 

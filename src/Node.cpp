@@ -70,6 +70,10 @@ Node::Node(string s, vector <Node*> * nodes) {
     }
 }
 
+Node::~Node() {
+    delete seq;
+}
+
 string Node::to_string() {
     std::ostringstream oss;
     if (left == nullptr) std::print(oss,"{}:{:.10e}",name,get_dist_father());

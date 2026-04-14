@@ -30,6 +30,8 @@ public:
     static Tree* read_newick(const string &filename);
     ///Create a tree by adding noise to a tree
     static Tree* noise_tree(Tree * t, double eps);
+    ///Create a copy of a tree
+    static Tree* copy_tree(Tree * t);
     ///Return the tree as a newick string
     string to_string();
     ///Destructor for a tree
@@ -44,8 +46,6 @@ public:
     bool check_structure();
     ///Add mutations on a tree to generate sequence of length l
     int simulate_sequences(size_t l);
-    ///Add mutations on a tree to generate sequence of length l, recursive version
-    int simulate_sequences_recursive(size_t l);
     ///Assign sequences from alignment to the tree leaves
     void set_sequences(Alignment * ali);
     ///Parsimonious ancestral state reconstruction, returning number of substitutions in patterns

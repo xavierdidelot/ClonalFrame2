@@ -61,7 +61,9 @@ int main(int argc, const char *argv[]) {
             auto t0 = Tree::random_tree(100,1e-4);
             if (verbose) std::println("Generating simulated alignment...");
             t0->simulate_sequences(1e6);
-            a = Alignment::make_from_tree(t0,false,false);
+            a = Alignment::make_from_tree(t0,false);
+            delete t0->get_patindex();
+            delete t0->get_weights();
             delete t0;
             outfile="";
         } else {
@@ -81,6 +83,8 @@ int main(int argc, const char *argv[]) {
         p->mcmc(burn, nbit, thin, outfile);
         if (verbose) std::println("Finished MCMC.");
         delete(a);
+        delete t->get_patindex();
+        delete t->get_weights();
         delete(t);
         delete(p);
     }

@@ -53,7 +53,7 @@ public:
     ///Constructor for a new node from a Newick string
     Node(string s,vector <Node*> * nodes);//recursive
     ///Destructor for a node
-    ~Node() = default;
+    ~Node();
     ///Return a newick string for this node and its children
     string to_string();//recursive
     ///Add mutations

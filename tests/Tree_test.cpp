@@ -30,9 +30,10 @@ int main() {
     //Generating an alignment from a tree
     int m=t->simulate_sequences(10000);
     std::println("Simulated number of substitutions: {}",m);
-    auto a=Alignment::make_from_tree(t,false,false);
+    auto a=Alignment::make_from_tree(t,false);
     //a->miss_at_random(0.1);
     a->write("ali.fasta",true);
+    a=Alignment::read_fasta("ali.fasta");
 
     //Likelihood calculation
     std::println("Likelihood: {}",t->likelihood());

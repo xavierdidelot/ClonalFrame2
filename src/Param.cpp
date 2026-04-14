@@ -31,13 +31,24 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         file.open(outfile);
         if (file.is_open() == false) std::println(std::cerr,"Error opening file {}",outfile);
     }
+    std::uniform_real_distribution runif(0.0,1.0);
+    ll=tree->likelihood();
 
     for (int i=0;i<nbit;i++) {
         if (verbose==false && floor(i/nbit*100)==0) print_progress(i,nbit);
         if (verbose) std::println("Starting iteration {}",i);
-        ll=tree->likelihood();
-        tree->jointml();
-        ll=tree->likelihood_anc();
+        Tree * tree2=Tree::copy_tree(tree);
+        tree2->rSPR();
+        double ll2=tree2->likelihood();
+        if (log(runif(rng))<ll2-ll) {
+            //Accept move
+            ll=ll2;
+            delete tree;
+            tree=tree2;
+        } else {
+            //Reject move
+            delete tree2;
+        }
         if (i>burn && i%thin==0) {
             std::println(file,"{}",tree->to_string());
         }

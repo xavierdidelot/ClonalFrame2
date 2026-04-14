@@ -13,7 +13,7 @@ int main(int argc, const char *argv[]) {
     double eps=argc>5?std::stof(argv[5]):0.01;
     auto t = Tree::random_tree(n,mu);
     t->simulate_sequences(l);
-    auto a=Alignment::make_from_tree(t,false,false);
+    auto a=Alignment::make_from_tree(t,false);
     std::ofstream file;
     //file.open("tmp.nwk");
     std::println(file,"{}",t->to_string());
