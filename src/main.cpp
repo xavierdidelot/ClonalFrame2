@@ -81,6 +81,7 @@ int main(int argc, const char *argv[]) {
         auto p = new Param(t);
         if (verbose) std::println("Starting MCMC...");
         p->mcmc(burn, nbit, thin, outfile);
+        t=p->get_tree();
         if (verbose) std::println("Finished MCMC.");
         delete(a);
         delete t->get_patindex();
@@ -91,7 +92,7 @@ int main(int argc, const char *argv[]) {
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
-    if (verbose) std::println("Time spent running: {} seconds",elapsed.count());
+    std::println("Time spent running: {} seconds",elapsed.count());
     if (verbose) std::println("End of ClonalFrame2 run.");
     return 0;
 }

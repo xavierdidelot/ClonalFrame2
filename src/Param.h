@@ -19,6 +19,7 @@ public:
     void set_delta(double delta) {this->delta = delta;}
     double get_nu() {return nu;}
     void set_nu(double nu) {this->nu = nu;}
+    Tree * get_tree() {return tree;}
     ~Param();
     /**
      * Run the main MCMC

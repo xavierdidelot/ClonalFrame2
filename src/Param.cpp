@@ -42,11 +42,13 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         double ll2=tree2->likelihood();
         if (log(runif(rng))<ll2-ll) {
             //Accept move
+            if (verbose) std::println("Move accepted {} {}",ll,ll2);
             ll=ll2;
             delete tree;
             tree=tree2;
         } else {
             //Reject move
+            if (verbose) std::println("Move rejected {} {}",ll,ll2);
             delete tree2;
         }
         if (i>burn && i%thin==0) {

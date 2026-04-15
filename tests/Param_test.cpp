@@ -11,6 +11,7 @@ int main() {
     t->simulate_sequences(10000);
     auto p = new Param(t);
     p->mcmc(10,10,1,"");
+    t=p->get_tree();
     delete(p);
     delete(t);
 }
