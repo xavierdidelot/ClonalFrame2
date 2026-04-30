@@ -28,7 +28,7 @@ int main() {
     delete t2;
 
     //Generating an alignment from a tree
-    int m=t->simulate_sequences(10000);
+    int m=t->simulate_sequences_rec(10000,0.01,100,0.01);
     std::println("Simulated number of substitutions: {}",m);
     auto a=Alignment::make_from_tree(t,false);
     //a->miss_at_random(0.1);

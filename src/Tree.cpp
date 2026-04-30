@@ -143,7 +143,45 @@ int Tree::simulate_sequences(size_t l) {
         }
         m+=m2;
     }
-    //Perform pattern analysis on alignment without ancestors while keeping ancestor sequences
+    simulate_pattern_analysis();
+    return(m);
+}
+
+int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
+    for (int i=0;i<2*(int)n-1;i++) delete nodes[i]->get_seq();
+    nodes[2*n-2]->set_seq(new vector<uint8_t>(l));
+    std::uniform_real_distribution runif(0.0,1.0);
+    std::uniform_int_distribution unif4(0, 3);
+    for (size_t i = 0; i < l; i++) {
+        nodes[2*n-2]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
+    }
+    int m=0;
+    for (int z=2*(int)n-3;z>=0;z--) {
+        vector<uint8_t>*above=nodes[z]->get_father()->get_seq();
+        nodes[z]->set_seq(new vector<uint8_t>(*above));
+        double len=nodes[z]->get_dist_father();
+        double ex = exp(-4.0*len/3.0);
+        double pid =0.25+0.75*ex;
+        double a=1.0-exp(-rho*len);
+        double b=1.0-exp(-1.0/delta);
+        bool rec=runif(rng)<a/(a+b);
+        for (size_t j=0;j<l;j++) {
+            double p=rec?nu:pid;
+            if (runif(rng)<p) {
+                m++;
+                while (above->at(p)==nodes[z]->get_seq()->at(p)) {
+                    nodes[z]->get_seq()->at(p)=Alignment::nuc_from_int(unif4(rng));
+                }
+            }
+            if (rec) rec=runif(rng)<1.0-b; else rec=runif(rng)<1.0-a;
+        }
+    }
+    simulate_pattern_analysis();
+    return(m);
+}
+
+void Tree::simulate_pattern_analysis() {
+    size_t l=nodes[0]->get_seq()->size();
     npat=l;
     weights=new vector<size_t>(l,1);
     patindex=new vector<size_t>(l,0);
@@ -164,7 +202,6 @@ int Tree::simulate_sequences(size_t l) {
     }
     delete(a);
     delete(a2);
-    return(m);
 }
 
 

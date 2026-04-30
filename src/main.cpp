@@ -15,7 +15,9 @@ static string help =
     -y NUM      Total number of iterations (default is 20000)
     -z NUM      Sets the number of iterations between samples (default is 10)
     -s NUM      Use given seed to initiate random number generator
-    -S          Generate a simulated dataset and run on it
+    -S STR      Generate a simulated dataset and run on it
+                STR is comma separated values for number of sequences,
+                length of sequences, average branch length, rho, delta and nu
     -v          Verbose mode
 )";
 
@@ -27,6 +29,7 @@ int main(int argc, const char *argv[]) {
     int burn = 10000, nbit = 20000, thin = 10;
     int i=1;
     bool simu=false;
+    string simu_str;
     vector<string> remainder;
     while (i < argc) {
         string arg = argv[i];
@@ -36,7 +39,7 @@ int main(int argc, const char *argv[]) {
                 case('y'):nbit =  std::stoi(argv[++i]) ;break;
                 case('z'):thin =  std::stoi(argv[++i]) ;break;
                 case('s'):setSeed(std::stoi(argv[++i]));break;
-                case('S'):simu = true;break;
+                case('S'):simu = true;simu_str=argv[++i];break;
                 case('v'):verbose = true;break;
                 default:std::println("Ignoring incorrect option -{}",arg[1]);
             }
@@ -58,10 +61,13 @@ int main(int argc, const char *argv[]) {
         Alignment * a;
         string outfile;
         if (simu) {
-            if (verbose) std::println("Generating true tree...");
-            auto t0 = Tree::random_tree(100,1e-4);
-            if (verbose) std::println("Generating simulated alignment...");
-            t0->simulate_sequences(1e6);
+            int n,l;
+            double bralen,rho,delta,nu;
+            std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf", &n, &l, &bralen, &rho, &delta, &nu);
+            if (verbose) std::println("Generating true tree with {} leaves and mean branch length {}...",n,bralen);
+            auto t0 = Tree::random_tree(n,bralen);
+            if (verbose) std::println("Generating simulated alignment of length {} with rho={},delta={},nu={}...",l,rho,delta,nu);
+            t0->simulate_sequences_rec(l,rho,delta,nu);
             a = Alignment::make_from_tree(t0,false);
             delete t0->get_patindex();
             delete t0->get_weights();

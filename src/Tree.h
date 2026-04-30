@@ -46,6 +46,10 @@ public:
     bool check_structure();
     ///Add mutations on a tree to generate sequence of length l
     int simulate_sequences(size_t l);
+    ///Add recombination events and mutations on a tree to generate sequence of length l
+    int simulate_sequences_rec(size_t l, double rho, double delta, double nu);
+    ///Perform pattern analysis on alignment without ancestors while keeping ancestor sequences
+    void simulate_pattern_analysis();
     ///Assign sequences from alignment to the tree leaves
     void set_sequences(Alignment * ali);
     ///Parsimonious ancestral state reconstruction, returning number of substitutions in patterns
