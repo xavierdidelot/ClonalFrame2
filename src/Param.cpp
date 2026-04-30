@@ -32,14 +32,16 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         if (file.is_open() == false) std::println(std::cerr,"Error opening file {}",outfile);
     }
     std::uniform_real_distribution runif(0.0,1.0);
-    ll=tree->likelihood();
+    tree->jointml();
+    ll=tree->likelihood_anc_rec(rho,delta,nu);
 
     for (int i=0;i<nbit;i++) {
         if (verbose==false && floor((double)i/nbit*100)==(double)i/nbit*100) print_progress(i,nbit);
         if (verbose) std::println("Starting iteration {}",i);
         Tree * tree2=Tree::copy_tree(tree);
         tree2->rSPR();
-        double ll2=tree2->likelihood();
+        tree2->jointml();
+        double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
         if (log(runif(rng))<ll2-ll) {
             //Accept move
             if (verbose) std::println("Move accepted {} {}",ll,ll2);

@@ -54,8 +54,10 @@ int main() {
     std::println("Likelihood given parsimony ancestral sequences: {}",t->likelihood_anc());
     double l1=t->jointml();
     double l2=t->likelihood_anc();
-    std::println("Likelihoods given ML ancestral sequences: {} {}",l1,l2);
+    double l3=t->likelihood_anc_rec(0.0,100,0.01);
+    std::println("Likelihoods given ML ancestral sequences: {} {} {}",l1,l2,l3);
     assert(round(l1*1e6)==round(l2*1e6));
+    assert(round(l1*1e6)==round(l3*1e6));
 
     //NJ algorithm
     delete(t);

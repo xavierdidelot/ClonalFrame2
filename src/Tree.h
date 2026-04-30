@@ -62,6 +62,8 @@ public:
     double sum_bra_len();
     ///Likelihood given ancestral sequences
     double likelihood_anc();
+    ///Likelihood given ancestral sequences and recombination parameters
+    double likelihood_anc_rec(double rho,double delta,double nu);
     ///Reorder nodes
     void reorder();
     ///Compute pairwise distance matrix

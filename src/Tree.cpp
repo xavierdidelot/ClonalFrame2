@@ -394,6 +394,41 @@ double Tree::likelihood_anc() {
     return ll;
 }
 
+double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
+    double ll=0.0;
+    double len,ex,pid,pnid,a,b,alpha1,alpha2,p1,p2,scale,lscale;
+    size_t L=patindex->size();
+    vector<uint8_t> * seq1;
+    vector<uint8_t> * seq2;
+    for (size_t i=0;i<nodes.size();i++) {
+        if (nodes[i]->get_father()==nullptr) continue;
+        seq1=nodes[i]->get_father()->get_seq();
+        seq2=nodes[i]->get_seq();
+        len=nodes[i]->get_dist_father();
+        ex = exp(-4.0*len/3.0);
+        pid =0.25+0.75*ex;
+        pnid=0.25-0.25*ex;
+        a=1.0-exp(-rho*len);
+        b=1.0-exp(-1.0/delta);
+        alpha1=b/(a+b);
+        alpha2=a/(a+b);
+        lscale=0.0;
+        for (size_t j=0;j<L;j++) {//Forward algorithm
+            bool is_same=Alignment::nuc_is_currently_same(seq1->at(patindex->at(j)),seq2->at(patindex->at(j)));
+            if (is_same) {p1=pid;p2=1.0-nu;} else {p1=pnid;p2=nu;}
+            alpha1=(alpha1*(1.0-a)+alpha2*b)*p1;
+            alpha2=(alpha1*a+alpha2*(1.0-b))*p2;
+            scale=alpha1+alpha2;
+            alpha1=alpha1/scale;
+            alpha2=alpha2/scale;
+            lscale+=log(scale);
+        }
+        ll+=log(alpha1+alpha2)+lscale;
+    }
+    ll=ll+log(0.25)*patindex->size();
+    return ll;
+}
+
 void Tree::reorder() {
     vector<Node*> todo;
     //Find the root
