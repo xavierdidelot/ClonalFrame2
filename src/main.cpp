@@ -20,7 +20,8 @@ static string help =
 )";
 
 int main(int argc, const char *argv[]) {
-    auto start = std::chrono::high_resolution_clock::now();
+    using Clock = std::chrono::steady_clock;
+    auto start = Clock::now();
     auto *orphan = new Node();orphan->set_dist_father(1.0); //just to test leak detection is working
 
     int burn = 10000, nbit = 20000, thin = 10;
@@ -90,7 +91,7 @@ int main(int argc, const char *argv[]) {
         delete(p);
     }
 
-    auto end = std::chrono::high_resolution_clock::now();
+    auto end = Clock::now();
     std::chrono::duration<double> elapsed = end - start;
     std::println("Time spent running: {} seconds",elapsed.count());
     if (verbose) std::println("End of ClonalFrame2 run.");

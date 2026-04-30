@@ -546,10 +546,10 @@ double Tree::likelihood() {
             size_t zind=nodes[z]->get_index();
             for (int a = 0; a < 4; a++) {
                 if (nodes[z]->get_left() == nullptr) {
-                    if (Alignment::nuc_is_unsure(nodes[z]->get_seq()->at(pos))) {
+                    if (Alignment::nuc_is_unsure((*nodes[z]->get_seq())[pos])) {
                         L[zind][a] = 1;
                     } else {
-                        if (a == __builtin_ctz(nodes[z]->get_seq()->at(pos)))
+                        if (a == __builtin_ctz((*nodes[z]->get_seq())[pos]))
                             L[zind][a] = 1;
                         else
                             L[zind][a] = 0;
@@ -569,7 +569,7 @@ double Tree::likelihood() {
             }
         }
         size_t root=nodes.size()-1;
-        res+=log(0.25*(L[root][0]+L[root][1]+L[root][2]+L[root][3]))*weights->at(pos);
+        res+=log(0.25*(L[root][0]+L[root][1]+L[root][2]+L[root][3]))*(*weights)[pos];
     }
     return res;
 }

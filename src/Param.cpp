@@ -15,7 +15,7 @@ Param::~Param() {
 }
 
 void Param::print_progress(int current, int total) {
-    int bar_width=60;
+    int bar_width=50;
     float fraction = static_cast<float>(current) / total;
     int filled = static_cast<int>(fraction * bar_width);
     string bar(filled, '=');
@@ -35,7 +35,7 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
     ll=tree->likelihood();
 
     for (int i=0;i<nbit;i++) {
-        if (verbose==false && floor(i/nbit*100)==0) print_progress(i,nbit);
+        if (verbose==false && floor((double)i/nbit*100)==(double)i/nbit*100) print_progress(i,nbit);
         if (verbose) std::println("Starting iteration {}",i);
         Tree * tree2=Tree::copy_tree(tree);
         tree2->rSPR();
