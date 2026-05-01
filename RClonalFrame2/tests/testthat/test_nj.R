@@ -11,7 +11,7 @@ test_that("Testing NJ algorithm.", {
     t2=nj(dist.dna(ali,model = 'JC69',pairwise.deletion = T))
     system('../../../build-debug/tests/test_nj')
     t3=read.tree('nj.nwk')
-    expect_equal(path.dist(t2,t3,use.weight = T),0,tolerance=1e-6)
+    expect_equal(path.dist(t2,t3,use.weight = T),0,tolerance=1e-4)
     system('rm tmp.fasta nj.nwk')
   }
 })

@@ -124,10 +124,9 @@ bool Tree::check_structure() {
 int Tree::simulate_sequences(size_t l) {
     for (int i=0;i<2*(int)n-1;i++) delete nodes[i]->get_seq();
     nodes[2*n-2]->set_seq(new vector<uint8_t>(l));
-    std::uniform_int_distribution unif4(0, 3);
     std::uniform_int_distribution unif_l(0,static_cast<int>(l)-1);
     for (size_t i = 0; i < l; i++) {
-        nodes[2*n-2]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
+        nodes[2*n-2]->get_seq()->at(i) = Alignment::random_nuc();
     }
     int m=0;
     for (int z=2*(int)n-3;z>=0;z--) {
@@ -137,9 +136,7 @@ int Tree::simulate_sequences(size_t l) {
         int m2=pois(rng);
         for (int i=0;i<m2;i++) {
             int p=unif_l(rng);
-            while (above->at(p)==nodes[z]->get_seq()->at(p)) {
-                nodes[z]->get_seq()->at(p)=Alignment::nuc_from_int(unif4(rng));
-            }
+            nodes[z]->get_seq()->at(p)=Alignment::random_nuc_diff(above->at(p));
         }
         m+=m2;
     }
@@ -151,29 +148,30 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
     for (int i=0;i<2*(int)n-1;i++) delete nodes[i]->get_seq();
     nodes[2*n-2]->set_seq(new vector<uint8_t>(l));
     std::uniform_real_distribution runif(0.0,1.0);
-    std::uniform_int_distribution unif4(0, 3);
     for (size_t i = 0; i < l; i++) {
-        nodes[2*n-2]->get_seq()->at(i) = Alignment::nuc_from_int(unif4(rng));
+        nodes[2*n-2]->get_seq()->at(i) = Alignment::random_nuc();
     }
     int m=0;
     for (int z=2*(int)n-3;z>=0;z--) {
         vector<uint8_t>*above=nodes[z]->get_father()->get_seq();
         nodes[z]->set_seq(new vector<uint8_t>(*above));
-        double len=nodes[z]->get_dist_father();
-        double ex = exp(-4.0*len/3.0);
-        double pid =0.25+0.75*ex;
-        double a=1.0-exp(-rho*len);
+        double a=1.0-exp(-rho*nodes[z]->get_dist_father());
         double b=1.0-exp(-1.0/delta);
         bool rec=runif(rng)<a/(a+b);
-        for (size_t j=0;j<l;j++) {
-            double p=rec?nu:pid;
-            if (runif(rng)<p) {
-                m++;
-                while (above->at(p)==nodes[z]->get_seq()->at(p)) {
-                    nodes[z]->get_seq()->at(p)=Alignment::nuc_from_int(unif4(rng));
-                }
+        size_t curpos=0;
+        while (curpos<l) {
+            std::geometric_distribution geo(rec?b:a);
+            size_t upto=curpos+geo(rng);
+            if (upto>l) upto=l;
+            std::poisson_distribution pois((rec?nu:nodes[z]->get_dist_father())*(upto-curpos));
+            int m2=pois(rng);
+            for (int i=0;i<m2;i++) {
+                int p=curpos+(rng()%(upto-curpos));
+                nodes[z]->get_seq()->at(p)=Alignment::random_nuc_diff(above->at(p));
             }
-            if (rec) rec=runif(rng)<1.0-b; else rec=runif(rng)<1.0-a;
+            m+=m2;
+            rec=!rec;
+            curpos=upto;
         }
     }
     simulate_pattern_analysis();

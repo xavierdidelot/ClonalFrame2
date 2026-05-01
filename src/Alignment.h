@@ -63,8 +63,10 @@ public:
 
     ///Indicate if a nucleotide is unsure
     static inline bool nuc_is_unsure(const uint8_t c) {return (c&0b00010000)!=0;}
-    ///Make a nuc from an int (0=A, 1=C, 2=G, 3=T, 4=N)
-    static inline uint8_t nuc_from_int(const int i) {return 1u<<i;}
+    ///Generate a random nucleotide
+    static inline uint8_t random_nuc() {return 1u<<(rng()%4);}
+    ///Generate a random nucleotide different from the one provided
+    static inline uint8_t random_nuc_diff(const uint8_t c) {return 1u<<(((__builtin_ctz(c&0b00001111))+1+(rng()%3))%4);}
     ///Sets the nuc a to nuc b while retaining extra info
     static inline void nuc_set_as(uint8_t * a,const uint8_t b) {*a=((*a)&0b11110000) | (b&0b00001111);}
     ///Indicate if two nucs are currently the same

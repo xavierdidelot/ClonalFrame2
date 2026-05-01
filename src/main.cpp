@@ -47,59 +47,57 @@ int main(int argc, const char *argv[]) {
         i++;
     }
 
-    std::println("This is ClonalFrame2, version {}",VERSION_STRING);
-    if (remainder.size() != 2 && simu==false) {
-        std::println("Need two non-option arguments but found {}",remainder.size());
-        std::println("{}",help);
-    } else {
-        if (verbose) {
-            std::print("Command used: ");
-            for (i = 0; i < argc; i++) std::print("{} ",argv[i]);
-            std::println("");
-        }
-
-        Alignment * a;
-        string outfile;
-        if (simu) {
-            int n,l;
-            double bralen,rho,delta,nu;
-            std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf", &n, &l, &bralen, &rho, &delta, &nu);
-            if (verbose) std::println("Generating true tree with {} leaves and mean branch length {}...",n,bralen);
-            auto t0 = Tree::random_tree(n,bralen);
-            if (verbose) std::println("Generating simulated alignment of length {} with rho={},delta={},nu={}...",l,rho,delta,nu);
-            t0->simulate_sequences_rec(l,rho,delta,nu);
-            a = Alignment::make_from_tree(t0,false);
-            delete t0->get_patindex();
-            delete t0->get_weights();
-            delete t0;
-            outfile="";
-        } else {
-            const auto inputfile = string(remainder[0]);
-            outfile = string(remainder[1]);
-            a = Alignment::read_fasta(inputfile);
-        }
-        if (verbose) std::println("Building initial tree...");
-        auto mat=a->distmat();
-        auto t = Tree::nj(mat,a->get_names());
-        delete mat;
-        t->set_sequences(a);
-        if (verbose) std::println("Performing initial ancestral reconstruction...");
-        t->jointml();
-        auto p = new Param(t);
-        if (verbose) std::println("Starting MCMC...");
-        p->mcmc(burn, nbit, thin, outfile);
-        t=p->get_tree();
-        if (verbose) std::println("Finished MCMC.");
-        delete(a);
-        delete t->get_patindex();
-        delete t->get_weights();
-        delete(t);
-        delete(p);
+    vprint("This is ClonalFrame2, version {}", VERSION_STRING);
+    if (remainder.size() != 2 && simu == false) {
+        std::println("Need two non-option arguments but found {}", remainder.size());
+        std::println("{}", help);
+        return 0;
     }
+
+    string cmd;
+    for (i = 0; i < argc; i++) {cmd.append(argv[i]);cmd.append(" ");}
+    if (verbose) vprint("Command used: {}", cmd);
+
+    Alignment *a;
+    string outfile;
+    if (simu) {
+        int n, l;
+        double bralen, rho, delta, nu;
+        std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf", &n, &l, &bralen, &rho, &delta, &nu);
+        if (verbose) vprint("Generating true tree with {} leaves and mean branch length {}...", n, bralen);
+        auto t0 = Tree::random_tree(n, bralen);
+        if (verbose) vprint("Generating simulated alignment of length {} with rho={},delta={},nu={}...", l, rho, delta,
+                            nu);
+        t0->simulate_sequences_rec(l, rho, delta, nu);
+        a = Alignment::make_from_tree(t0, false);
+        delete t0->get_patindex();
+        delete t0->get_weights();
+        delete t0;
+        outfile = "";
+    } else {
+        const auto inputfile = string(remainder[0]);
+        outfile = string(remainder[1]);
+        a = Alignment::read_fasta(inputfile);
+    }
+    if (verbose) vprint("Building initial tree...");
+    auto mat = a->distmat();
+    auto t = Tree::nj(mat, a->get_names());
+    delete mat;
+    t->set_sequences(a);
+    if (verbose) vprint("Performing initial ancestral reconstruction...");
+    t->jointml();
+    auto p = new Param(t);
+    p->mcmc(burn, nbit, thin, outfile);
+    t = p->get_tree();
+    delete(a);
+    delete t->get_patindex();
+    delete t->get_weights();
+    delete(t);
+    delete(p);
 
     auto end = Clock::now();
     std::chrono::duration<double> elapsed = end - start;
-    std::println("Time spent running: {} seconds",elapsed.count());
-    if (verbose) std::println("End of ClonalFrame2 run.");
+    vprint("Time spent running: {} seconds",elapsed.count());
+    if (verbose) vprint("End of ClonalFrame2 run.");
     return 0;
 }

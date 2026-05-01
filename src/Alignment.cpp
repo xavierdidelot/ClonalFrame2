@@ -19,7 +19,7 @@ Alignment * Alignment::read_fasta(const string &filename) {
     auto a = new Alignment();
     string line;
     std::ifstream file;
-    if (verbose) std::println("Opening file {}",filename);
+    if (verbose) vprint("Opening file {}",filename);
     file.open(filename);
     if (file.is_open()==false) {
         std::println("Error opening file {}",filename);
@@ -54,7 +54,7 @@ Alignment * Alignment::read_fasta(const string &filename) {
             l++;
         }
     }
-    if (verbose) std::println("Finished reading file made of {} genomes of length {}",n,l);
+    if (verbose) vprint("Finished reading file made of {} genomes of length {}",n,l);
     file.close();
     a->n=n;
     a->l=l;
@@ -94,7 +94,7 @@ Alignment* Alignment::make_from_tree(Tree *t, bool include_ancestors) {
 }
 
 void Alignment::pattern_analysis() {
-    if (verbose) std::println("Starting pattern analysis");
+    if (verbose) vprint("Starting pattern analysis");
     auto data2=new vector<vector<uint8_t>*>(n);
     for (size_t i=0;i<n;i++) data2->at(i)=new vector<uint8_t>(l);
     npat=0;
@@ -127,7 +127,7 @@ void Alignment::pattern_analysis() {
     for (size_t i=0;i<n;i++) delete data->at(i);
     delete data;
     data=data2;
-    if (verbose) std::println("Finished pattern analysis and found {} patterns",npat);
+    if (verbose) vprint("Finished pattern analysis and found {} patterns",npat);
 }
 
 uint8_t Alignment::encode(char in) {
