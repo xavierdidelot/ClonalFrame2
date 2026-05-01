@@ -532,9 +532,10 @@ vector<vector<double>> * Tree::distmat() {
 double Tree::jointml() {
     vector<vector<double> > L(nodes.size(), vector<double>(4, 0.0));
     vector<vector<uint8_t> > C(nodes.size(), vector<uint8_t>(4, 0));
-    vector<double> tmp(4, 0.0);
+    double tmp[4];
     double res = 0.0;
     int z,w;
+    const double log025 = log(0.25);
 
     vector<double> pid(nodes.size(),0);
     vector<double> pnid(nodes.size(),0);
@@ -546,34 +547,40 @@ double Tree::jointml() {
     }
 
     for (size_t pos = 0; pos < npat; pos++) {
-        //First pass from leaves to root (excluded)
-        for (z = 0; z < (int)n*2-1; z++) {
+        //First pass for leaves
+        for (z = 0; z < (int)n; z++) {
             size_t zind=nodes[z]->get_index();
-
+            uint8_t nuc=nodes[z]->get_seq()->at(pos);
+            int nucint = __builtin_ctz(nuc);
+            bool nuc_is_unsure =Alignment::nuc_is_unsure(nuc);
             for (int i = 0; i < 4; i++) {
-                if (z<(int)n) {
-                    if (Alignment::nuc_is_unsure(nodes[z]->get_seq()->at(pos))) {
-                        L[zind][i] = pid[zind];
-                        C[zind][i] = 1<<i;
-                    } else {
-                        C[zind][i] = nodes[z]->get_seq()->at(pos);
-                        if (i == __builtin_ctz(nodes[z]->get_seq()->at(pos)))
-                            L[zind][i] = pid[zind];
-                        else
-                            L[zind][i] = pnid[zind];
-                    }
+                if (nuc_is_unsure) {
+                    L[zind][i] = pid[zind];
+                    C[zind][i] = 1<<i;
                 } else {
-                    size_t left=nodes[z]->get_left()->get_index();
-                    size_t right=nodes[z]->get_right()->get_index();
-                    for (int j=0;j<4;j++) {
-                        tmp[j]=L[left][j]+L[right][j];
-                        if (i==j) tmp[j]+=pid[zind]; else tmp[j]+=pnid[zind];
-                    }
-                    w=0;
-                    for (size_t j=1;j<4;j++) {if (tmp[j]>tmp[w]) w=j;}
-                    L[zind][i]=tmp[w];
-                    C[zind][i]=1<<w;
+                    C[zind][i] = nuc;
+                    if (i == nucint)
+                        L[zind][i] = pid[zind];
+                    else
+                        L[zind][i] = pnid[zind];
                 }
+            }
+        }
+        //First pass for internal nodes other than root
+        for (z = (int)n; z < (int)n*2-1; z++) {
+            size_t zind=nodes[z]->get_index();
+            size_t left=nodes[z]->get_left()->get_index();
+            size_t right=nodes[z]->get_right()->get_index();
+            double base[4];
+            for (int j = 0; j < 4; j++) base[j] = L[left][j] + L[right][j];
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    tmp[j] = base[j] + (i == j ? pid[zind] : pnid[zind]);
+                }
+                w = 0;
+                for (int j = 1; j < 4; j++) if (tmp[j] > tmp[w]) w = j;
+                L[zind][i] = tmp[w];
+                C[zind][i] = 1 << w;
             }
         }
 
@@ -582,7 +589,7 @@ double Tree::jointml() {
         size_t left=nodes[z]->get_left()->get_index();
         size_t right=nodes[z]->get_right()->get_index();
         for (size_t j=0;j<4;j++) {
-            L[z][j]=L[left][j]+L[right][j]+log(0.25);
+            L[z][j]=L[left][j]+L[right][j]+log025;
         }
         w=0;
         for (size_t j=1;j<4;j++) {if (L[z][j]>L[z][w]) w=j;}
