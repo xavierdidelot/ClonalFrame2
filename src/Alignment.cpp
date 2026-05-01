@@ -102,20 +102,29 @@ void Alignment::pattern_analysis() {
     delete weights;
     patindex=new vector<size_t>(l,0);
     weights =new vector<size_t>(l,0);
+    std::unordered_map<size_t, vector<size_t>> hashmap;
+
     for (size_t j=0;j<l;j++) {
+        // Compute hash
+        size_t h = 0;
+        for (size_t i = 0; i < n; i++)
+            h = h * 131 + data->at(i)->at(j);
         bool toadd=true;
         size_t j2=0;
-        for (j2=0;j2<npat;j2++) {
-            bool samepat=true;
-            for (size_t i=0;i<n;i++) {
-                if (data->at(i)->at(j)!=data2->at(i)->at(j2)) {samepat=false;break;}
+        // Check candidates with same hash (collision-safe)
+        auto it = hashmap.find(h);
+        if (it != hashmap.end()) {
+            for (size_t cand : it->second) {
+                bool same = true;
+                for (size_t i = 0; i < n; i++)
+                    if (data->at(i)->at(j) != data2->at(i)->at(cand)) { same = false; break; }
+                if (same) { toadd = false; j2 = cand; break; }
             }
-            if (samepat) {toadd=false;break;}
-        }
-        if (toadd) {
+        }        if (toadd) {
             for (size_t i=0;i<n;i++) {
                 data2->at(i)->at(npat)=data->at(i)->at(j);
             }
+            hashmap[h].push_back(npat);
             j2=npat;
             npat++;
         }

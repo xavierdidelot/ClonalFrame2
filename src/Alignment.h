@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <unordered_map>
 #include "Tree.h"
 
 using std::string,std::vector;
