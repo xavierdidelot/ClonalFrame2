@@ -1,37 +1,37 @@
-##find_package(GSL REQUIRED)
+find_package(OpenMP REQUIRED)
 
 add_executable(Alignment_test Alignment_test.cpp)
-target_link_libraries(Alignment_test cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(Alignment_test cf2_lib OpenMP::OpenMP_CXX)
 add_test(Alignment_test Alignment_test)
 
 add_executable(Tree_test Tree_test.cpp)
-target_link_libraries(Tree_test cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(Tree_test cf2_lib OpenMP::OpenMP_CXX)
 add_test(Tree_test Tree_test)
 
 add_executable(Param_test Param_test.cpp)
-target_link_libraries(Param_test cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(Param_test cf2_lib OpenMP::OpenMP_CXX)
 add_test(Param_test Param_test)
 
 add_executable(test_nj test_nj.cpp)
-target_link_libraries(test_nj cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(test_nj cf2_lib OpenMP::OpenMP_CXX)
 
 add_executable(test_parsimony test_parsimony.cpp)
-target_link_libraries(test_parsimony cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(test_parsimony cf2_lib OpenMP::OpenMP_CXX)
 
 add_executable(test_jointml test_jointml.cpp)
-target_link_libraries(test_jointml cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(test_jointml cf2_lib OpenMP::OpenMP_CXX)
 
 add_executable(test_patterns test_patterns.cpp)
-target_link_libraries(test_patterns cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(test_patterns cf2_lib OpenMP::OpenMP_CXX)
 
 add_executable(test_likelihoods test_likelihoods.cpp)
-target_link_libraries(test_likelihoods cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(test_likelihoods cf2_lib OpenMP::OpenMP_CXX)
 
 add_executable(test_spr test_spr.cpp)
-target_link_libraries(test_spr cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(test_spr cf2_lib OpenMP::OpenMP_CXX)
 
 add_executable(profile_parsimony profile_parsimony.cpp)
-target_link_libraries(profile_parsimony cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(profile_parsimony cf2_lib OpenMP::OpenMP_CXX)
 
 add_executable(comparison comparison.cpp)
-target_link_libraries(comparison cf2_lib)# GSL::gsl GSL::gslcblas)
+target_link_libraries(comparison cf2_lib OpenMP::OpenMP_CXX)

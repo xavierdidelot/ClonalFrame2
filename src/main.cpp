@@ -58,10 +58,10 @@ int main(int argc, const char *argv[]) {
 
     string cmd;
     for (i = 0; i < argc; i++) {cmd.append(argv[i]);cmd.append(" ");}
-    if (verbose) vprint("Command used: {}", cmd);
+    std::println("Command used: {}", cmd);
 
     omp_set_num_threads(n_cores);
-    if (verbose) vprint("Using {} cores.",n_cores);
+    std::println("Using {} cores.",n_cores);
 
     Alignment *a;
     string outfile;
