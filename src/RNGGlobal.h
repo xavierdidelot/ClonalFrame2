@@ -1,5 +1,6 @@
 #ifndef RNG_GLOBAL_H
 #define RNG_GLOBAL_H
+#include <omp.h>
 #include <random>
 #include <print>
 #include <chrono>
@@ -18,5 +19,7 @@ inline std::mt19937 rng(std::random_device{}()); // Global RNG, non-deterministi
 inline void setSeed(unsigned int seed) {
     rng.seed(seed);
 }
+
+inline int n_cores = omp_get_max_threads();  // what OpenMP would use by default
 
 #endif

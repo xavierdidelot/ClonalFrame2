@@ -23,6 +23,7 @@ void Param::print_progress(int current, int total) {
     bar += string(bar_width - bar.size(), ' ');
     std::print("\r[{}] {}%  ", bar, static_cast<int>(fraction * 100));
     if (current == total) std::println("");;
+    std::flush(std::cout);
 }
 
 void Param::mcmc(int burn, int nbit, int thin, string outfile) {

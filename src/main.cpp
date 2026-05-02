@@ -15,6 +15,7 @@ static string help =
     -y NUM      Total number of iterations (default is 20000)
     -z NUM      Sets the number of iterations between samples (default is 10)
     -s NUM      Use given seed to initiate random number generator
+    -c NUM      Number of cores to use (default is all available)
     -S STR      Generate a simulated dataset and run on it
                 STR is comma separated values for number of sequences,
                 length of sequences, average branch length, rho, delta and nu
@@ -39,6 +40,7 @@ int main(int argc, const char *argv[]) {
                 case('y'):nbit =  std::stoi(argv[++i]) ;break;
                 case('z'):thin =  std::stoi(argv[++i]) ;break;
                 case('s'):setSeed(std::stoi(argv[++i]));break;
+                case('c'):n_cores =  std::stoi(argv[++i]);break;
                 case('S'):simu = true;simu_str=argv[++i];break;
                 case('v'):verbose = true;break;
                 default:std::println("Ignoring incorrect option -{}",arg[1]);
@@ -57,6 +59,9 @@ int main(int argc, const char *argv[]) {
     string cmd;
     for (i = 0; i < argc; i++) {cmd.append(argv[i]);cmd.append(" ");}
     if (verbose) vprint("Command used: {}", cmd);
+
+    omp_set_num_threads(n_cores);
+    if (verbose) vprint("Using {} cores.",n_cores);
 
     Alignment *a;
     string outfile;
