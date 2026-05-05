@@ -81,23 +81,6 @@ string Node::to_string() {
     return oss.str();
 }
 
-int Node::simulate_sequences(vector<uint8_t> * above) {
-    seq=new vector<uint8_t>(*above);
-    int l=seq->size();
-    std::uniform_int_distribution unif_l(0,l-1);
-    std::poisson_distribution pois(dist_father*l);
-    int m=pois(rng);
-    for (int i=0;i<m;i++) {
-        int p=unif_l(rng);
-        while (above->at(p)==seq->at(p)) {
-            seq->at(p)=Alignment::random_nuc();
-        }
-    }
-    if (left!= nullptr) m+=left ->simulate_sequences(seq);
-    if (right!=nullptr) m+=right->simulate_sequences(seq);
-    return m;
-}
-
 int Node::fitch_pass1(size_t pos) {
     if (left==nullptr) {
         if (Alignment::nuc_is_unsure(seq->at(pos))) seq->at(pos)=0b00011111;

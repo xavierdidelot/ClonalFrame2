@@ -132,8 +132,11 @@ int Tree::simulate_sequences(size_t l) {
     for (int z=2*(int)n-3;z>=0;z--) {
         vector<uint8_t>*above=nodes[z]->get_father()->get_seq();
         nodes[z]->set_seq(new vector<uint8_t>(*above));
-        std::poisson_distribution pois(nodes[z]->get_dist_father()*l);
-        int m2=pois(rng);
+        int m2=0;
+        if (nodes[z]->get_dist_father()>0.0) {
+            std::poisson_distribution pois(nodes[z]->get_dist_father()*l);
+            m2=pois(rng);
+        }
         for (int i=0;i<m2;i++) {
             int p=unif_l(rng);
             nodes[z]->get_seq()->at(p)=Alignment::random_nuc_diff(above->at(p));
@@ -160,11 +163,18 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
         bool rec=runif(rng)<a/(a+b);
         size_t curpos=0;
         while (curpos<l) {
-            std::geometric_distribution geo(rec?b:a);
-            size_t upto=curpos+geo(rng);
-            if (upto>l) upto=l;
-            std::poisson_distribution pois((rec?nu:nodes[z]->get_dist_father())*(upto-curpos));
-            int m2=pois(rng);
+            size_t upto;
+            int m2;
+            if (nodes[z]->get_dist_father()>0) {
+                std::geometric_distribution geo(rec?b:a);
+                upto=curpos+geo(rng)+1;
+                if (upto>l) upto=l;
+                std::poisson_distribution pois((rec?nu:nodes[z]->get_dist_father())*(upto-curpos));
+                m2=pois(rng);
+            } else {
+                upto=l;
+                m2=0;
+            }
             for (int i=0;i<m2;i++) {
                 int p=curpos+(rng()%(upto-curpos));
                 nodes[z]->get_seq()->at(p)=Alignment::random_nuc_diff(above->at(p));

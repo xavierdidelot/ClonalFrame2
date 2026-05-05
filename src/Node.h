@@ -56,8 +56,6 @@ public:
     ~Node();
     ///Return a newick string for this node and its children
     string to_string();//recursive
-    ///Add mutations
-    int simulate_sequences(vector<uint8_t> * above);//recursive
     size_t get_index() {return index;};
     void set_index(size_t i) {index = i;};
 
