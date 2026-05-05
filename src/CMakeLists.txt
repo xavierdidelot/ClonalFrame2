@@ -6,12 +6,11 @@ add_library(cf2_lib
         Node.cpp
         Node.h
         Param.cpp
-        Param.h)
+        Param.h
+        Profiler.cpp
+        Profiler.h)
+target_compile_options(cf2_lib PRIVATE -fopenmp)
 
 add_executable(ClonalFrame2 main.cpp)
-find_package(OpenMP)
-if(OpenMP_CXX_FOUND)
-    target_link_libraries(ClonalFrame2 OpenMP::OpenMP_CXX)
-endif()
-target_link_libraries(ClonalFrame2 cf2_lib)
+target_link_libraries(ClonalFrame2 PRIVATE OpenMP::OpenMP_CXX cf2_lib)
 target_include_directories(ClonalFrame2 PRIVATE ${CMAKE_BINARY_DIR}/generated)

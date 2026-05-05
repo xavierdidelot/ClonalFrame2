@@ -19,6 +19,7 @@ static string help =
     -S STR      Generate a simulated dataset and run on it
                 STR is comma separated values for number of sequences,
                 length of sequences, average branch length, rho, delta and nu
+    -p          Activate profiler
     -v          Verbose mode
 )";
 
@@ -43,6 +44,7 @@ int main(int argc, const char *argv[]) {
                 case('c'):n_cores =  std::stoi(argv[++i]);break;
                 case('S'):simu = true;simu_str=argv[++i];break;
                 case('v'):verbose = true;break;
+                case('p'):profiling = true;break;
                 default:std::println("Ignoring incorrect option -{}",arg[1]);
             }
         } else remainder.push_back(arg);

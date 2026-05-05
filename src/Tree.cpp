@@ -440,6 +440,7 @@ double Tree::likelihood_anc() {
 }
 
 double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
+    if (profiling) Profiler::prof.start(__func__);
     double ll=0.0;
     size_t L=patindex->size();
     double b=1.0-exp(-1.0/delta);
@@ -474,10 +475,12 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
         ll+=log(alpha1+alpha2)+lscale;
     }
     ll=ll+log(0.25)*patindex->size();
+    if (profiling) Profiler::prof.stop(__func__);
     return ll;
 }
 
 void Tree::reorder() {
+    if (profiling) Profiler::prof.start(__func__);
     vector<Node*> todo;
     //Find the root
     int a=0;
@@ -509,9 +512,12 @@ void Tree::reorder() {
         }
     }
     for (i=0;i<2*n-1;i++) nodes[i]->set_index(i);
+    if (profiling) Profiler::prof.stop(__func__);
+
 }
 
 vector<vector<double>> * Tree::distmat() {
+    if (profiling) Profiler::prof.start(__func__);
     auto d=new vector<vector<double>>(n, vector<double>(n, 0.0));
     for (size_t i = 0; i < n; i++) for (size_t j = 0; j < i; j++) {
         vector<Node*> path1;
@@ -537,10 +543,12 @@ vector<vector<double>> * Tree::distmat() {
         (*d)[i][j] = di;
         (*d)[j][i] = (*d)[i][j];
     }
+    if (profiling) Profiler::prof.stop(__func__);
     return d;
 }
 
 double Tree::jointml() {
+    if (profiling) Profiler::prof.start(__func__);
     vector<vector<double> > L(nodes.size(), vector<double>(4, 0.0));
     vector<vector<uint8_t> > C(nodes.size(), vector<uint8_t>(4, 0));
     double tmp[4];
@@ -614,10 +622,12 @@ double Tree::jointml() {
             Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), C[zind][i]); //preserve missing status
         }
     }
+    if (profiling) Profiler::prof.stop(__func__);
     return (res);
 }
 
 double Tree::likelihood() {
+    if (profiling) Profiler::prof.start(__func__);
     vector<vector<double> > L(nodes.size(), vector<double>(4, 0.0));
     double res = 0.0;
 
@@ -661,6 +671,7 @@ double Tree::likelihood() {
         size_t root=nodes.size()-1;
         res+=log(0.25*(L[root][0]+L[root][1]+L[root][2]+L[root][3]))*(*weights)[pos];
     }
+    if (profiling) Profiler::prof.stop(__func__);
     return res;
 }
 
