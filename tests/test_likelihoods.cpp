@@ -16,5 +16,6 @@ int main() {
     t->write("tmp2.nwk");
     a->write("tmp2.fasta",false);
     double s3=t->likelihood_anc();
-    std::println("{},{}",l,s3);
+    double s4=t->likelihood_anc_rec(1.1,202,0.055);
+    std::println("{},{},{}",l,s3,s4);
 }

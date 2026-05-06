@@ -27,6 +27,10 @@ test_that("Testing likelihood functions.", {
     c=likelihood_anc(tree2,seqs2,anc2,method='phangorn')
     expect_equal(b,c)
     expect_equal(a[2],b)
+    d=likelihood_anc_rec(tree2,seqs2,anc2,rho=0,delta=202,nu=0.055)
+    expect_equal(b,d)
+    e=likelihood_anc_rec(tree2,seqs2,anc2,rho=1.1,delta=202,nu=0.055)
+    expect_equal(a[3],e)
     system('rm tmp.fasta tmp.nwk tmp2.fasta tmp2.nwk')
   }
 })
