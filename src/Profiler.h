@@ -18,7 +18,7 @@
 class Profiler {
 public:
     static Profiler prof;
-    Profiler() = default;
+    Profiler();
     ~Profiler();
     void print();
     void start(const char* name);
@@ -27,7 +27,8 @@ public:
 private:
     using Clock = std::chrono::high_resolution_clock;
     struct Entry {
-        long long total_us = 0;
+        const char *name;
+        long long duration = 0;
         long long calls    = 0;
         Clock::time_point last_started;
     };

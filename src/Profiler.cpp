@@ -14,11 +14,17 @@ void Profiler::start(const char* name) {
 void Profiler::stop(const char* name) {
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(
         Clock::now() - entries[name].last_started).count();
-    entries[name].total_us += us;
+    entries[name].duration += us;
     entries[name].calls    += 1;
+    entries[name].name = name;
+}
+
+Profiler::Profiler() {
+    start("Total");
 }
 
 Profiler::~Profiler() {
+    stop("Total");
     this->print();
 }
 
@@ -27,17 +33,17 @@ void Profiler::print() {
     std::vector<std::pair<const char*, Entry>> sorted(entries.begin(), entries.end());
     std::sort(sorted.begin(), sorted.end(),
         [](const auto& a, const auto& b) {
-            return a.second.total_us > b.second.total_us;
+            return a.second.duration < b.second.duration;
         });
 
     std::println("\n=== Profiler Results ===");
-    std::println("{:<40} {:<12} {:<16} {:<16}", "Function", "Calls", "Total (ms)", "Avg (µs)");
+    std::println("{:<40} {:<12} {:<16} {:<16}", "Function", "Calls", "Total (ms)", "Percentage");
     std::println("{}", std::string(84, '-'));
-    for (const auto& [name, e] : sorted) {
+    for (const auto& [duration, e] : sorted) {
         std::println("{:<40} {:<12} {:<16.2f} {:<16.2f}",
-            name,
+            e.name,
             e.calls,
-            e.total_us / 1000.0,
-            static_cast<double>(e.total_us) / e.calls);
+            e.duration / 1000.0,
+            static_cast<double>(e.duration) / entries["Total"].duration*100.0);
     }
 }

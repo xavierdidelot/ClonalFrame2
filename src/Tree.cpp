@@ -692,6 +692,7 @@ Tree* Tree::noise_tree(Tree * t,double eps) {
 }
 
 Tree * Tree::copy_tree(Tree * t) {
+    if (profiling) Profiler::prof.start(__func__);
     Tree * t2=new Tree();
     size_t n=t->n;
     t2->n=n;
@@ -716,11 +717,13 @@ Tree * Tree::copy_tree(Tree * t) {
         if (i<n) assign=nullptr; else assign=t2->get_node(t->get_node(i)->get_right()->get_index());
         t2->get_node(i)->set_right(assign);
     }
+    if (profiling) Profiler::prof.stop(__func__);
     return t2;
 }
 
 
 void Tree::rSPR() {
+    if (profiling) Profiler::prof.start(__func__);
     //First select which node is moving, which can be any node other than the root or null node
     std::uniform_int_distribution unif(0,2*static_cast<int>(n)-4);
     size_t moving=unif(rng);
@@ -766,4 +769,5 @@ void Tree::rSPR() {
     nodes[newbro]->set_dist_father(m-x);
     //Update node matrix
     reorder();
+    if (profiling) Profiler::prof.stop(__func__);
 }

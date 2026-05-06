@@ -28,6 +28,7 @@ void Param::print_progress(int current, int total) {
 
 void Param::mcmc(int burn, int nbit, int thin, string outfile) {
     if (verbose) vprint("Starting MCMC...");
+    if (profiling) Profiler::prof.start(__func__);
     std::ofstream file;
     if (!outfile.empty()) {
         file.open(outfile);
@@ -64,5 +65,6 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
     if (verbose==false && nbit>0) print_progress(nbit,nbit);
     std::println(file,"");
     file.close();
+    if (profiling) Profiler::prof.stop(__func__);
     if (verbose) vprint("Finished MCMC.");
 }
