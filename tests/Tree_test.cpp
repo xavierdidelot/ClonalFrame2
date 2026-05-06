@@ -7,6 +7,9 @@
 
 int main() {
     setSeed(0);
+    omp_set_num_threads(1);
+    profiling=true;
+    verbose=true;
 
     //Creating a tree
     auto t = Tree::deterministic_tree(10);

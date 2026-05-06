@@ -40,7 +40,7 @@ Tree* Tree::read_newick(const string &filename) {
     auto t=new Tree();
     string line;
     std::ifstream file;
-    if (verbose) std::println("Opening file {}",filename);
+    if (verbose) vprint("Opening file {}",filename);
     file.open(filename);
     if (file.is_open() == false) {
         std::println(std::cerr,"Error opening file {}",filename);
@@ -456,23 +456,39 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
         double a=1.0-exp(-rho*len);
         double alpha1=b/(a+b);
         double alpha2=a/(a+b);
+        vector gamma={1.0-a, a, b, 1.0-b};
+        size_t maxskip=100;
+        vector gammas(maxskip, vector(4, 0.0));
+        gammas[0]=gamma;
+        for (size_t k=1;k<maxskip;k++) {
+            gammas[k][0]=gammas[k-1][0]*pid*gamma[0]+gammas[k-1][1]*(1.0-nu)*gamma[2];
+            gammas[k][1]=gammas[k-1][0]*pid*gamma[1]+gammas[k-1][1]*(1.0-nu)*gamma[3];
+            gammas[k][2]=gammas[k-1][2]*pid*gamma[0]+gammas[k-1][3]*(1.0-nu)*gamma[2];
+            gammas[k][3]=gammas[k-1][2]*pid*gamma[1]+gammas[k-1][3]*(1.0-nu)*gamma[3];
+        }
         double lscale=0.0;
-        for (size_t j=0;j<L;j++) {//Forward algorithm
-            size_t pat=(*patindex)[j];
-            bool is_same=Alignment::nuc_is_currently_same((*seq1)[pat],(*seq2)[pat]);
+        size_t j=0;
+        while (j<L) {//Forward algorithm
+            size_t skipping=0;
+            bool is_same=true;
+            while (is_same) {
+                size_t pat=(*patindex)[j+skipping];
+                is_same=Alignment::nuc_is_currently_same((*seq1)[pat],(*seq2)[pat]);
+                if (j+skipping>L-2 || skipping>maxskip-2) break;
+                if (is_same) skipping++;
+            }
             double p1,p2;
             if (is_same) {p1=pid;p2=1.0-nu;} else {p1=pnid;p2=nu;}
-            double newalpha1=(alpha1*(1.0-a)+alpha2*b)*p1;
-            alpha2=(alpha1*a+alpha2*(1.0-b))*p2;
+            double newalpha1=(alpha1*gammas[skipping][0]+alpha2*gammas[skipping][2])*p1;
+            alpha2=          (alpha1*gammas[skipping][1]+alpha2*gammas[skipping][3])*p2;
             alpha1=newalpha1;
             double scale=alpha1+alpha2;
-            if (scale<1e-10) {
-                alpha1=alpha1/scale;
-                alpha2=alpha2/scale;
-                lscale+=log(scale);
-            }
+            alpha1=alpha1/scale;
+            alpha2=alpha2/scale;
+            lscale+=log(scale);
+            j+=skipping+1;
         }
-        ll+=log(alpha1+alpha2)+lscale;
+        ll+=lscale;
     }
     ll=ll+log(0.25)*patindex->size();
     if (profiling) Profiler::prof.stop(__func__);
