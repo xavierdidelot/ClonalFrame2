@@ -3,47 +3,69 @@
 //
 
 #include "Profiler.h"
-#include "RNGGlobal.h"
 
 Profiler Profiler::prof;
+thread_local std::unordered_map<const char*, Profiler::Clock::time_point> Profiler::tl_start_times;
+
+static Profiler::Entry& getOrInsert(
+    std::unordered_map<const char*, Profiler::Entry>& entries,
+    std::mutex& mtx,
+    const char* name)
+{
+    {
+        auto it = entries.find(name);
+        if (it != entries.end()) return it->second;
+    }
+    std::lock_guard<std::mutex> lk(mtx);
+    auto [it, _] = entries.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(name),
+        std::forward_as_tuple());
+    it->second.name = name;
+    return it->second;
+}
 
 void Profiler::start(const char* name) {
-    entries[name].last_started=Clock::now();
+    tl_start_times[name] = Clock::now();
+    getOrInsert(entries, entries_mutex, name);
 }
 
 void Profiler::stop(const char* name) {
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(
-        Clock::now() - entries[name].last_started).count();
-    entries[name].duration += us;
-    entries[name].calls    += 1;
-    entries[name].name = name;
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - tl_start_times[name]).count();
+    Entry& e = getOrInsert(entries, entries_mutex, name);
+    e.duration.fetch_add(us, std::memory_order_relaxed);
+    e.calls.fetch_add(1,   std::memory_order_relaxed);
 }
 
 Profiler::Profiler() {
-    start("Total");
+    total_start = Clock::now();
 }
 
 Profiler::~Profiler() {
-    stop("Total");
-    this->print();
+    if (profiling) prof.print();
 }
 
 void Profiler::print() {
-    if (!profiling) return;
-    std::vector<std::pair<const char*, Entry>> sorted(entries.begin(), entries.end());
+    std::vector<Entry*> sorted;
+    sorted.reserve(entries.size());
+    for (auto& [_, e] : entries) sorted.push_back(&e);
+
     std::sort(sorted.begin(), sorted.end(),
-        [](const auto& a, const auto& b) {
-            return a.second.duration < b.second.duration;
+        [](const Entry* a, const Entry* b) {
+            return a->duration.load() < b->duration.load();
         });
+
+    long long total = std::chrono::duration_cast<std::chrono::microseconds>(
+        Clock::now() - total_start).count();
 
     std::println("\n=== Profiler Results ===");
     std::println("{:<40} {:<12} {:<16} {:<16}", "Function", "Calls", "Total (ms)", "Percentage");
     std::println("{}", std::string(84, '-'));
-    for (const auto& [duration, e] : sorted) {
+    for (const Entry* e : sorted) {
         std::println("{:<40} {:<12} {:<16.2f} {:<16.2f}",
-            e.name,
-            e.calls,
-            e.duration / 1000.0,
-            static_cast<double>(e.duration) / entries["Total"].duration*100.0);
+            e->name,
+            e->calls.load(),
+            e->duration.load() / 1000.0,
+            static_cast<double>(e->duration.load()) / total * 100.0);
     }
 }

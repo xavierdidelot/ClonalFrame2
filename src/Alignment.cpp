@@ -103,6 +103,15 @@ void Alignment::pattern_analysis() {
     patindex=new vector<size_t>(l,0);
     weights =new vector<size_t>(l,0);
     std::unordered_map<size_t, vector<size_t>> hashmap;
+    for (int j=0;j<4;j++) {//Adding the four non-polymorphic patterns as the first four patterns
+        size_t h = 0;
+        for (size_t i = 0; i < n; i++)
+            h = h * 131 + (1u<<j);
+        for (size_t i=0;i<n;i++)
+            data2->at(i)->at(npat)=1u<<j;
+        hashmap[h].push_back(npat);
+        npat++;
+    }
 
     for (size_t j=0;j<l;j++) {
         // Compute hash

@@ -8,7 +8,7 @@
 
 int main() {
     setSeed(0);
-    omp_set_num_threads(1);
+    //omp_set_num_threads(1);
     verbose=true;
     profiling=true;
     auto t = Tree::random_tree(10,0.01);

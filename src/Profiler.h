@@ -8,31 +8,30 @@
 
 #include "RNGGlobal.h"
 #include <chrono>
-#include <string>
 #include <unordered_map>
-#include <algorithm>
-#include <print>
-#include <vector>
-
+#include <atomic>
+#include <mutex>
 
 class Profiler {
 public:
-    static Profiler prof;
-    Profiler();
-    ~Profiler();
-    void print();
-    void start(const char* name);
-    void stop(const char* name);
-
-private:
     using Clock = std::chrono::high_resolution_clock;
     struct Entry {
-        const char *name;
-        long long duration = 0;
-        long long calls    = 0;
-        Clock::time_point last_started;
+        std::atomic<long long> duration{0};
+        std::atomic<long long> calls{0};
+        const char* name = nullptr;
     };
+    static Profiler prof;
+    void start(const char* name);
+    void stop(const char* name);
+    void print();
+
+private:
     std::unordered_map<const char*, Entry> entries;
+    std::mutex entries_mutex;
+    Clock::time_point total_start;  // plain member, safe at static init time
+    static thread_local std::unordered_map<const char*, Clock::time_point> tl_start_times;
+    Profiler();
+    ~Profiler();
 };
 
 #endif //CLONALFRAME2_PROFILER_H
