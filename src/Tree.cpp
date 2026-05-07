@@ -190,28 +190,18 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
 
 void Tree::simulate_pattern_analysis() {
     size_t l=nodes[0]->get_seq()->size();
-    npat=l;
-    weights=new vector<size_t>(l,1);
-    patindex=new vector<size_t>(l,0);
-    for (size_t j=0;j<l;j++) patindex->at(j)=j;
     Alignment* a  = Alignment::make_from_tree(this,true);
     Alignment* a2 = Alignment::make_from_tree(this,false);a2->pattern_analysis();
-    npat=a2->get_npat();
-    delete weights;
-    delete patindex;
-    weights=new vector(*a2->get_weights());
-    patindex=new vector(*a2->get_patindex());
-    vector<size_t> anti(npat);
-    for (size_t j=0;j<l;j++) anti[a2->get_patindex()->at(j)]=j;
+    vector<size_t> anti(a2->get_npat());
+    for (int j=static_cast<int>(l)-1;j>=0;j--) anti[a2->get_patindex()->at(j)]=j;
     for (size_t i=0;i<nodes.size();i++) {
         delete nodes[i]->get_seq();
-        nodes[i]->set_seq(new vector<uint8_t>(npat));
-        for (size_t j=0;j<npat;j++) nodes[i]->get_seq()->at(j)=a->get_data(i,anti[j]);
+        nodes[i]->set_seq(new vector<uint8_t>(a2->get_npat()));
+        for (size_t j=0;j<a2->get_npat();j++) nodes[i]->get_seq()->at(j)=a->get_data(i,anti[j]);
     }
     delete(a);
-    delete(a2);
+    ali=a2;
 }
-
 
 Tree* Tree::random_tree(size_t n,double avg_bra_len) {
     auto t = new Tree();
@@ -339,9 +329,7 @@ void Tree::set_sequences(Alignment *ali) {
     for (size_t i=0;i<nodes.size();i++) {
         if (nodes[i]->get_seq()==nullptr) nodes[i]->set_seq(new vector<uint8_t>(ali->get_npat(),0b00010000));
     }
-    npat=ali->get_npat();
-    patindex=new vector(*ali->get_patindex());
-    weights=new vector(*ali->get_weights());
+    this->ali=ali;
 }
 
 int Tree::parsimony() {
@@ -349,13 +337,13 @@ int Tree::parsimony() {
     int i=0;
     int score=0;
     for (i=0;i<(int)nodes.size();i++) {
-        for (size_t pos=0;pos<npat;pos++) {
+        for (size_t pos=0;pos<ali->get_npat();pos++) {
             if (nodes[i]->get_left()==nullptr) {
                 if (Alignment::nuc_is_unsure(nodes[i]->get_seq()->at(pos))) nodes[i]->get_seq()->at(pos)=0b00011111;
             } else {
                 uint8_t toset=nodes[i]->get_left()->get_seq()->at(pos)&nodes[i]->get_right()->get_seq()->at(pos)&0b00001111;//intersect
                 if (toset==0u) {
-                    score+=weights->at(pos);
+                    score+=ali->get_weights()->at(pos);
                     toset=nodes[i]->get_left()->get_seq()->at(pos)|nodes[i]->get_right()->get_seq()->at(pos);//union
                     if (nodes[i]->get_father()==nullptr) toset=nodes[i]->get_left()->get_seq()->at(pos);//special case for root since working with unrooted trees
                 }
@@ -366,7 +354,7 @@ int Tree::parsimony() {
 
     //Fitch second pass
     for (i=nodes.size()-1;i>=0;i--) {
-        for (size_t pos=0;pos<npat;pos++) {
+        for (size_t pos=0;pos<ali->get_npat();pos++) {
             uint8_t toset;
             if (nodes[i]->get_father()==nullptr) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
             else {
@@ -383,8 +371,8 @@ int Tree::parsimony() {
 
 int Tree::parsimony_recursive() {
     int score=0;
-    for (size_t pos=0;pos<npat;pos++) {
-        score+=nodes[2*n-2]->fitch_pass1(pos)*weights->at(pos);
+    for (size_t pos=0;pos<ali->get_npat();pos++) {
+        score+=nodes[2*n-2]->fitch_pass1(pos)*ali->get_weights()->at(pos);
         nodes[2*n-2]->fitch_pass2(pos);
     }
     return(score);
@@ -392,10 +380,10 @@ int Tree::parsimony_recursive() {
 
 int Tree::count_subs() {
     int subs=0;
-    for (size_t pos=0;pos<npat;pos++) {
+    for (size_t pos=0;pos<ali->get_npat();pos++) {
         for (size_t i=0;i<nodes.size();i++) {
             if (nodes[i]->get_father()==nullptr) continue;
-            if (!Alignment::nuc_is_currently_same(nodes[i]->get_seq()->at(pos),nodes[i]->get_father()->get_seq()->at(pos))) subs+=weights->at(pos);
+            if (!Alignment::nuc_is_currently_same(nodes[i]->get_seq()->at(pos),nodes[i]->get_father()->get_seq()->at(pos))) subs+=ali->get_weights()->at(pos);
         }
     }
     return subs;
@@ -426,23 +414,23 @@ double Tree::likelihood_anc() {
         pnid=log(0.25-0.25*ex);
         s1=0;
         s2=0;
-            for (size_t j=0;j<npat;j++) {
+            for (size_t j=0;j<ali->get_npat();j++) {
                 if (Alignment::nuc_is_currently_same(seq1->at(j),seq2->at(j)))
-                    s1+=weights->at(j);
-                else s2+=weights->at(j);
+                    s1+=ali->get_weights()->at(j);
+                else s2+=ali->get_weights()->at(j);
         }
         if (s2>0  && len==0.0) std::println("Problem: there are substitutions on a branch of length zero!");
         if (s2==0 && len==0.0) pnid=0.0;//otherwise get nan below
         ll+=pid*s1+pnid*s2;
     }
-    ll=ll+log(0.25)*patindex->size();
+    ll=ll+log(0.25)*ali->get_patindex()->size();
     return ll;
 }
 
 double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
     if (profiling) Profiler::prof.start(__func__);
     double ll=0.0;
-    size_t L=patindex->size();
+    size_t L=ali->get_patindex()->size();
     double b=1.0-exp(-1.0/delta);
     #pragma omp parallel for reduction(+:ll) schedule(static)
     for (size_t i=0;i<nodes.size();i++) {
@@ -472,7 +460,7 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
             size_t skipping=0;
             bool is_same=true;
             while (is_same) {
-                size_t pat=(*patindex)[j+skipping];
+                size_t pat=(*ali->get_patindex())[j+skipping];
                 is_same=Alignment::nuc_is_currently_same((*seq1)[pat],(*seq2)[pat]);
                 if (j+skipping>L-2 || skipping>maxskip-2) break;
                 if (is_same) skipping++;
@@ -490,7 +478,7 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
         }
         ll+=lscale;
     }
-    ll=ll+log(0.25)*patindex->size();
+    ll=ll+log(0.25)*static_cast<double>(L);
     if (profiling) Profiler::prof.stop(__func__);
     return ll;
 }
@@ -581,7 +569,7 @@ double Tree::jointml() {
         pnid[zind] = log(0.25 - 0.25 * ex);
     }
 
-    for (size_t pos = 0; pos < npat; pos++) {
+    for (size_t pos = 0; pos < ali->get_npat(); pos++) {
         //First pass for leaves
         for (z = 0; z < (int)n; z++) {
             size_t zind=nodes[z]->get_index();
@@ -628,7 +616,7 @@ double Tree::jointml() {
         }
         w=0;
         for (size_t j=1;j<4;j++) {if (L[z][j]>L[z][w]) w=j;}
-        res+=L[z][w]*weights->at(pos);
+        res+=L[z][w]*ali->get_weights()->at(pos);
         Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), 1<<w); //preserve missing status
 
         //Second pass from root (excluded) to leaves
@@ -656,7 +644,7 @@ double Tree::likelihood() {
         pnid[zind] = (0.25 - 0.25 * ex);
     }
 
-    for (size_t pos = 0; pos < npat; pos++) {
+    for (size_t pos = 0; pos < ali->get_npat(); pos++) {
         //Pass from leaves to root (included)
         for (size_t z = 0; z < nodes.size(); z++) {
             size_t zind=nodes[z]->get_index();
@@ -685,7 +673,7 @@ double Tree::likelihood() {
             }
         }
         size_t root=nodes.size()-1;
-        res+=log(0.25*(L[root][0]+L[root][1]+L[root][2]+L[root][3]))*(*weights)[pos];
+        res+=log(0.25*(L[root][0]+L[root][1]+L[root][2]+L[root][3]))*(*ali->get_weights())[pos];
     }
     if (profiling) Profiler::prof.stop(__func__);
     return res;
@@ -712,9 +700,7 @@ Tree * Tree::copy_tree(Tree * t) {
     Tree * t2=new Tree();
     size_t n=t->n;
     t2->n=n;
-    t2->npat=t->npat;
-    t2->patindex=t->patindex;
-    t2->weights=t->weights;
+    t2->ali=t->ali;
     t2->nodes=vector<Node *>(n+n-1);
     for (size_t i = 0; i < n+n-1; i++) {
         auto node = new Node();

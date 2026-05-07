@@ -86,9 +86,6 @@ Alignment* Alignment::make_from_tree(Tree *t, bool include_ancestors) {
         a->names->at(i)=t->get_node(i)->get_name();
         a->data->at(i)=new vector(*t->get_node(i)->get_seq());
     }
-    a->npat=t->get_npat();
-    a->weights=new vector(*t->get_weights());
-    a->patindex=new vector(*t->get_patindex());
     a->l=a->patindex->size();
     return a;
 }

@@ -77,8 +77,7 @@ int main(int argc, const char *argv[]) {
                             nu);
         t0->simulate_sequences_rec(l, rho, delta, nu);
         a = Alignment::make_from_tree(t0, false);
-        delete t0->get_patindex();
-        delete t0->get_weights();
+        delete t0->get_alignment();
         delete t0;
         outfile = "";
     } else {
@@ -97,8 +96,6 @@ int main(int argc, const char *argv[]) {
     p->mcmc(burn, nbit, thin, outfile);
     t = p->get_tree();
     delete(a);
-    delete t->get_patindex();
-    delete t->get_weights();
     delete(t);
     delete(p);
 
