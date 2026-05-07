@@ -431,7 +431,6 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
     if (profiling) Profiler::prof.start(__func__);
     double ll=0.0;
     size_t L=ali->get_patindex()->size();
-    double b=1.0-exp(-1.0/delta);
     #pragma omp parallel for reduction(+:ll) schedule(static)
     for (size_t i=0;i<nodes.size();i++) {
         if (nodes[i]->get_father()==nullptr) continue;
@@ -442,6 +441,9 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
         double pid =0.25+0.75*ex;
         double pnid=0.25-0.25*ex;
         double a=1.0-exp(-rho*len);
+        //double b=1.0-exp(-1.0/delta);
+        double b;
+        if (a==0.0) b=0.5; else b=1.0-exp(-rho*len/expm1(rho*len/delta));//Using M/M/inf queue
         double alpha1=b/(a+b);
         double alpha2=a/(a+b);
         vector gamma={1.0-a, a, b, 1.0-b};

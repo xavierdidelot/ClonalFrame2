@@ -171,7 +171,6 @@ likelihood_anc_rec <- function(tree,seqs,anc,rho,delta,nu) {
     w=attr(seqs,'weight')
     patindex=attr(seqs,'index')
     nsites=length(patindex)
-    b=1-exp(-1/delta)
     for (i in 1:nrow(tree$edge)) {
       if (tree$edge[i,2]<=n) bottom=seqs[[tree$tip.label[tree$edge[i,2]]]]
       else bottom=anc[[tree$node.label[tree$edge[i,2]-n]]]
@@ -181,6 +180,8 @@ likelihood_anc_rec <- function(tree,seqs,anc,rho,delta,nu) {
       pid =1/4+3/4*ex
       pnid=1/4-1/4*ex
       a=1-exp(-rho*len)
+      #b=1-exp(-1/delta)
+      if (a==0) b=0.5 else b=1-exp(-rho*len/expm1(rho*len/delta))#Using M/M/inf queue
       alpha1=b/(a+b)
       alpha2=a/(a+b)
       lscale=0
