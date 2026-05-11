@@ -13,6 +13,8 @@ Alignment::~Alignment() {
     delete names;
     delete patindex;
     delete weights;
+    delete refsites;
+    delete refsites_diff;
 }
 
 Alignment * Alignment::read_fasta(const string &filename) {
@@ -99,6 +101,7 @@ Alignment* Alignment::make_from_tree(Tree *t, bool include_ancestors) {
         a->weights=new vector(*t->get_alignment()->get_weights());
         a->patindex=new vector(*t->get_alignment()->get_patindex());
     }
+    a->make_refsites();
     return a;
 }
 
@@ -154,7 +157,25 @@ void Alignment::pattern_analysis() {
     for (size_t i=0;i<n;i++) delete data->at(i);
     delete data;
     data=data2;
+    make_refsites();
     if (verbose) vprint("Finished pattern analysis and found {} patterns",npat);
+}
+
+void Alignment::make_refsites() {
+    delete refsites;
+    delete refsites_diff;
+    refsites=new vector<size_t>(0,0);
+    refsites_diff=new vector<size_t>(0,0);
+    int dist=0;
+    for (size_t i=0;i<l;i++) {
+        if (dist==99 || patindex->at(i)>3 || i==l-1) {
+            refsites->push_back(i);
+            refsites_diff->push_back(dist);
+            dist=0;
+        } else {
+            dist++;
+        }
+    }
 }
 
 uint8_t Alignment::encode(char in) {

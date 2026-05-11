@@ -73,11 +73,9 @@ int main(int argc, const char *argv[]) {
         std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf", &n, &l, &bralen, &rho, &delta, &nu);
         if (verbose) vprint("Generating true tree with {} leaves and mean branch length {}...", n, bralen);
         auto t0 = Tree::random_tree(n, bralen);
-        if (verbose) vprint("Generating simulated alignment of length {} with rho={},delta={},nu={}...", l, rho, delta,
-                            nu);
+        if (verbose) vprint("Generating simulated alignment of length {} with rho={},delta={},nu={}...", l, rho, delta, nu);
         t0->simulate_sequences_rec(l, rho, delta, nu);
-        a = Alignment::make_from_tree(t0, false);
-        delete t0->get_alignment();
+        a = t0->get_alignment();
         delete t0;
         outfile = "";
     } else {

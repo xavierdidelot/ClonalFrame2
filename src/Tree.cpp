@@ -430,7 +430,11 @@ double Tree::likelihood_anc() {
 double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
     if (profiling) Profiler::prof.start(__func__);
     double ll=0.0;
-    size_t L=ali->get_patindex()->size();
+    size_t L=ali->get_l();
+    vector<size_t> * refsites=ali->get_refsites();
+    vector<size_t> * refsites_diff=ali->get_refsites_diff();
+    vector<size_t> * patindex=ali->get_patindex();
+    size_t L2=refsites->size();
     #pragma omp parallel for reduction(+:ll) schedule(static)
     for (size_t i=0;i<nodes.size();i++) {
         if (nodes[i]->get_father()==nullptr) continue;
@@ -457,16 +461,10 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
             gammas[k][3]=gammas[k-1][2]*pid*gamma[1]+gammas[k-1][3]*(1.0-nu)*gamma[3];
         }
         double lscale=0.0;
-        size_t j=0;
-        while (j<L) {//Forward algorithm
-            size_t skipping=0;
-            bool is_same=true;
-            while (is_same) {
-                size_t pat=(*ali->get_patindex())[j+skipping];
-                is_same=Alignment::nuc_is_currently_same((*seq1)[pat],(*seq2)[pat]);
-                if (j+skipping>L-2 || skipping>maxskip-2) break;
-                if (is_same) skipping++;
-            }
+        for (size_t j=0;j<L2;j++) {//Forward algorithm
+            size_t skipping=(*refsites_diff)[j];
+            size_t pat=(*patindex)[(*refsites)[j]];
+            bool is_same=Alignment::nuc_is_currently_same((*seq1)[pat],(*seq2)[pat]);
             double p1,p2;
             if (is_same) {p1=pid;p2=1.0-nu;} else {p1=pnid;p2=nu;}
             double newalpha1=(alpha1*gammas[skipping][0]+alpha2*gammas[skipping][2])*p1;
@@ -476,7 +474,6 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
             alpha1=alpha1/scale;
             alpha2=alpha2/scale;
             lscale+=log(scale);
-            j+=skipping+1;
         }
         ll+=lscale;
     }

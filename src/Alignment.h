@@ -75,6 +75,9 @@ public:
     vector<size_t> * get_patindex()  {return patindex;}
     vector<size_t> * get_weights()  {return weights;}
     vector<string> * get_names()  {return names;}
+    vector<size_t> * get_refsites()  {return refsites;}
+    vector<size_t> * get_refsites_diff()  {return refsites_diff;}
+    void make_refsites();
 
 private:
     Alignment() = default;
@@ -90,6 +93,8 @@ private:
     size_t npat;
     vector<size_t>* patindex;
     vector<size_t>* weights;
+    vector<size_t>* refsites;
+    vector<size_t>* refsites_diff;
 };
 
 
