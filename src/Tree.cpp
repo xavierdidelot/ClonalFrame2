@@ -552,77 +552,81 @@ vector<vector<double>> * Tree::distmat() {
 
 double Tree::jointml() {
     if (profiling) Profiler::prof.start(__func__);
-    vector<vector<double> > L(nodes.size(), vector<double>(4, 0.0));
-    vector<vector<uint8_t> > C(nodes.size(), vector<uint8_t>(4, 0));
-    double tmp[4];
     double res = 0.0;
-    int z,w;
     const double log025 = log(0.25);
 
     vector<double> pid(nodes.size(),0);
     vector<double> pnid(nodes.size(),0);
-    for (z = 0; z < (int)n*2-1; z++) {
+    for (size_t z = 0; z < n*2-1; z++) {
         size_t zind=nodes[z]->get_index();
         double ex = exp(-4.0*nodes[z]->get_dist_father()/3.0);
         pid[zind] = log(0.25 + 0.75 * ex);
         pnid[zind] = log(0.25 - 0.25 * ex);
     }
 
-    for (size_t pos = 0; pos < ali->get_npat(); pos++) {
-        //First pass for leaves
-        for (z = 0; z < (int)n; z++) {
-            size_t zind=nodes[z]->get_index();
-            uint8_t nuc=nodes[z]->get_seq()->at(pos);
-            int nucint = __builtin_ctz(nuc);
-            bool nuc_is_unsure =Alignment::nuc_is_unsure(nuc);
-            for (int i = 0; i < 4; i++) {
-                if (nuc_is_unsure) {
-                    L[zind][i] = pid[zind];
-                    C[zind][i] = 1<<i;
-                } else {
-                    C[zind][i] = nuc;
-                    if (i == nucint)
+    #pragma omp parallel
+    {
+        vector<vector<double> > L(nodes.size(), vector<double>(4, 0.0));
+        vector<vector<uint8_t> > C(nodes.size(), vector<uint8_t>(4, 0));
+        double tmp[4];
+        int z, w;
+        #pragma omp for reduction(+:res) schedule(static)
+        for (size_t pos = 0; pos < ali->get_npat(); pos++) {
+            //First pass for leaves
+            for (z = 0; z < static_cast<int>(n); z++) {
+                size_t zind = nodes[z]->get_index();
+                uint8_t nuc = nodes[z]->get_seq()->at(pos);
+                int nucint = __builtin_ctz(nuc);
+                bool nuc_is_unsure = Alignment::nuc_is_unsure(nuc);
+                for (int i = 0; i < 4; i++) {
+                    if (nuc_is_unsure) {
                         L[zind][i] = pid[zind];
-                    else
-                        L[zind][i] = pnid[zind];
+                        C[zind][i] = 1 << i;
+                    } else {
+                        C[zind][i] = nuc;
+                        if (i == nucint)
+                            L[zind][i] = pid[zind];
+                        else
+                            L[zind][i] = pnid[zind];
+                    }
                 }
             }
-        }
-        //First pass for internal nodes other than root
-        for (z = (int)n; z < (int)n*2-1; z++) {
-            size_t zind=nodes[z]->get_index();
-            size_t left=nodes[z]->get_left()->get_index();
-            size_t right=nodes[z]->get_right()->get_index();
-            double base[4];
-            for (int j = 0; j < 4; j++) base[j] = L[left][j] + L[right][j];
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    tmp[j] = base[j] + (i == j ? pid[zind] : pnid[zind]);
+            //First pass for internal nodes other than root
+            for (z = static_cast<int>(n); z < static_cast<int>(n) * 2 - 1; z++) {
+                size_t zind = nodes[z]->get_index();
+                size_t left = nodes[z]->get_left()->get_index();
+                size_t right = nodes[z]->get_right()->get_index();
+                double base[4];
+                for (int j = 0; j < 4; j++) base[j] = L[left][j] + L[right][j];
+                for (int i = 0; i < 4; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        tmp[j] = base[j] + (i == j ? pid[zind] : pnid[zind]);
+                    }
+                    w = 0;
+                    for (int j = 1; j < 4; j++) if (tmp[j] > tmp[w]) w = j;
+                    L[zind][i] = tmp[w];
+                    C[zind][i] = 1 << w;
                 }
-                w = 0;
-                for (int j = 1; j < 4; j++) if (tmp[j] > tmp[w]) w = j;
-                L[zind][i] = tmp[w];
-                C[zind][i] = 1 << w;
             }
-        }
 
-        //Root
-        z=2*n-2;
-        size_t left=nodes[z]->get_left()->get_index();
-        size_t right=nodes[z]->get_right()->get_index();
-        for (size_t j=0;j<4;j++) {
-            L[z][j]=L[left][j]+L[right][j]+log025;
-        }
-        w=0;
-        for (size_t j=1;j<4;j++) {if (L[z][j]>L[z][w]) w=j;}
-        res+=L[z][w]*ali->get_weights()->at(pos);
-        Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), 1<<w); //preserve missing status
+            //Root
+            z = 2 * n - 2;
+            size_t left = nodes[z]->get_left()->get_index();
+            size_t right = nodes[z]->get_right()->get_index();
+            for (size_t j = 0; j < 4; j++) {
+                L[z][j] = L[left][j] + L[right][j] + log025;
+            }
+            w = 0;
+            for (size_t j = 1; j < 4; j++) { if (L[z][j] > L[z][w]) w = j; }
+            res += L[z][w] * ali->get_weights()->at(pos);
+            Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), 1 << w); //preserve missing status
 
-        //Second pass from root (excluded) to leaves
-        for (z = 2*n-3;z>=0; z--) {
-            size_t zind=nodes[z]->get_index();
-            size_t i=__builtin_ctz(nodes[z]->get_father()->get_seq()->at(pos)&0b00001111);
-            Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), C[zind][i]); //preserve missing status
+            //Second pass from root (excluded) to leaves
+            for (z = 2 * n - 3; z >= 0; z--) {
+                size_t zind = nodes[z]->get_index();
+                size_t i = __builtin_ctz(nodes[z]->get_father()->get_seq()->at(pos) & 0b00001111);
+                Alignment::nuc_set_as(&(nodes[z]->get_seq()->at(pos)), C[zind][i]); //preserve missing status
+            }
         }
     }
     if (profiling) Profiler::prof.stop(__func__);

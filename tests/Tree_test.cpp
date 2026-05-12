@@ -7,7 +7,6 @@
 
 int main() {
     setSeed(0);
-    omp_set_num_threads(1);
     profiling=true;
     verbose=true;
 
