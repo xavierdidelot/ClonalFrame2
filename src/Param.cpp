@@ -58,12 +58,12 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
         if (log(runif(rng))<ll2-ll) {
             accepted[0]++;
-            if (verbose) vprint("Tree move accepted ll={:.2f} ll2={:.2f} paccept={:.2f}",ll,ll2,(double)accepted[0]/(i+1));
+            if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} paccept={:.2e}",ll,ll2,(double)accepted[0]/(i+1));
             ll=ll2;
             delete tree;
             tree=tree2;
         } else {
-            if (verbose) vprint("Tree move rejected ll={:.2f} ll2={:.2f} paccept={:.2f}",ll,ll2,(double)accepted[0]/(i+1));
+            if (verbose) vprint("Tree move rejected ll={:.2e} ll2={:.2e} paccept={:.2e}",ll,ll2,(double)accepted[0]/(i+1));
             delete tree2;
         }
 
@@ -74,11 +74,11 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         double mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
         if (log(runif(rng))<mh) {
             accepted[1]++;
-            if (verbose) vprint("Rho move accepted rho={:.2f} rho2={:.2f} ll={:.2f} ll2={:.2f} sdRho={:.2f} paccept={:.2f}",rho,rho2,ll,ll2,sdRho,(double)accepted[1]/(i+1));
+            if (verbose) vprint("Rho move accepted rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sdRho={:.2e} paccept={:.2f}",rho,rho2,ll,ll2,sdRho,(double)accepted[1]/(i+1));
             ll=ll2;
             rho=rho2;
         } else {
-            if (verbose) vprint("Rho move rejected rho={:.2f} rho2={:.2f} ll={:.2f} ll2={:.2f} sdRho={:.2f} paccept={:.2f}",rho,rho2,ll,ll2,sdRho,(double)accepted[1]/(i+1));
+            if (verbose) vprint("Rho move rejected rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sdRho={:.2e} paccept={:.2f}",rho,rho2,ll,ll2,sdRho,(double)accepted[1]/(i+1));
         }
         sdRho=sdRho*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
 
@@ -89,11 +89,11 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
         if (log(runif(rng))<mh) {
             accepted[2]++;
-            if (verbose) vprint("Delta move accepted delta={:.2f} delta2={:.2f} ll={:.2f} ll2={:.2f} sdDelta={:.2f} paccept={:.2f}",delta,delta2,ll,ll2,sdDelta,(double)accepted[2]/(i+1));
+            if (verbose) vprint("Delta move accepted delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sdDelta={:.2e} paccept={:.2f}",delta,delta2,ll,ll2,sdDelta,(double)accepted[2]/(i+1));
             ll=ll2;
             delta=delta2;
         } else {
-            if (verbose) vprint("Delta move rejected delta={:.2f} delta2={:.2f} ll={:.2f} ll2={:.2f} sdDelta={:.2f} paccept={:.2f}",delta,delta2,ll,ll2,sdDelta,(double)accepted[2]/(i+1));
+            if (verbose) vprint("Delta move rejected delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sdDelta={:.2e} paccept={:.2f}",delta,delta2,ll,ll2,sdDelta,(double)accepted[2]/(i+1));
         }
         sdDelta=sdDelta*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
 
@@ -104,11 +104,11 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
         if (log(runif(rng))<mh) {
             accepted[3]++;
-            if (verbose) vprint("Nu move accepted nu={:.2f} nu2={:.2f} ll={:.2f} ll2={:.2f} sdNu={:.2f} paccept={:.2f}",nu,nu2,ll,ll2,sdNu,(double)accepted[3]/(i+1));
+            if (verbose) vprint("Nu move accepted nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e} paccept={:.2e}",nu,nu2,ll,ll2,sdNu,(double)accepted[3]/(i+1));
             ll=ll2;
             nu=nu2;
         } else {
-            if (verbose) vprint("Nu move rejected nu={:.2f} nu2={:.2f} ll={:.2f} ll2={:.2f} sdNu={:.2f} paccept={:.2f}",nu,nu2,ll,ll2,sdNu,(double)accepted[3]/(i+1));
+            if (verbose) vprint("Nu move rejected nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e} paccept={:.2e}",nu,nu2,ll,ll2,sdNu,(double)accepted[3]/(i+1));
         }
         sdNu=sdNu*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
 
