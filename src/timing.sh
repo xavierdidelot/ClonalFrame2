@@ -7,5 +7,5 @@ if [ "$#" -eq 0 ]; then
 else
   ncores=$1
 fi
-/tmp/ClonalFrame2 -s 1 -S 100,1000000,1e-4,1,100,0.01 -x 100 -y 200 -z 1 -c $ncores -p
+/tmp/ClonalFrame2 -s 1 -S 100,1000000,1e-4,1,100,0.01 -x 1000 -y 2000 -z 1 -c $ncores -p
 

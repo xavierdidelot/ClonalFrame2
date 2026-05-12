@@ -435,7 +435,6 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
     vector<size_t> * refsites_diff=ali->get_refsites_diff();
     vector<size_t> * patindex=ali->get_patindex();
     size_t L2=refsites->size();
-    size_t maxskip=100;
     #pragma omp parallel
     {
         vector gammas(maxskip, vector(4, 0.0));
@@ -451,7 +450,7 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
             double a=1.0-exp(-rho*len);
             //double b=1.0-exp(-1.0/delta);
             double b;
-            if (a==0.0) b=0.5; else b=1.0-exp(-rho*len/expm1(rho*len/delta));//Using M/M/inf queue
+            if (a==0.0) b=0.5; else b=1.0-exp(-rho*len/expm1(rho*len*delta));//Using M/M/inf queue
             double alpha1=b/(a+b);
             double alpha2=a/(a+b);
             vector gamma={1.0-a, a, b, 1.0-b};
@@ -463,10 +462,18 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
                 gammas[k][3]=gammas[k-1][2]*pid*gamma[1]+gammas[k-1][3]*(1.0-nu)*gamma[3];
             }
             double lscale=0.0;
-            for (size_t j=0;j<L2;j++) {//Forward algorithm
+            size_t j=0;
+            while (j<L2) {
                 size_t skipping=(*refsites_diff)[j];
                 size_t pat=(*patindex)[(*refsites)[j]];
                 bool is_same=Alignment::nuc_is_currently_same((*seq1)[pat],(*seq2)[pat]);
+                while (is_same) {
+                    if (j==L2-1 || skipping+(*refsites_diff)[j+1]>maxskip-2) break;
+                    j++;
+                    skipping+=(*refsites_diff)[j]+1;
+                    pat=(*patindex)[(*refsites)[j]];
+                    is_same=Alignment::nuc_is_currently_same((*seq1)[pat],(*seq2)[pat]);
+                }
                 double p1,p2;
                 if (is_same) {p1=pid;p2=1.0-nu;} else {p1=pnid;p2=nu;}
                 double newalpha1=(alpha1*gammas[skipping][0]+alpha2*gammas[skipping][2])*p1;
@@ -476,6 +483,7 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
                 alpha1=alpha1/scale;
                 alpha2=alpha2/scale;
                 lscale+=log(scale);
+                j++;
             }
             ll+=lscale;
         }

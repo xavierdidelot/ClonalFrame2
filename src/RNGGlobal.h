@@ -26,4 +26,6 @@ inline int n_cores = omp_get_max_threads();//Number of cores to use, defined as 
 
 inline bool profiling=false;//Profiling move, defined as global variable
 
+inline const size_t maxskip=1000;
+
 #endif

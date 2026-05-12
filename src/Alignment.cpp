@@ -168,7 +168,7 @@ void Alignment::make_refsites() {
     refsites_diff=new vector<size_t>(0,0);
     int dist=0;
     for (size_t i=0;i<l;i++) {
-        if (dist==99 || patindex->at(i)>3 || i==l-1) {
+        if (dist==maxskip-1 || patindex->at(i)>3 || i==l-1) {
             refsites->push_back(i);
             refsites_diff->push_back(dist);
             dist=0;
