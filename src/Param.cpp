@@ -69,7 +69,7 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
 
         //#Adaptive MH move for rho using flat prior //Gamma(1e-3,1e3) prior
         rnorm.param(std::normal_distribution<double>::param_type(rho,sdRho));
-        double rho2=abs(rnorm(rng));
+        double rho2=std::fabs(rnorm(rng));
         ll2=tree->likelihood_anc_rec(rho2,delta,nu);
         double mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
         if (log(runif(rng))<mh) {
@@ -84,7 +84,7 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
 
         //#Adaptive MH move for delta using flat prior //Gamma(1e-3,1e3) prior
         rnorm.param(std::normal_distribution<double>::param_type(delta,sdDelta));
-        double delta2=abs(rnorm(rng));
+        double delta2=std::fabs(rnorm(rng));
         ll2=tree->likelihood_anc_rec(rho,delta2,nu);
         mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
         if (log(runif(rng))<mh) {
@@ -99,7 +99,7 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
 
         //#Adaptive MH move for nu using flat prior //Gamma(1e-3,1e3) prior
         rnorm.param(std::normal_distribution<double>::param_type(nu,sdNu));
-        double nu2=abs(rnorm(rng));
+        double nu2=std::fabs(rnorm(rng));
         ll2=tree->likelihood_anc_rec(rho,delta,nu2);
         mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
         if (log(runif(rng))<mh) {
