@@ -1,6 +1,4 @@
 cmake_minimum_required(VERSION 3.20)
-set(CMAKE_C_COMPILER /usr/local/bin/gcc-15)
-set(CMAKE_CXX_COMPILER /usr/local/bin/g++-15)
 project(ClonalFrame2 VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)

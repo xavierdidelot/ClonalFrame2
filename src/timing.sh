@@ -2,7 +2,7 @@
 #If there is no argument then compilation happens and 12 cores are used
 #If there is an argument then it is the number of cores and no compilation happens
 if [ "$#" -eq 0 ]; then
-  g++-15 -fopenmp -std=c++23 -O3 *.cpp -o /tmp/ClonalFrame2
+  g++ -fopenmp -std=c++23 -O3 *.cpp -o /tmp/ClonalFrame2
   ncores=12
 else
   ncores=$1
