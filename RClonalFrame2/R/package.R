@@ -15,6 +15,7 @@
 #' @import graphics
 #' @import utils
 #' @import ape
+#' @import jsonlite
 #'
 
 NULL

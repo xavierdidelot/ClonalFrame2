@@ -34,6 +34,13 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         file.open(outfile);
         if (file.is_open() == false) std::println(std::cerr,"Error opening file {}",outfile);
     }
+    std::println(file, "{{");
+    std::println(file, "\t\"parameters\": {{");
+    std::println(file, "\t\t\"burn\": {},",burn);
+    std::println(file, "\t\t\"nbit\": {},",nbit);
+    std::println(file, "\t\t\"thin\": {}",thin);
+    std::println(file, "\t}},");
+    std::println(file, "\t\"iterations\": [");
     std::uniform_real_distribution runif(0.0,1.0);
     if (verbose) vprint("Performing initial ancestral state reconstruction...");
     tree->jointml();
@@ -46,6 +53,7 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
     double acceptance_delta=1.0/acceptance_target/(1.0-acceptance_target);
     vector<int> accepted(4,0.0);
     std::normal_distribution<double> rnorm;
+    bool first_write=true;
 
     for (int i=0;i<nbit;i++) {//Main MCMC loop
         if (verbose==false && floor((double)i/nbit*100)==(double)i/nbit*100) print_progress(i,nbit);
@@ -113,13 +121,29 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         sdNu=sdNu*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
 
         //Writing to output file
-        if (i>burn && i%thin==0) {
-            std::println(file,"{}",tree->to_string());
+        if (i%thin==0) {
+            if (!first_write) {
+                std::println(file, "\t,");
+            } else first_write=false;
+            to_json_file(&file);
         }
-    }//Main MCMC loop
+    }//End of main MCMC loop
     if (verbose==false && nbit>0) print_progress(nbit,nbit);
-    std::println(file,"");
+    std::println(file, "\t]");
+    std::println(file, "}}");
     file.close();
     if (profiling) Profiler::prof.stop(__func__);
     if (verbose) vprint("Finished MCMC.");
 }
+
+void Param::to_json_file(std::ofstream * file) {
+    std::println(*file, "\t\t{{");
+    std::println(*file,"\t\t\t\"rho\": {:.6e},",rho);
+    std::println(*file,"\t\t\t\"delta\": {:.6e},",delta);
+    std::println(*file,"\t\t\t\"nu\": {:.6e},",nu);
+    std::println(*file,"\t\t\t\"likelihood\": {:.6e},",ll);
+    std::println(*file,"\t\t\t\"tree\": \"{}\"",tree->to_string());
+    std::println(*file, "\t\t}}");
+}
+
+

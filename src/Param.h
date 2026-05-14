@@ -29,6 +29,8 @@ public:
      * @param outfile File to which output is written
      */
     void mcmc(int burn,int nbit,int thin,string outfile);
+    ///Write to json file
+    void to_json_file(std::ofstream * file);
 
 private:
     void print_progress(int current, int total);
