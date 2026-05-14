@@ -39,6 +39,7 @@ private:
     double delta;
     double nu;
     double ll;
+    vector<double> paccepted;
 };
 
 

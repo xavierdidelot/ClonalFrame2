@@ -51,7 +51,7 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
     double sdNu=1e-4;
     double acceptance_target=0.234;
     double acceptance_delta=1.0/acceptance_target/(1.0-acceptance_target);
-    vector<int> accepted(4,0.0);
+    paccepted=vector(4,0.0);
     std::normal_distribution<double> rnorm;
     bool first_write=true;
 
@@ -65,13 +65,14 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         tree2->jointml();
         double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
         if (log(runif(rng))<ll2-ll) {
-            accepted[0]++;
-            if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} paccept={:.2e}",ll,ll2,(double)accepted[0]/(i+1));
+            paccepted[0]=(paccepted[0]*i+1)/(i+1);
+            if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} paccept={:.2e}",ll,ll2,paccepted[0]);
             ll=ll2;
             delete tree;
             tree=tree2;
         } else {
-            if (verbose) vprint("Tree move rejected ll={:.2e} ll2={:.2e} paccept={:.2e}",ll,ll2,(double)accepted[0]/(i+1));
+            paccepted[0]=(paccepted[0]*i)/(i+1);
+            if (verbose) vprint("Tree move rejected ll={:.2e} ll2={:.2e} paccept={:.2e}",ll,ll2,paccepted[0]);
             delete tree2;
         }
 
@@ -81,12 +82,13 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         ll2=tree->likelihood_anc_rec(rho2,delta,nu);
         double mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
         if (log(runif(rng))<mh) {
-            accepted[1]++;
-            if (verbose) vprint("Rho move accepted rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sdRho={:.2e} paccept={:.2f}",rho,rho2,ll,ll2,sdRho,(double)accepted[1]/(i+1));
+            paccepted[1]=(paccepted[1]*i+1)/(i+1);
+            if (verbose) vprint("Rho move accepted rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sdRho={:.2e} paccept={:.2f}",rho,rho2,ll,ll2,sdRho,paccepted[1]);
             ll=ll2;
             rho=rho2;
         } else {
-            if (verbose) vprint("Rho move rejected rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sdRho={:.2e} paccept={:.2f}",rho,rho2,ll,ll2,sdRho,(double)accepted[1]/(i+1));
+            paccepted[1]=(paccepted[1]*i)/(i+1);
+            if (verbose) vprint("Rho move rejected rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sdRho={:.2e} paccept={:.2f}",rho,rho2,ll,ll2,sdRho,paccepted[1]);
         }
         sdRho=sdRho*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
 
@@ -96,12 +98,13 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         ll2=tree->likelihood_anc_rec(rho,delta2,nu);
         mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
         if (log(runif(rng))<mh) {
-            accepted[2]++;
-            if (verbose) vprint("Delta move accepted delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sdDelta={:.2e} paccept={:.2f}",delta,delta2,ll,ll2,sdDelta,(double)accepted[2]/(i+1));
+            paccepted[2]=(paccepted[2]*i+1)/(i+1);
+            if (verbose) vprint("Delta move accepted delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sdDelta={:.2e} paccept={:.2f}",delta,delta2,ll,ll2,sdDelta,paccepted[2]);
             ll=ll2;
             delta=delta2;
         } else {
-            if (verbose) vprint("Delta move rejected delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sdDelta={:.2e} paccept={:.2f}",delta,delta2,ll,ll2,sdDelta,(double)accepted[2]/(i+1));
+            paccepted[02]=(paccepted[2]*i)/(i+1);
+            if (verbose) vprint("Delta move rejected delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sdDelta={:.2e} paccept={:.2f}",delta,delta2,ll,ll2,sdDelta,paccepted[2]);
         }
         sdDelta=sdDelta*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
 
@@ -111,12 +114,13 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         ll2=tree->likelihood_anc_rec(rho,delta,nu2);
         mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
         if (log(runif(rng))<mh) {
-            accepted[3]++;
-            if (verbose) vprint("Nu move accepted nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e} paccept={:.2f}",nu,nu2,ll,ll2,sdNu,(double)accepted[3]/(i+1));
+            paccepted[3]=(paccepted[3]*i+1)/(i+1);
+            if (verbose) vprint("Nu move accepted nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e} paccept={:.2f}",nu,nu2,ll,ll2,sdNu,paccepted[3]);
             ll=ll2;
             nu=nu2;
         } else {
-            if (verbose) vprint("Nu move rejected nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e} paccept={:.2f}",nu,nu2,ll,ll2,sdNu,(double)accepted[3]/(i+1));
+            paccepted[3]=(paccepted[3]*i)/(i+1);
+            if (verbose) vprint("Nu move rejected nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e} paccept={:.2f}",nu,nu2,ll,ll2,sdNu,paccepted[3]);
         }
         sdNu=sdNu*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
 
@@ -138,11 +142,15 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
 
 void Param::to_json_file(std::ofstream * file) {
     std::println(*file, "\t\t{{");
+    std::println(*file,"\t\t\t\"likelihood\": {:.6e},",ll);
+    std::println(*file,"\t\t\t\"tree\": \"{}\",",tree->to_string());
     std::println(*file,"\t\t\t\"rho\": {:.6e},",rho);
     std::println(*file,"\t\t\t\"delta\": {:.6e},",delta);
     std::println(*file,"\t\t\t\"nu\": {:.6e},",nu);
-    std::println(*file,"\t\t\t\"likelihood\": {:.6e},",ll);
-    std::println(*file,"\t\t\t\"tree\": \"{}\"",tree->to_string());
+    std::println(*file,"\t\t\t\"paccepted_tree\": {:.6e},",paccepted[0]);
+    std::println(*file,"\t\t\t\"paccepted_rho\": {:.6e},",paccepted[1]);
+    std::println(*file,"\t\t\t\"paccepted_delta\": {:.6e},",paccepted[2]);
+    std::println(*file,"\t\t\t\"paccepted_nu\": {:.6e}",paccepted[3]);
     std::println(*file, "\t\t}}");
 }
 

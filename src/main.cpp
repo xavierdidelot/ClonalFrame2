@@ -7,10 +7,12 @@
 #include "RNGGlobal.h"
 #include "version.h"
 
-static string help =
-        R"(Usage: ClonalFrame2 [OPTIONS] inputfile outputfile
+static string helptxt =
+        R"(Usage: ClonalFrame2 [OPTIONS]
 
     Options:
+    -i FILE     Select the input file
+    -o FILE     Select the output file
     -x NUM      Sets the number of burn-in iterations (default is 10000)
     -y NUM      Total number of iterations (default is 20000)
     -z NUM      Sets the number of iterations between samples (default is 10)
@@ -21,6 +23,7 @@ static string help =
                 length of sequences, average branch length, rho, delta and nu
     -p          Activate profiler
     -v          Verbose mode
+    -h          Show help
 )";
 
 int main(int argc, const char *argv[]) {
@@ -30,21 +33,26 @@ int main(int argc, const char *argv[]) {
 
     int burn = 10000, nbit = 20000, thin = 10;
     int i=1;
-    bool simu=false;
-    string simu_str;
+    string infile="";
+    string outfile="";
+    string simu_str="";
     vector<string> remainder;
+    bool help=false;
     while (i < argc) {
         string arg = argv[i];
         if (arg[0]=='-') {
             switch (arg[1]) {
+                case('i'):infile=argv[++i];break;
+                case('o'):outfile=argv[++i];break;
                 case('x'):burn =  std::stoi(argv[++i]) ;break;
                 case('y'):nbit =  std::stoi(argv[++i]) ;break;
                 case('z'):thin =  std::stoi(argv[++i]) ;break;
                 case('s'):setSeed(std::stoi(argv[++i]));break;
                 case('c'):n_cores =  std::stoi(argv[++i]);break;
-                case('S'):simu = true;simu_str=argv[++i];break;
+                case('S'):simu_str=argv[++i];break;
                 case('v'):verbose = true;break;
                 case('p'):profiling = true;break;
+                case('h'):help=true;break;
                 default:std::println("Ignoring incorrect option -{}",arg[1]);
             }
         } else remainder.push_back(arg);
@@ -52,9 +60,25 @@ int main(int argc, const char *argv[]) {
     }
 
     vprint("This is ClonalFrame2, version {}", VERSION_STRING);
-    if (remainder.size() != 2 && simu == false) {
-        std::println("Need two non-option arguments but found {}", remainder.size());
-        std::println("{}", help);
+
+    if (help) {
+        std::println("{}", helptxt);
+        return 0;
+    }
+
+
+    if (remainder.size() != 0) {
+        std::println("Need zero non-option arguments but found {}", remainder.size());
+        return 0;
+    }
+
+    if (simu_str.empty() && infile.empty()) {
+        std::println("Need either -i or -S option.");
+        return 0;
+    }
+
+    if (!simu_str.empty() && !infile.empty()) {
+        std::println("Cannot have both -i and -S options.");
         return 0;
     }
 
@@ -66,8 +90,9 @@ int main(int argc, const char *argv[]) {
     std::println("Using {} cores.",n_cores);
 
     Alignment *a;
-    string outfile;
-    if (simu) {
+    if (simu_str.empty()) {
+        a = Alignment::read_fasta(infile);
+    } else {
         int n, l;
         double bralen, rho, delta, nu;
         std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf", &n, &l, &bralen, &rho, &delta, &nu);
@@ -77,11 +102,6 @@ int main(int argc, const char *argv[]) {
         t0->simulate_sequences_rec(l, rho, delta, nu);
         a = t0->get_alignment();
         delete t0;
-        outfile = "";
-    } else {
-        const auto inputfile = string(remainder[0]);
-        outfile = string(remainder[1]);
-        a = Alignment::read_fasta(inputfile);
     }
     if (verbose) vprint("Building initial tree...");
     auto mat = a->distmat();

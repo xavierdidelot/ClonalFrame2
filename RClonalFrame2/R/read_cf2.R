@@ -48,5 +48,13 @@ plot.cf2out = function(x, type='trace', ...) {
     plot(x$iterations[,'nu'],main='Nu',type='l',xlab='Sampled iterations',ylab='')
   }
 
+  if (type=='trace_acceptance') {
+    par(mfrow=c(2,2))
+    plot(x$iterations[,'paccepted_tree'],main='Tree',type='l',xlab='Sampled iterations',ylab='')
+    plot(x$iterations[,'paccepted_rho'],main='Rho',type='l',xlab='Sampled iterations',ylab='')
+    plot(x$iterations[,'paccepted_delta'],main='Delta',type='l',xlab='Sampled iterations',ylab='')
+    plot(x$iterations[,'paccepted_nu'],main='Nu',type='l',xlab='Sampled iterations',ylab='')
+  }
+
   par(old.par)
 }
