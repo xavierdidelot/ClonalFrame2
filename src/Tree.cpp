@@ -700,7 +700,7 @@ Tree* Tree::noise_tree(Tree * t,double eps) {
     for (size_t i=0;i<n;i++) names->push_back(t->get_node(i)->get_name());
     std::normal_distribution rnorm(0.0,eps);
     for (size_t i = 0; i < n; i++) for (size_t j = 0; j < i; j++) {
-        (*d)[i][j] = abs((*d)[i][j]+rnorm(rng));
+        (*d)[i][j] = std::abs((*d)[i][j]+rnorm(rng));
         (*d)[j][i] = (*d)[i][j];
     }
     auto t2=nj(d,names);
