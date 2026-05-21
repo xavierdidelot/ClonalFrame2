@@ -56,5 +56,16 @@ plot.cf2out = function(x, type='trace', ...) {
     plot(x$iterations[,'paccepted_nu'],main='Nu',type='l',xlab='Sampled iterations',ylab='')
   }
 
+  if (type=='trace_trees') {
+    showing=4
+    par(mfrow=c(ceiling(sqrt(showing)),ceiling(sqrt(showing))))
+    inds=round(seq(1,nrow(x$iterations),length.out=showing))
+    for (i in 1:showing) {
+      t=read.tree(text=x$iterations[inds[i],'tree'])
+      plot(t)
+      axisPhylo(1)
+    }
+  }
+
   par(old.par)
 }

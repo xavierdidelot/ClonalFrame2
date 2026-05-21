@@ -531,7 +531,6 @@ void Tree::reorder() {
 }
 
 vector<vector<double>> * Tree::distmat() {
-    if (profiling) Profiler::prof.start(__func__);
     auto d=new vector<vector<double>>(n, vector<double>(n, 0.0));
     for (size_t i = 0; i < n; i++) for (size_t j = 0; j < i; j++) {
         vector<Node*> path1;
@@ -557,7 +556,6 @@ vector<vector<double>> * Tree::distmat() {
         (*d)[i][j] = di;
         (*d)[j][i] = (*d)[i][j];
     }
-    if (profiling) Profiler::prof.stop(__func__);
     return d;
 }
 
@@ -737,15 +735,10 @@ Tree * Tree::copy_tree(Tree * t) {
     return t2;
 }
 
-
-void Tree::rSPR() {
-    if (profiling) Profiler::prof.start(__func__);
-    //First select which node is moving, which can be any node other than the root or null node
+/*size_t Tree::select_new_bro(size_t moving) {
     std::uniform_int_distribution unif(0,2*static_cast<int>(n)-4);
-    size_t moving=unif(rng);
-    //Next select the new brother which can be any node other than root, null node, moving or its descendents
-    size_t newbro;
     bool checked=false;
+    size_t newbro;
     while (checked==false) {
         newbro=unif(rng);
         Node*cur=nodes[newbro];
@@ -756,6 +749,44 @@ void Tree::rSPR() {
         }
         if (newbro==nodes[moving]->get_father()->get_index()) checked=false;
     }
+    return(newbro);
+}*/
+
+size_t Tree::select_new_bro(size_t moving, double * selected_dist) {
+    size_t max=2*static_cast<int>(n)-4;
+    size_t newbro;
+    vector probs=vector<double>(max+1,0.0);
+    for (newbro=0;newbro<=max;newbro++) {
+        Node*cur=nodes[newbro];
+        bool checked=true;
+        while (cur!=nullptr) {
+            if (cur->get_index()==moving) {checked=false;break;}
+            cur=cur->get_father();
+        }
+        if (newbro==nodes[moving]->get_father()->get_index()) checked=false;
+        if (checked) {
+            int diffs=1;
+            for (size_t pos=0;pos<ali->get_npat();pos++) {
+                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newbro]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
+            }
+            probs[newbro]=1.0/diffs;
+        }
+    }
+    std::discrete_distribution<int> dist(probs.begin(), probs.end());
+    newbro=dist(rng);
+    *selected_dist=(1.0/probs[newbro])/ali->get_l();
+    return(newbro);
+}
+
+
+void Tree::rSPR() {
+    if (profiling) Profiler::prof.start(__func__);
+    //First select which node is moving, which can be any node other than the root or null node
+    std::uniform_int_distribution unif(0,2*static_cast<int>(n)-4);
+    size_t moving=unif(rng);
+    //Next select the new brother which can be any node other than root, null node, moving or its descendents
+    double selected_dist;
+    size_t newbro=select_new_bro(moving, &selected_dist);
     //Pruning
     size_t oldf=nodes[moving]->get_father()->get_index();
     size_t oldbro=nodes[oldf]->get_left()->get_index();
@@ -768,7 +799,8 @@ void Tree::rSPR() {
     }
     nodes[oldbro]->set_father(nodes[oldf]->get_father());
     nodes[oldbro]->set_dist_father(d);
-    //nodes[moving]->set_dist_father(optim);//currently not optimising new branch length
+    std::exponential_distribution<double> dist(1.0 / selected_dist);  // takes rate = 1/mu
+    nodes[moving]->set_dist_father(dist(rng));
     //Regrafting
     if (nodes[newbro]->get_father()!=nullptr) {
         int newbrof=nodes[newbro]->get_father()->get_index();

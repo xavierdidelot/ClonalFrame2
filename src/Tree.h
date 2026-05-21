@@ -76,6 +76,8 @@ public:
     Alignment * get_alignment()  {return ali;}
     ///Perform SPR move
     void rSPR();
+    ///Select new bro for SPR move
+    size_t select_new_bro(size_t moving, double * selected_dist);
 
 private:
     Tree() = default;
