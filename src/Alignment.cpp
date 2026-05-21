@@ -108,12 +108,14 @@ Alignment* Alignment::make_from_tree(Tree *t, bool include_ancestors) {
 void Alignment::pattern_analysis() {
     if (verbose) vprint("Starting pattern analysis");
     auto data2=new vector<vector<uint8_t>*>(n);
-    for (size_t i=0;i<n;i++) data2->at(i)=new vector<uint8_t>(l);
+    size_t lplus=l;
+    if (lplus<4) lplus=4;
+    for (size_t i=0;i<n;i++) data2->at(i)=new vector<uint8_t>(lplus);
     npat=0;
     delete patindex;
     delete weights;
     patindex=new vector<size_t>(l,0);
-    weights =new vector<size_t>(l,0);
+    weights =new vector<size_t>(lplus,0);
     std::unordered_map<size_t, vector<size_t>> hashmap;
     for (int j=0;j<4;j++) {//Adding the four non-polymorphic patterns as the first four patterns
         size_t h = 0;

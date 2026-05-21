@@ -124,7 +124,7 @@ bool Tree::check_structure() {
 int Tree::simulate_sequences(size_t l) {
     for (int i=0;i<2*(int)n-1;i++) delete nodes[i]->get_seq();
     nodes[2*n-2]->set_seq(new vector<uint8_t>(l));
-    std::uniform_int_distribution unif_l(0,static_cast<int>(l)-1);
+    std::uniform_int_distribution unif_l(0,static_cast<int>(l)-(l>0?1:0));
     for (size_t i = 0; i < l; i++) {
         nodes[2*n-2]->get_seq()->at(i) = Alignment::random_nuc();
     }
@@ -133,9 +133,9 @@ int Tree::simulate_sequences(size_t l) {
         vector<uint8_t>*above=nodes[z]->get_father()->get_seq();
         nodes[z]->set_seq(new vector<uint8_t>(*above));
         int m2=0;
-        if (nodes[z]->get_dist_father()>0.0) {
-            std::poisson_distribution pois(nodes[z]->get_dist_father()*l);
-            m2=pois(rng);
+        if (nodes[z]->get_dist_father()*l>0.0) {
+                std::poisson_distribution pois(nodes[z]->get_dist_father()*l);
+                m2=pois(rng);
         }
         for (int i=0;i<m2;i++) {
             int p=unif_l(rng);
@@ -165,7 +165,7 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
         while (curpos<l) {
             size_t upto;
             int m2;
-            if (nodes[z]->get_dist_father()>0) {
+            if (nodes[z]->get_dist_father()*l>0.0) {
                 std::geometric_distribution geo(rec?b:a);
                 upto=curpos+geo(rng)+1;
                 if (upto>l) upto=l;
@@ -191,13 +191,14 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
 void Tree::simulate_pattern_analysis() {
     size_t l=nodes[0]->get_seq()->size();
     Alignment* a  = Alignment::make_from_tree(this,true);
-    Alignment* a2 = Alignment::make_from_tree(this,false);a2->pattern_analysis();
-    vector<size_t> anti(a2->get_npat());
+    Alignment* a2 = Alignment::make_from_tree(this,false);
+    a2->pattern_analysis();
+    vector<int> anti(a2->get_npat(),-1);
     for (int j=static_cast<int>(l)-1;j>=0;j--) anti[a2->get_patindex()->at(j)]=j;
     for (size_t i=0;i<nodes.size();i++) {
         delete nodes[i]->get_seq();
         nodes[i]->set_seq(new vector<uint8_t>(a2->get_npat()));
-        for (size_t j=0;j<a2->get_npat();j++) nodes[i]->get_seq()->at(j)=a->get_data(i,anti[j]);
+        for (size_t j=0;j<a2->get_npat();j++) if (anti[j]>=0) nodes[i]->get_seq()->at(j)=a->get_data(i,anti[j]);
     }
     delete(a);
     ali=a2;
@@ -774,7 +775,7 @@ size_t Tree::select_new_bro(size_t moving, double * selected_dist) {
     }
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
     newbro=dist(rng);
-    *selected_dist=(1.0/probs[newbro])/ali->get_l();
+    *selected_dist=(1.0/probs[newbro])/(1.0+ali->get_l());
     return(newbro);
 }
 
