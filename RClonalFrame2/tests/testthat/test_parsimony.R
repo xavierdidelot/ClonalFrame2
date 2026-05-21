@@ -9,7 +9,7 @@ test_that("Testing parsimony algorithm.", {
     ali=as.DNAbin(simSeq(tree,10000))
     write.tree(tree,'tmp.nwk')
     write.FASTA(ali,'tmp.fasta')
-    m=system('../../../build-debug/tests/test_parsimony',intern=T)
+    m=system('../../../build-debug/test_parsimony',intern=T)
     m=as.numeric(unlist(strsplit(m,',')))
     expect_equal(m[1],m[2])
     pali=as.phyDat(ali)

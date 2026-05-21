@@ -4,14 +4,40 @@
 \alias{run_cf2}
 \title{Run ClonalFrame2}
 \usage{
-run_cf2(inputfile, outputfile, args, path)
+run_cf2(
+  inputfile,
+  outputfile,
+  burn,
+  iter,
+  thin,
+  seed,
+  ncpu,
+  profile,
+  verbose,
+  simu_pars,
+  path
+)
 }
 \arguments{
 \item{inputfile}{Name of input FASTA file}
 
 \item{outputfile}{Name of output CF2 file}
 
-\item{args}{Optional arguments to use in CF2 run}
+\item{burn}{Number of burn-in iterations}
+
+\item{iter}{Total number of iterations}
+
+\item{thin}{Thining interval}
+
+\item{seed}{Seed for random number generator}
+
+\item{ncpu}{Number of cores to use}
+
+\item{profile}{Whether to activate the profiler}
+
+\item{verbose}{Whether to activate verbose mode}
+
+\item{simu_pars}{Vector containing the six simulation parameters}
 
 \item{path}{Path to ClonalFrame2 executable}
 }

@@ -50,7 +50,7 @@ tree_noise=function(tree,eps=0.01) {
   d=abs(d+rnorm(length(d),0,eps))
   p=nj(d)
   p$edge.length=pmax(p$edge.length,1e-6)
-  p=midpoint(p)
+  p=phangorn::midpoint(p)
   return(p)
 }
 

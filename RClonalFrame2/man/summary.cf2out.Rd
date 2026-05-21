@@ -7,9 +7,9 @@
 \method{summary}{cf2out}(object, ...)
 }
 \arguments{
-\item{...}{Passed on}
+\item{object}{Output from ClonalFrame2}
 
-\item{x}{Output from ClonalFrame2}
+\item{...}{Passed on}
 }
 \value{
 Print out details of ClonalFrame2 results

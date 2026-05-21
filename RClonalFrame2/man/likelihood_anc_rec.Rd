@@ -12,6 +12,12 @@ likelihood_anc_rec(tree, seqs, anc, rho, delta, nu)
 \item{seqs}{Sequences in phangorn::phyDat format}
 
 \item{anc}{Ancestral sequences in phangorn::phyDat format}
+
+\item{rho}{Rho parameter}
+
+\item{delta}{Delta parameter}
+
+\item{nu}{Nu parameter}
 }
 \value{
 Log-likelihood

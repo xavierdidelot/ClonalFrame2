@@ -162,6 +162,9 @@ mcmc <- function(seqs,niter=10000,thin=100,method='pruning',showProgress=T) {
 #' @param tree Phylogeny in ape::phylo format
 #' @param seqs Sequences in phangorn::phyDat format
 #' @param anc Ancestral sequences in phangorn::phyDat format
+#' @param rho Rho parameter
+#' @param delta Delta parameter
+#' @param nu Nu parameter
 #' @returns Log-likelihood
 #' @export
 #'
@@ -181,7 +184,7 @@ likelihood_anc_rec <- function(tree,seqs,anc,rho,delta,nu) {
       pnid=1/4-1/4*ex
       a=1-exp(-rho*len)
       #b=1-exp(-1/delta)
-      if (a==0) b=0.5 else b=1-exp(-rho*len/expm1(rho*len/delta))#Using M/M/inf queue
+      if (a==0) b=0.5 else b=1-exp(-rho*len/expm1(rho*len*delta))#Using M/M/inf queue
       alpha1=b/(a+b)
       alpha2=a/(a+b)
       lscale=0

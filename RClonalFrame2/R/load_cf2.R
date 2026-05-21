@@ -21,7 +21,7 @@ print.cf2out <- function(x, ...) {
 }
 
 #' Summary function for cf2out objects
-#' @param x Output from ClonalFrame2
+#' @param object Output from ClonalFrame2
 #' @param ... Passed on
 #' @return Print out details of ClonalFrame2 results
 #' @export
