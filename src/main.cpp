@@ -5,7 +5,8 @@
 #include "Tree.h"
 #include "Param.h"
 #include "RNGGlobal.h"
-#include "version.h"
+
+constexpr const char* VERSION_STRING = "0.1";
 
 static string helptxt =
         R"(Usage: ClonalFrame2 [OPTIONS]

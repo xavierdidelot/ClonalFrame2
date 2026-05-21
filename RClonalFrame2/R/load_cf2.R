@@ -1,5 +1,5 @@
 #' Load a CF2 output file
-#' @param filename Name of input FASTA file
+#' @param filename Name of output CF2 file
 #' @returns Object of class cf2out
 #' @export
 #'
