@@ -20,8 +20,11 @@ static string helptxt =
     -s NUM      Use given seed to initiate random number generator
     -c NUM      Number of cores to use (default is all available)
     -S STR      Generate a simulated dataset and run on it
-                STR is comma separated values for number of sequences,
-                length of sequences, average branch length, rho, delta and nu
+                STR is 7 comma-separated values for number of sequences,
+                length of sequences, average branch length, rho, delta, nu
+                and whether to start from the correct parameters
+    -U STR      Indicates number of updates to use per iteration for each move
+                STR is 4 int values for tree, rho, delta and nu updates
     -p          Activate profiler
     -v          Verbose mode
     -h          Show help
@@ -37,6 +40,7 @@ int main(int argc, const char *argv[]) {
     string infile="";
     string outfile="";
     string simu_str="";
+    string update_str="1,1,1,1";
     vector<string> remainder;
     bool help=false;
     while (i < argc) {
@@ -51,6 +55,7 @@ int main(int argc, const char *argv[]) {
                 case('s'):setSeed(std::stoi(argv[++i]));break;
                 case('c'):n_cores =  std::stoi(argv[++i]);break;
                 case('S'):simu_str=argv[++i];break;
+                case('U'):update_str=argv[++i];break;
                 case('v'):verbose = true;break;
                 case('p'):profiling = true;break;
                 case('h'):help=true;break;
@@ -91,27 +96,40 @@ int main(int argc, const char *argv[]) {
     std::println("Using {} cores.",n_cores);
 
     Alignment *a;
+    Tree *t=nullptr;
+    Param *p;
+    double bralen, rho, delta, nu;
+    int start_correct=0;
     if (simu_str.empty()) {
         a = Alignment::read_fasta(infile);
     } else {
         int n, l;
-        double bralen, rho, delta, nu;
-        std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf", &n, &l, &bralen, &rho, &delta, &nu);
+        std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf,%d", &n, &l, &bralen, &rho, &delta, &nu, &start_correct);
         if (verbose) vprint("Generating true tree with {} leaves and mean branch length {}...", n, bralen);
-        auto t0 = Tree::random_tree(n, bralen);
+        t = Tree::random_tree(n, bralen);
         if (verbose) vprint("Generating simulated alignment of length {} with rho={},delta={},nu={}...", l, rho, delta, nu);
-        t0->simulate_sequences_rec(l, rho, delta, nu);
-        a = t0->get_alignment();
-        delete t0;
+        t->simulate_sequences_rec(l, rho, delta, nu);
+        a = t->get_alignment();
     }
-    if (verbose) vprint("Building initial tree...");
-    auto mat = a->distmat();
-    auto t = Tree::nj(mat, a->get_names());
-    delete mat;
-    t->set_sequences(a);
+
+    if (start_correct==1) {
+        if (verbose) vprint("Starting from correct tree and parameters...");
+        p=new Param(t);
+        p->set_rho(rho);
+        p->set_delta(delta);
+        p->set_nu(nu);
+    } else {
+        delete t;
+        if (verbose) vprint("Building initial tree...");
+        auto mat = a->distmat();
+        t = Tree::nj(mat, a->get_names());
+        delete mat;
+        t->set_sequences(a);
+        p = new Param(t);
+    }
     if (verbose) vprint("Performing initial ancestral reconstruction...");
     t->jointml();
-    auto p = new Param(t);
+    p->select_updates(update_str);
     p->mcmc(burn, nbit, thin, outfile);
     t = p->get_tree();
     delete(a);

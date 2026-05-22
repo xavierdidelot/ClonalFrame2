@@ -31,6 +31,8 @@ public:
     void mcmc(int burn,int nbit,int thin,string outfile);
     ///Write to json file
     void to_json_file(std::ofstream * file);
+    ///Selection of updates to perform in MCMC
+    void select_updates(const string & string);
 
 private:
     void print_progress(int current, int total);
@@ -41,6 +43,10 @@ private:
     double ll;
     double tree_prior;
     vector<double> paccepted;
+    int update_tree;
+    int update_rho;
+    int update_delta;
+    int update_nu;
 };
 
 
