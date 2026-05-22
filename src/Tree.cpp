@@ -324,6 +324,7 @@ Tree* Tree::nj(vector<vector<double>> * d,vector<string> * names) {
 void Tree::set_sequences(Alignment *ali) {
     for (size_t i=0;i<nodes.size();i++) {
         delete nodes[i]->get_seq();
+        nodes[i]->set_seq(nullptr);
     }
     for (size_t i=0;i<ali->get_n();i++) for (size_t j=0;j<nodes.size();j++)
         if (get_node(j)->get_name()==ali->get_name(i)) get_node(j)->set_seq(new vector(*ali->get_seq(i)));

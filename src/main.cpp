@@ -113,6 +113,7 @@ int main(int argc, const char *argv[]) {
     }
 
     if (start_correct==1) {
+        t->set_sequences(a);
         if (verbose) vprint("Starting from correct tree and parameters...");
         p=new Param(t);
         p->set_rho(rho);
