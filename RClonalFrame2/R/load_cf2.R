@@ -41,8 +41,10 @@ plot.cf2out = function(x, type='trace', ...) {
   old.par=par(no.readonly = T)
 
   if (type=='trace') {
-    par(mfrow=c(2,2))
+    par(mfrow=c(2,3))
     plot(x$iterations[,'likelihood'],main='Likelihood',type='l',xlab='Sampled iterations',ylab='')
+    plot(x$iterations[,'tree_prior'],main='Tree prior',type='l',xlab='Sampled iterations',ylab='')
+    plot(x$iterations[,'sum_bra_len'],main='Sum branch lengths',type='l',xlab='Sampled iterations',ylab='')
     plot(x$iterations[,'rho'],main='Rho',type='l',xlab='Sampled iterations',ylab='')
     plot(x$iterations[,'delta'],main='Delta',type='l',xlab='Sampled iterations',ylab='')
     plot(x$iterations[,'nu'],main='Nu',type='l',xlab='Sampled iterations',ylab='')

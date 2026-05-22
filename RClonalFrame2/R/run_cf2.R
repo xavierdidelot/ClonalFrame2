@@ -36,7 +36,7 @@ run_cf2 <- function(inputfile,outputfile,burn,iter,thin,seed,ncpu,profile,verbos
   system(sprintf('make -C %s',path))
   message('Running ClonalFrame2...')
   system(sprintf('rm -rf %s',outputfile))
-  system(sprintf('%s/ClonalFrame2 %s',path,args))
+  system(sprintf('MallocNanoZone=;%s/ClonalFrame2 %s',path,args))
   if (!file.exists(outputfile)) stop('Output file was not generated')
   message('Reading ClonalFrame2 output...')
   load_cf2(outputfile)

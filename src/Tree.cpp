@@ -316,8 +316,8 @@ Tree* Tree::nj(vector<vector<double>> * d,vector<string> * names) {
     t->nodes[to_merge[2]]->set_dist_father(0.0);
     t->nodes[n+m+1]->set_father(nullptr);
     t->reorder();
-    for (size_t i=0;i<t->nodes.size()-1;i++)
-        if (t->nodes[i]!=t->nodes[2*n-2]->get_left() && t->nodes[i]->get_dist_father()<=1e-6) t->nodes[i]->set_dist_father(1e-6);
+    for (size_t i=0;i<t->nodes.size()-2;i++)
+        if (std::isnan(t->nodes[i]->get_dist_father()) || t->nodes[i]->get_dist_father()<=1e-6) t->nodes[i]->set_dist_father(1e-6);
     return t;
 }
 
@@ -429,9 +429,10 @@ double Tree::likelihood_anc() {
 }
 
 double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
+    size_t L=ali->get_l();
+    if (L==0) return 0.0;
     if (profiling) Profiler::prof.start(__func__);
     double ll=0.0;
-    size_t L=ali->get_l();
     vector<size_t> * refsites=ali->get_refsites();
     vector<size_t> * refsites_diff=ali->get_refsites_diff();
     vector<size_t> * patindex=ali->get_patindex();
@@ -561,6 +562,7 @@ vector<vector<double>> * Tree::distmat() {
 }
 
 double Tree::jointml() {
+    if (ali->get_l()==0) return 0.0;
     if (profiling) Profiler::prof.start(__func__);
     double res = 0.0;
     const double log025 = log(0.25);
@@ -779,6 +781,11 @@ size_t Tree::select_new_bro(size_t moving, double * selected_dist) {
     return(newbro);
 }
 
+double Tree::prior() {
+    double mu=0.01;//mean of the exponential prior
+    double s=sum_bra_len();
+    return -s/mu-log(mu)*(2.0*n-3.0);
+}
 
 void Tree::rSPR() {
     if (profiling) Profiler::prof.start(__func__);

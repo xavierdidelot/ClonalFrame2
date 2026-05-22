@@ -39,6 +39,7 @@ private:
     double delta;
     double nu;
     double ll;
+    double tree_prior;
     vector<double> paccepted;
 };
 

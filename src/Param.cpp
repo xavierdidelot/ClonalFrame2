@@ -46,6 +46,7 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
     tree->jointml();
     if (verbose) vprint("Performing initial likelihood computation...");
     ll=tree->likelihood_anc_rec(rho,delta,nu);
+    tree_prior=tree->prior();
     double sdRho=0.1;
     double sdDelta=10.0;
     double sdNu=1e-4;
@@ -59,15 +60,25 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         if (verbose==false && floor((double)i/nbit*100)==(double)i/nbit*100) print_progress(i,nbit);
         if (verbose) vprint("Starting iteration {}",i);
 
+        //Writing to output file
+        if (i%thin==0) {
+            if (!first_write) {
+                std::println(file, "\t,");
+            } else first_write=false;
+            to_json_file(&file);
+        }
+
         //Tree move
         Tree * tree2=Tree::copy_tree(tree);
         tree2->rSPR();
         tree2->jointml();
         double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
-        if (log(runif(rng))<ll2-ll) {
+        double tree_prior2=tree2->prior();
+        if (log(runif(rng))<ll2-ll+tree_prior2-tree_prior) {
             paccepted[0]=(paccepted[0]*i+1)/(i+1);
             if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} paccept={:.2e}",ll,ll2,paccepted[0]);
             ll=ll2;
+            tree_prior=tree_prior2;
             delete tree;
             tree=tree2;
         } else {
@@ -123,14 +134,6 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
             if (verbose) vprint("Nu move rejected nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e} paccept={:.2f}",nu,nu2,ll,ll2,sdNu,paccepted[3]);
         }
         sdNu=sdNu*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
-
-        //Writing to output file
-        if (i%thin==0) {
-            if (!first_write) {
-                std::println(file, "\t,");
-            } else first_write=false;
-            to_json_file(&file);
-        }
     }//End of main MCMC loop
     if (verbose==false && nbit>0) print_progress(nbit,nbit);
     std::println(file, "\t]");
@@ -143,6 +146,8 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
 void Param::to_json_file(std::ofstream * file) {
     std::println(*file, "\t\t{{");
     std::println(*file,"\t\t\t\"likelihood\": {:.6e},",ll);
+    std::println(*file,"\t\t\t\"tree_prior\": {:.6e},",tree_prior);
+    std::println(*file,"\t\t\t\"sum_bra_len\": {:.6e},",tree->sum_bra_len());
     std::println(*file,"\t\t\t\"tree\": \"{}\",",tree->to_string());
     std::println(*file,"\t\t\t\"rho\": {:.6e},",rho);
     std::println(*file,"\t\t\t\"delta\": {:.6e},",delta);

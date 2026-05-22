@@ -78,6 +78,8 @@ public:
     void rSPR();
     ///Select new bro for SPR move
     size_t select_new_bro(size_t moving, double * selected_dist);
+    ///Tree prior
+    double prior();
 
 private:
     Tree() = default;
