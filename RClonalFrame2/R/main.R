@@ -174,6 +174,8 @@ likelihood_anc_rec <- function(tree,seqs,anc,rho,delta,nu) {
     w=attr(seqs,'weight')
     patindex=attr(seqs,'index')
     nsites=length(patindex)
+    pid_nu =1/4+3/4*exp(-nu*4/3)
+    pnid_nu=1/4-1/4*exp(-nu*4/3)
     for (i in 1:nrow(tree$edge)) {
       if (tree$edge[i,2]<=n) bottom=seqs[[tree$tip.label[tree$edge[i,2]]]]
       else bottom=anc[[tree$node.label[tree$edge[i,2]-n]]]
@@ -192,7 +194,7 @@ likelihood_anc_rec <- function(tree,seqs,anc,rho,delta,nu) {
       for (j in 1:nsites) {
         pat=patindex[j]
         is_same=top[pat]==bottom[pat]
-        if (is_same) {p1=pid;p2=1.0-nu} else {p1=pnid;p2=nu}
+        if (is_same) {p1=pid;p2=pid_nu} else {p1=pnid;p2=pnid_nu}
         newalpha1=(alpha1*(1-a)+alpha2*b)*p1
         alpha2=(alpha1*a+alpha2*(1-b))*p2
         alpha1=newalpha1

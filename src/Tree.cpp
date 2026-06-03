@@ -434,6 +434,9 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
     if (L==0) return 0.0;
     if (profiling) Profiler::prof.start(__func__);
     double ll=0.0;
+    double ex_nu=exp(-4.0*nu/3.0);
+    double pid_nu=0.25+0.75*ex_nu;
+    double pnid_nu=0.25-0.25*ex_nu;
     vector<size_t> * refsites=ali->get_refsites();
     vector<size_t> * refsites_diff=ali->get_refsites_diff();
     vector<size_t> * patindex=ali->get_patindex();
@@ -459,10 +462,10 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
             vector gamma={1.0-a, a, b, 1.0-b};
             gammas[0]=gamma;
             for (size_t k=1;k<maxskip;k++) {
-                gammas[k][0]=gammas[k-1][0]*pid*gamma[0]+gammas[k-1][1]*(1.0-nu)*gamma[2];
-                gammas[k][1]=gammas[k-1][0]*pid*gamma[1]+gammas[k-1][1]*(1.0-nu)*gamma[3];
-                gammas[k][2]=gammas[k-1][2]*pid*gamma[0]+gammas[k-1][3]*(1.0-nu)*gamma[2];
-                gammas[k][3]=gammas[k-1][2]*pid*gamma[1]+gammas[k-1][3]*(1.0-nu)*gamma[3];
+                gammas[k][0]=gammas[k-1][0]*pid*gamma[0]+gammas[k-1][1]*pid_nu*gamma[2];
+                gammas[k][1]=gammas[k-1][0]*pid*gamma[1]+gammas[k-1][1]*pid_nu*gamma[3];
+                gammas[k][2]=gammas[k-1][2]*pid*gamma[0]+gammas[k-1][3]*pid_nu*gamma[2];
+                gammas[k][3]=gammas[k-1][2]*pid*gamma[1]+gammas[k-1][3]*pid_nu*gamma[3];
             }
             double lscale=0.0;
             size_t j=0;
@@ -478,7 +481,7 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
                     is_same=Alignment::nuc_is_currently_same((*seq1)[pat],(*seq2)[pat]);
                 }
                 double p1,p2;
-                if (is_same) {p1=pid;p2=1.0-nu;} else {p1=pnid;p2=nu;}
+                if (is_same) {p1=pid;p2=pid_nu;} else {p1=pnid;p2=pnid_nu;}
                 double newalpha1=(alpha1*gammas[skipping][0]+alpha2*gammas[skipping][2])*p1;
                 alpha2=          (alpha1*gammas[skipping][1]+alpha2*gammas[skipping][3])*p2;
                 alpha1=newalpha1;
