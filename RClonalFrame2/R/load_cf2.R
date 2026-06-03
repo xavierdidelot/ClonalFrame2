@@ -69,5 +69,9 @@ plot.cf2out = function(x, type='trace', ...) {
     }
   }
 
+  if (type=='simulation') {
+    plot_recombination(x,...)
+  }
+
   par(old.par)
 }

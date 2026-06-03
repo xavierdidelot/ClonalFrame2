@@ -115,14 +115,15 @@ int main(int argc, const char *argv[]) {
         if (verbose) vprint("Generating true tree with {} leaves and mean branch length {}...", n, bralen);
         t = Tree::random_tree(n, bralen);
         if (verbose) vprint("Generating simulated alignment of length {} with rho={},delta={},nu={}...", l, rho, delta, nu);
-        t->simulate_sequences_rec(l, rho, delta, nu);
-        a = t->get_alignment();
         std::println(out,"\t\"simulation_parameters\": {{");
         std::println(out,"\t\t\"tree\": \"{}\",",t->to_string());
+        std::println(out,"\t\t\"length\": {},",l);
         std::println(out,"\t\t\"rho\": {:.6e},",rho);
         std::println(out,"\t\t\"delta\": {:.6e},",delta);
-        std::println(out,"\t\t\"nu\": {:.6e}",nu);
+        std::println(out,"\t\t\"nu\": {:.6e},",nu);
+        t->simulate_sequences_rec(l, rho, delta, nu);
         std::println(out,"\t}},");
+        a = t->get_alignment();
     }
 
     if (start_correct==1) {

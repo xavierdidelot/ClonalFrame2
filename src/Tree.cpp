@@ -155,6 +155,8 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
         nodes[2*n-2]->get_seq()->at(i) = Alignment::random_nuc();
     }
     int m=0;
+    std::println(out,"\t\t\"recombination_events\": [");
+    bool first_write=true;
     for (int z=2*(int)n-3;z>=0;z--) {
         vector<uint8_t>*above=nodes[z]->get_father()->get_seq();
         nodes[z]->set_seq(new vector<uint8_t>(*above));
@@ -179,10 +181,17 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
                 nodes[z]->get_seq()->at(p)=Alignment::random_nuc_diff(nodes[z]->get_seq()->at(p));
             }
             m+=m2;
+            if (rec) {
+                if (!first_write) {
+                    std::println(out, "\t\t,");
+                } else first_write=false;
+                std::println(out, "\t\t{{\"branch\": \"{}\", \"beg\": {}, \"end\": {} }}",nodes[z]->get_name(),curpos,upto-1);
+            }
             rec=!rec;
             curpos=upto;
         }
     }
+    std::println(out,"\t\t]");
     simulate_pattern_analysis();
     return(m);
 }
