@@ -4,7 +4,7 @@
 #include "Alignment.h"
 #include "Tree.h"
 #include "Param.h"
-#include "RNGGlobal.h"
+#include "global.h"
 
 constexpr const char* VERSION_STRING = "0.1";
 
@@ -88,9 +88,16 @@ int main(int argc, const char *argv[]) {
         return 0;
     }
 
+    if (!outfile.empty()) {
+        out.open(outfile);
+        if (out.is_open() == false) std::println(std::cerr,"Unable to open output file {}",outfile);
+    }
+    std::println(out, "{{");
+
     string cmd;
     for (i = 0; i < argc; i++) {cmd.append(argv[i]);cmd.append(" ");}
     std::println("Command used: {}", cmd);
+    std::println(out,"\t\"Command\": \"{}\",",cmd);
 
     omp_set_num_threads(n_cores);
     std::println("Using {} cores.",n_cores);
@@ -110,6 +117,12 @@ int main(int argc, const char *argv[]) {
         if (verbose) vprint("Generating simulated alignment of length {} with rho={},delta={},nu={}...", l, rho, delta, nu);
         t->simulate_sequences_rec(l, rho, delta, nu);
         a = t->get_alignment();
+        std::println(out,"\t\"simulation_parameters\": {{");
+        std::println(out,"\t\t\"tree\": \"{}\",",t->to_string());
+        std::println(out,"\t\t\"rho\": {:.6e},",rho);
+        std::println(out,"\t\t\"delta\": {:.6e},",delta);
+        std::println(out,"\t\t\"nu\": {:.6e}",nu);
+        std::println(out,"\t}},");
     }
 
     if (start_correct==1) {
@@ -131,11 +144,13 @@ int main(int argc, const char *argv[]) {
     if (verbose) vprint("Performing initial ancestral reconstruction...");
     t->jointml();
     p->select_updates(update_str);
-    p->mcmc(burn, nbit, thin, outfile);
+    p->mcmc(burn, nbit, thin);
     t = p->get_tree();
     delete(a);
     delete(t);
     delete(p);
+    std::println(out, "}}");
+    out.close();
 
     auto end = Clock::now();
     std::chrono::duration<double> elapsed = end - start;

@@ -1,12 +1,15 @@
-#ifndef RNG_GLOBAL_H
-#define RNG_GLOBAL_H
+#ifndef GLOBAL_H
+#define GLOBAL_H
 #include <omp.h>
 #include <random>
 #include <print>
 #include <chrono>
+#include <fstream>
 #include "Profiler.h"
 
 inline bool verbose=false; //Verbose mode, defined as global variable
+
+inline std::ofstream out; //Output file
 
 template<typename... Args>
 void vprint(std::format_string<Args...> fmt, Args&&... args)

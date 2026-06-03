@@ -6,12 +6,11 @@
 #define CLONALFRAME2_PROFILER_H
 
 
-#include "RNGGlobal.h"
+#include "global.h"
 #include <chrono>
 #include <unordered_map>
 #include <atomic>
 #include <mutex>
-#include <algorithm>
 
 class Profiler {
 public:

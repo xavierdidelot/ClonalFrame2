@@ -5,6 +5,7 @@
 #define CLONALFRAME2_PARAM_H
 
 #include "Tree.h"
+#include <iostream>
 
 /**
  * Class containing all parameters
@@ -28,9 +29,9 @@ public:
      * @param thin Interval between sampling
      * @param outfile File to which output is written
      */
-    void mcmc(int burn,int nbit,int thin,string outfile);
+    void mcmc(int burn,int nbit,int thin);
     ///Write to json file
-    void to_json_file(std::ofstream * file);
+    void to_json_file();
     ///Selection of updates to perform in MCMC
     void select_updates(const string & string);
 

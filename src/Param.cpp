@@ -30,21 +30,15 @@ void Param::print_progress(int current, int total) {
     std::flush(std::cout);
 }
 
-void Param::mcmc(int burn, int nbit, int thin, string outfile) {
+void Param::mcmc(int burn, int nbit, int thin) {
     if (verbose) vprint("Starting MCMC...");
     if (profiling) Profiler::prof.start(__func__);
-    std::ofstream file;
-    if (!outfile.empty()) {
-        file.open(outfile);
-        if (file.is_open() == false) std::println(std::cerr,"Error opening file {}",outfile);
-    }
-    std::println(file, "{{");
-    std::println(file, "\t\"parameters\": {{");
-    std::println(file, "\t\t\"burn\": {},",burn);
-    std::println(file, "\t\t\"nbit\": {},",nbit);
-    std::println(file, "\t\t\"thin\": {}",thin);
-    std::println(file, "\t}},");
-    std::println(file, "\t\"iterations\": [");
+    std::println(out, "\t\"mcmc_parameters\": {{");
+    std::println(out, "\t\t\"burn\": {},",burn);
+    std::println(out, "\t\t\"nbit\": {},",nbit);
+    std::println(out, "\t\t\"thin\": {}",thin);
+    std::println(out, "\t}},");
+    std::println(out, "\t\"iterations\": [");
     std::uniform_real_distribution runif(0.0,1.0);
     if (verbose) vprint("Performing initial ancestral state reconstruction...");
     tree->jointml();
@@ -69,9 +63,9 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
         //Writing to output file
         if (i%thin==0) {
             if (!first_write) {
-                std::println(file, "\t,");
+                std::println(out, "\t,");
             } else first_write=false;
-            to_json_file(&file);
+            to_json_file();
         }
 
         //Tree move
@@ -151,27 +145,25 @@ void Param::mcmc(int burn, int nbit, int thin, string outfile) {
 
     }//End of main MCMC loop
     if (verbose==false && nbit>0) print_progress(nbit,nbit);
-    std::println(file, "\t]");
-    std::println(file, "}}");
-    file.close();
+    std::println(out, "\t]");
     if (profiling) Profiler::prof.stop(__func__);
     if (verbose) vprint("Finished MCMC.");
 }
 
-void Param::to_json_file(std::ofstream * file) {
-    std::println(*file, "\t\t{{");
-    std::println(*file,"\t\t\t\"likelihood\": {:.6e},",ll);
-    std::println(*file,"\t\t\t\"tree_prior\": {:.6e},",tree_prior);
-    std::println(*file,"\t\t\t\"sum_bra_len\": {:.6e},",tree->sum_bra_len());
-    std::println(*file,"\t\t\t\"tree\": \"{}\",",tree->to_string());
-    std::println(*file,"\t\t\t\"rho\": {:.6e},",rho);
-    std::println(*file,"\t\t\t\"delta\": {:.6e},",delta);
-    std::println(*file,"\t\t\t\"nu\": {:.6e},",nu);
-    std::println(*file,"\t\t\t\"paccepted_tree\": {:.6e},",paccepted[0]);
-    std::println(*file,"\t\t\t\"paccepted_rho\": {:.6e},",paccepted[1]);
-    std::println(*file,"\t\t\t\"paccepted_delta\": {:.6e},",paccepted[2]);
-    std::println(*file,"\t\t\t\"paccepted_nu\": {:.6e}",paccepted[3]);
-    std::println(*file, "\t\t}}");
+void Param::to_json_file() {
+    std::println(out, "\t\t{{");
+    std::println(out,"\t\t\t\"likelihood\": {:.6e},",ll);
+    std::println(out,"\t\t\t\"tree_prior\": {:.6e},",tree_prior);
+    std::println(out,"\t\t\t\"sum_bra_len\": {:.6e},",tree->sum_bra_len());
+    std::println(out,"\t\t\t\"tree\": \"{}\",",tree->to_string());
+    std::println(out,"\t\t\t\"rho\": {:.6e},",rho);
+    std::println(out,"\t\t\t\"delta\": {:.6e},",delta);
+    std::println(out,"\t\t\t\"nu\": {:.6e},",nu);
+    std::println(out,"\t\t\t\"paccepted_tree\": {:.6e},",paccepted[0]);
+    std::println(out,"\t\t\t\"paccepted_rho\": {:.6e},",paccepted[1]);
+    std::println(out,"\t\t\t\"paccepted_delta\": {:.6e},",paccepted[2]);
+    std::println(out,"\t\t\t\"paccepted_nu\": {:.6e}",paccepted[3]);
+    std::println(out, "\t\t}}");
 }
 
 void Param::select_updates(const string &s) {

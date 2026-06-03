@@ -1,0 +1,5 @@
+rm(list=ls())
+library(RClonalFrame2)
+set.seed(1)
+res=run_cf2(simu_pars=c(100,1e6,1e-4,1,100,0.01,1),update_pars=c(0,1,1,1),burn=100,iter=200,thin=1,profile=T)
+plot(res,'trace')
