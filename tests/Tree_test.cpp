@@ -72,17 +72,12 @@ int main() {
 
     //rSPR algorithm
     delete(t);
-    t=Tree::random_tree(20,0.01);
+    t=Tree::random_tree(10,0.01);
     t->simulate_sequences(1000);//otherwise can't do rSPR
     for (int i=0;i<100;i++) {
-        Tree * t2=Tree::copy_tree(t);
-        double q1=t2->rSPR();
+        t->rSPR();
         b=t->check_structure();
         assert(b);
-        double q2=t->lpropose(t);
-        assert(q1==q2);
-        delete t;
-        t=t2;
     }
 
     //Noisy algorithm
