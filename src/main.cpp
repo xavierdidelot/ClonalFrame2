@@ -109,9 +109,17 @@ int main(int argc, const char *argv[]) {
     int start_correct=0;
     if (simu_str.empty()) {
         a = Alignment::read_fasta(infile);
+        if (a->get_n()<3) {
+            std::println("Need a minimum of three genomes.");
+            return 0;
+        }
     } else {
         int n, l;
         std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf,%d", &n, &l, &bralen, &rho, &delta, &nu, &start_correct);
+        if (n<3) {
+            std::println("Need a minimum of three genomes.");
+            return 0;
+        }
         if (verbose) vprint("Generating true tree with {} leaves and mean branch length {}...", n, bralen);
         t = Tree::random_tree(n, bralen);
         if (verbose) vprint("Generating simulated alignment of length {} with rho={},delta={},nu={}...", l, rho, delta, nu);

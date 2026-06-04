@@ -71,11 +71,12 @@ void Param::mcmc(int burn, int nbit, int thin) {
         //Tree move
         for (int rep=0;rep<update_tree;rep++) {
             Tree * tree2=Tree::copy_tree(tree);
-            tree2->rSPR();
+            double q12=tree2->rSPR();
+            double q21=tree2->lpropose(tree);
             tree2->jointml();
             ll2=tree2->likelihood_anc_rec(rho,delta,nu);
             double tree_prior2=tree2->prior();
-            if (log(runif(rng))<ll2-ll+tree_prior2-tree_prior) {
+            if (log(runif(rng))<ll2-ll+tree_prior2-tree_prior+q21-q12) {
                 paccepted[0]=(paccepted[0]*i+1)/(i+1);
                 if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} paccept={:.2e}",ll,ll2,paccepted[0]);
                 ll=ll2;

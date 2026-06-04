@@ -169,11 +169,11 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
         while (curpos<l) {
             size_t upto=l;
             int m2=0;
-            if (nodes[z]->get_dist_father()*l>0.0) {
+            if (len*l>0.0) {
                 std::geometric_distribution geo(rec?b:a);
                 upto=curpos+geo(rng)+1;
                 if (upto>l) upto=l;
-                std::poisson_distribution pois((rec?nu:nodes[z]->get_dist_father())*(upto-curpos));
+                std::poisson_distribution pois((rec?nu:len)*(upto-curpos));
                 m2=pois(rng);
             }
             for (int i=0;i<m2;i++) {
@@ -767,7 +767,7 @@ Tree * Tree::copy_tree(Tree * t) {
     return(newbro);
 }*/
 
-size_t Tree::select_new_bro(size_t moving, double * selected_dist) {
+size_t Tree::select_new_bro(size_t moving, double * selected_dist, double * selected_prob) {
     size_t max=2*static_cast<int>(n)-4;
     size_t newbro;
     vector probs=vector<double>(max+1,0.0);
@@ -789,7 +789,8 @@ size_t Tree::select_new_bro(size_t moving, double * selected_dist) {
     }
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
     newbro=dist(rng);
-    *selected_dist=(1.0/probs[newbro])/(1.0+ali->get_l());
+    *selected_dist=(1.0/probs[newbro])/(1.0+ali->get_l());//This is the distance between moving and newbro
+    *selected_prob=probs[newbro]/std::accumulate(probs.begin(), probs.end(), 0.0);//This is the probability of having selected newbro
     return(newbro);
 }
 
@@ -799,14 +800,22 @@ double Tree::prior() {
     return -s/mu-log(mu)*(2.0*n-3.0);
 }
 
-void Tree::rSPR() {
+double Tree::lpropose(Tree *tree) {
+    return 0.1;
+}
+
+double Tree::rSPR() {
     if (profiling) Profiler::prof.start(__func__);
+    double lprob=0.0;
     //First select which node is moving, which can be any node other than the root or null node
     std::uniform_int_distribution unif(0,2*static_cast<int>(n)-4);
     size_t moving=unif(rng);
+    lprob+=-log(2*n-3);
     //Next select the new brother which can be any node other than root, null node, moving or its descendents
     double selected_dist;
-    size_t newbro=select_new_bro(moving, &selected_dist);
+    double selected_prob;
+    size_t newbro=select_new_bro(moving, &selected_dist, &selected_prob);
+    lprob+=log(selected_prob);
     //Pruning
     size_t oldf=nodes[moving]->get_father()->get_index();
     size_t oldbro=nodes[oldf]->get_left()->get_index();
@@ -820,7 +829,9 @@ void Tree::rSPR() {
     nodes[oldbro]->set_father(nodes[oldf]->get_father());
     nodes[oldbro]->set_dist_father(d);
     std::exponential_distribution<double> dist(1.0 / selected_dist);  // takes rate = 1/mu
-    nodes[moving]->set_dist_father(dist(rng));
+    double r=dist(rng);
+    nodes[moving]->set_dist_father(r);
+    lprob+=-log(selected_dist)-r/selected_dist;
     //Regrafting
     if (nodes[newbro]->get_father()!=nullptr) {
         int newbrof=nodes[newbro]->get_father()->get_index();
@@ -830,6 +841,7 @@ void Tree::rSPR() {
     double m=nodes[newbro]->get_dist_father();
     std::uniform_real_distribution unifm(0.0,m);
     double x=unifm(rng);
+    lprob+=-log(m);
     nodes[oldf]->set_dist_father(x);
     nodes[oldf]->set_left(nodes[moving]);
     nodes[oldf]->set_right(nodes[newbro]);
@@ -838,4 +850,5 @@ void Tree::rSPR() {
     //Update node matrix
     reorder();
     if (profiling) Profiler::prof.stop(__func__);
+    return(lprob);
 }

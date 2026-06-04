@@ -12,7 +12,7 @@ test_spr(n = 4, niter = 1000)
 \item{niter}{Number of iterations}
 }
 \value{
-Matrix of results
+List of sampled trees
 }
 \description{
 Testing SPR in C++

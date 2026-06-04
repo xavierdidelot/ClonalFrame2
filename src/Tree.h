@@ -75,11 +75,13 @@ public:
     ///Return alignment
     Alignment * get_alignment()  {return ali;}
     ///Perform SPR move
-    void rSPR();
+    double rSPR();
     ///Select new bro for SPR move
-    size_t select_new_bro(size_t moving, double * selected_dist);
+    size_t select_new_bro(size_t moving, double * selected_dist, double * selected_prob);
     ///Tree prior
     double prior();
+    ///Probability of proposing from this to tree
+    double lpropose(Tree * tree);
 
 private:
     Tree() = default;
