@@ -77,14 +77,14 @@ void Param::mcmc(int burn, int nbit, int thin) {
             double tree_prior2=tree2->prior();
             if (log(runif(rng))<ll2-ll+tree_prior2-tree_prior+qratio) {
                 paccepted[0]=(paccepted[0]*i+1)/(i+1);
-                if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} paccept={:.2e}",ll,ll2,paccepted[0]);
+                if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} lqratio={:.2e} paccept={:.2e}",ll,ll2,tree_prior,tree_prior2,qratio,paccepted[0]);
                 ll=ll2;
                 tree_prior=tree_prior2;
                 delete tree;
                 tree=tree2;
             } else {
                 paccepted[0]=(paccepted[0]*i)/(i+1);
-                if (verbose) vprint("Tree move rejected ll={:.2e} ll2={:.2e} paccept={:.2e}",ll,ll2,paccepted[0]);
+                if (verbose) vprint("Tree move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} lqratio={:.2e} paccept={:.2e}",ll,ll2,tree_prior,tree_prior2,qratio,paccepted[0]);
                 delete tree2;
             }
         }

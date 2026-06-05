@@ -77,7 +77,7 @@ public:
     ///Perform SPR move and return log proposal ratio
     double rSPR();
     ///Select new bro for SPR move
-    size_t select_new_bro(size_t moving, double * selected_dist, double * sampled_graft_loc, double * qratio);
+    size_t select_new_bro(size_t moving, size_t oldbro, double * selected_dist, double * sampled_graft_loc, double * qratio);
     ///Tree prior
     double prior();
 

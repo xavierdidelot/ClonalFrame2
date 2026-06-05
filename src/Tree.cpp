@@ -707,9 +707,8 @@ double Tree::likelihood() {
 }
 
 double Tree::prior() {
-    double mu=0.01;//mean of the exponential prior
     double s=sum_bra_len();
-    return -s/mu-log(mu)*(2.0*n-3.0);
+    return -s/bra_len_prior_mean-log(bra_len_prior_mean)*(2.0*n-3.0);
 }
 
 Tree* Tree::noise_tree(Tree * t,double eps) {
@@ -756,7 +755,7 @@ Tree * Tree::copy_tree(Tree * t) {
     return t2;
 }
 
-size_t Tree::select_new_bro(size_t moving, double * sampled_dist, double * sampled_graft_loc, double * qratio) {
+size_t Tree::select_new_bro(size_t moving, size_t oldbro, double * sampled_dist, double * sampled_graft_loc, double * qratio) {
     *qratio=0.0;
     size_t max=2*static_cast<int>(n)-4;
     size_t newbro;
@@ -770,24 +769,21 @@ size_t Tree::select_new_bro(size_t moving, double * sampled_dist, double * sampl
         }
         if (newbro==nodes[moving]->get_father()->get_index()) checked=false;
         if (checked) {
-            int diffs=1;
+            int diffs=0;
             for (size_t pos=0;pos<ali->get_npat();pos++) {
                 if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newbro]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
             }
-            probs[newbro]=1.0/diffs;
+            probs[newbro]=(1.0+ali->get_l())/(bra_len_prior_mean+diffs);
         }
     }
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
     newbro=dist(rng);
-    double selected_dist=(1.0/probs[newbro])/(1.0+ali->get_l());//This is the distance between moving and newbro
+    double selected_dist=(1.0/probs[newbro]);//This is the distance between moving and newbro
     std::exponential_distribution<double> dist2(1.0 / selected_dist);  // takes rate = 1/mu
     *sampled_dist=dist2(rng);
     *qratio-=log(probs[newbro]);//This is the probability of having selected newbro
     *qratio-=-log(selected_dist)-(*sampled_dist)/selected_dist;//This is the probability of the new distance
-    size_t oldf=nodes[moving]->get_father()->get_index();
-    size_t oldbro=nodes[oldf]->get_left()->get_index();
-    double selected_dist_old=(1.0/probs[oldbro])/(1.0+ali->get_l());//This is the distance between moving and oldbro
-    if (oldbro==moving) oldbro=nodes[oldf]->get_right()->get_index();
+    double selected_dist_old=(1.0/probs[oldbro]);//This is the distance between moving and oldbro
     *qratio+=log(probs[oldbro]);//This is the probability of selecting oldbro
     *qratio+=-log(selected_dist_old)-(nodes[moving]->get_dist_father())/selected_dist_old;//This is the probability of the old distance
     double m=nodes[newbro]->get_dist_father();
@@ -803,22 +799,19 @@ double Tree::rSPR() {
     if (profiling) Profiler::prof.start(__func__);
     //First select which node is moving, which can be any node other than the root or null node
     std::uniform_int_distribution unif(0,2*static_cast<int>(n)-4);//qratio unchanged
-    size_t moving;
+    size_t moving,oldf,oldbro;
     bool checked=false;//check that oldbro is not null node, otherwise problem for reverse move
     while (checked==false) {
         moving=unif(rng);
-        size_t oldf=nodes[moving]->get_father()->get_index();
-        size_t oldbro=nodes[oldf]->get_left()->get_index();
+        oldf=nodes[moving]->get_father()->get_index();
+        oldbro=nodes[oldf]->get_left()->get_index();
         if (oldbro==moving) oldbro=nodes[oldf]->get_right()->get_index();
         if (oldbro<=2*n-4) checked=true;
     }
     //Next select the new brother which can be any node other than root, null node, moving or its descendents
     double qratio,sampled_dist,sampled_graft_loc;
-    size_t newbro=select_new_bro(moving, &sampled_dist, &sampled_graft_loc, &qratio);
+    size_t newbro=select_new_bro(moving, oldbro, &sampled_dist, &sampled_graft_loc, &qratio);
     //Pruning
-    size_t oldf=nodes[moving]->get_father()->get_index();
-    size_t oldbro=nodes[oldf]->get_left()->get_index();
-    if (oldbro==moving) oldbro=nodes[oldf]->get_right()->get_index();
     double d=nodes[oldbro]->get_dist_father();
     if (nodes[oldf]->get_father()!=nullptr) {
         d+=nodes[oldf]->get_dist_father();

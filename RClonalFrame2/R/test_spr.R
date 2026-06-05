@@ -20,5 +20,5 @@ test_spr=function(n=4,niter=1000)
   counts=table(clusters)
   print(counts)
   print(chisq.test(counts))
-  return(trees)
+  invisible(trees)
 }

@@ -19,9 +19,10 @@ static string helptxt =
     -z NUM      Sets the number of iterations between samples (default is 10)
     -s NUM      Use given seed to initiate random number generator
     -c NUM      Number of cores to use (default is all available)
+    -b NUM      Mean of the prior on branch length
     -S STR      Generate a simulated dataset and run on it
                 STR is 7 comma-separated values for number of sequences,
-                length of sequences, average branch length, rho, delta, nu
+                length of sequences, mean branch length, rho, delta, nu
                 and whether to start from the correct parameters
     -U STR      Indicates number of updates to use per iteration for each move
                 STR is 4 int values for tree, rho, delta and nu updates
@@ -36,6 +37,7 @@ int main(int argc, const char *argv[]) {
     auto *orphan = new Node();orphan->set_dist_father(1.0); //just to test leak detection is working
 
     int burn = 10000, nbit = 20000, thin = 10;
+    bra_len_prior_mean=1e-3;
     int i=1;
     string infile="";
     string outfile="";
@@ -54,6 +56,7 @@ int main(int argc, const char *argv[]) {
                 case('z'):thin =  std::stoi(argv[++i]) ;break;
                 case('s'):setSeed(std::stoi(argv[++i]));break;
                 case('c'):n_cores =  std::stoi(argv[++i]);break;
+                case('b'):bra_len_prior_mean=std::stof(argv[++i]);break;
                 case('S'):simu_str=argv[++i];break;
                 case('U'):update_str=argv[++i];break;
                 case('v'):verbose = true;break;

@@ -6,6 +6,7 @@
 #' @param thin Thining interval
 #' @param seed Seed for random number generator
 #' @param ncpu Number of cores to use
+#' @param bra_len_prior_mean Mean of the exponential prior on branch lengths
 #' @param profile Whether to activate the profiler
 #' @param verbose Whether to activate verbose mode
 #' @param simu_pars Vector containing the seven simulation parameters
@@ -14,7 +15,7 @@
 #' @returns Object of class cf2out
 #' @export
 #'
-run_cf2 <- function(inputfile,outputfile,burn,iter,thin,seed,ncpu,profile,verbose,simu_pars,update_pars,path) {
+run_cf2 <- function(inputfile,outputfile,burn,iter,thin,seed,ncpu,bra_len_prior_mean,profile,verbose,simu_pars,update_pars,path) {
   if (missing(inputfile) && missing(simu_pars)) stop('Need to provide either an input file or simulation parameters')
   if (!missing(inputfile) && !missing(simu_pars)) stop('Cannot use both an input file and simulation parameters')
   if (!missing(inputfile) && !file.exists(inputfile)) stop('Input file is not found')
@@ -29,6 +30,7 @@ run_cf2 <- function(inputfile,outputfile,burn,iter,thin,seed,ncpu,profile,verbos
   if (!missing(thin)) args=sprintf('%s -z %d ',args,thin)
   if (!missing(seed)) args=sprintf('%s -s %d ',args,seed) else args=sprintf('%s -s %d ',args,round(runif(1,min=0,max=1e9)))
   if (!missing(ncpu)) args=sprintf('%s -c %d ',args,ncpu)
+  if (!missing(bra_len_prior_mean)) args=sprintf('%s -b %f ',args,bra_len_prior_mean)
   if (!missing(profile) && profile) args=sprintf('%s -p ',args)
   if (!missing(verbose) && verbose) args=sprintf('%s -v ',args)
   if (!missing(simu_pars)) args=sprintf('%s -S %d,%d,%f,%f,%f,%f,%d ',args,simu_pars[1],simu_pars[2],simu_pars[3],simu_pars[4],simu_pars[5],simu_pars[6],simu_pars[7])

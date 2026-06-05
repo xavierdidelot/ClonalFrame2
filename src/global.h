@@ -5,12 +5,15 @@
 #include <print>
 #include <chrono>
 #include <fstream>
+#include <sstream>
+#include <iostream>
 #include "Profiler.h"
 
-inline bool verbose=false; //Verbose mode, defined as global variable
+inline bool verbose=false; //Verbose mode
 
 inline std::ofstream out; //Output file
 
+//Function to write a message
 template<typename... Args>
 void vprint(std::format_string<Args...> fmt, Args&&... args)
 {
@@ -19,16 +22,19 @@ void vprint(std::format_string<Args...> fmt, Args&&... args)
     std::println("[{:%H:%M:%S}]  {}", ms, std::format(fmt, std::forward<Args>(args)...));
 }
 
-inline std::mt19937 rng(std::random_device{}()); // Global RNG, non-deterministic seed by default
+inline std::mt19937 rng(std::random_device{}()); // Random number generator, using a non-deterministic seed by default
 
+//Function to set the seed of the random number generator
 inline void setSeed(unsigned int seed) {
     rng.seed(seed);
 }
 
-inline int n_cores = omp_get_max_threads();//Number of cores to use, defined as a global variable and defaulting to OpenMP default
+inline int n_cores = omp_get_max_threads();//Number of cores to use, defaulting to OpenMP default
 
-inline bool profiling=false;//Profiling move, defined as global variable
+inline bool profiling=false;//Profiling mode
 
 inline const size_t maxskip=1000;
+
+inline double bra_len_prior_mean=1e-3;//Mean of the exponential prior on branch lengths
 
 #endif

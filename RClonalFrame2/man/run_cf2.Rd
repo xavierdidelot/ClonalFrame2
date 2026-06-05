@@ -12,6 +12,7 @@ run_cf2(
   thin,
   seed,
   ncpu,
+  bra_len_prior_mean,
   profile,
   verbose,
   simu_pars,
@@ -33,6 +34,8 @@ run_cf2(
 \item{seed}{Seed for random number generator}
 
 \item{ncpu}{Number of cores to use}
+
+\item{bra_len_prior_mean}{Mean of the exponential prior on branch lengths}
 
 \item{profile}{Whether to activate the profiler}
 
