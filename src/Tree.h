@@ -74,12 +74,14 @@ public:
     vector<vector<double>> * distmat();
     ///Return alignment
     Alignment * get_alignment()  {return ali;}
-    ///Perform SPR move and return log proposal ratio
-    double rSPR();
+    ///Perform SPR move and return log of the proposal probability
+    double rSPR(string * name_moving);
     ///Select new bro for SPR move
-    size_t select_new_bro(size_t moving, size_t oldbro, double * selected_dist, double * sampled_graft_loc, double * qratio);
+    size_t select_rSPR(size_t moving, double * selected_dist, double * sampled_graft_loc, double * q);
     ///Tree prior
     double prior();
+    ///Probability of proposing from this to tree, given name of moving node
+    double lq_rSPR(Tree *tree2, string name_moving);
 
 private:
     Tree() = default;

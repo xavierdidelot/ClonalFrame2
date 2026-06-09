@@ -71,20 +71,22 @@ void Param::mcmc(int burn, int nbit, int thin) {
         //Tree move
         for (int rep=0;rep<update_tree;rep++) {
             Tree * tree2=Tree::copy_tree(tree);
-            double qratio=tree2->rSPR();
+            string name_moving;
+            double q12=tree2->rSPR(&name_moving);
             tree2->jointml();
+            double q21=tree2->lq_rSPR(tree,name_moving);
             ll2=tree2->likelihood_anc_rec(rho,delta,nu);
             double tree_prior2=tree2->prior();
-            if (log(runif(rng))<ll2-ll+tree_prior2-tree_prior+qratio) {
+            if (log(runif(rng))<ll2-ll+tree_prior2-tree_prior+q21-q12) {
                 paccepted[0]=(paccepted[0]*i+1)/(i+1);
-                if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} lqratio={:.2e} paccept={:.2e}",ll,ll2,tree_prior,tree_prior2,qratio,paccepted[0]);
+                if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} lq21={:.2e} lq21={:.2e} paccept={:.2e}",ll,ll2,tree_prior,tree_prior2,q21,q12,paccepted[0]);
                 ll=ll2;
                 tree_prior=tree_prior2;
                 delete tree;
                 tree=tree2;
             } else {
                 paccepted[0]=(paccepted[0]*i)/(i+1);
-                if (verbose) vprint("Tree move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} lqratio={:.2e} paccept={:.2e}",ll,ll2,tree_prior,tree_prior2,qratio,paccepted[0]);
+                if (verbose) vprint("Tree move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} lq21={:.2e} lq21={:.2e} paccept={:.2e}",ll,ll2,tree_prior,tree_prior2,q21,q12,paccepted[0]);
                 delete tree2;
             }
         }

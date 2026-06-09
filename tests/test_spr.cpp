@@ -13,6 +13,7 @@ int main(int argc, const char *argv[]) {
     t->simulate_sequences(0);
     for (int i=0;i<niter;i++) {
         std::println("{}",t->to_string());
-        for (int j=0;j<10;j++) t->rSPR();
+        string s;
+        for (int j=0;j<10;j++) t->rSPR(&s);
     }
 }
