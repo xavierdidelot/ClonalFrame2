@@ -64,6 +64,12 @@ string Tree::to_string() {
     return "("+root->get_left()->get_left()->to_string() +","+root->get_left()->get_right()->to_string()+","+root->get_right()->to_string() + ")"+root->get_name()+";";
 }
 
+string Tree::to_string_internal() {
+    for (size_t i=n;i<nodes.size();i++) nodes[i]->set_name("NODE"+std::to_string(i));
+    Node * root=nodes[2*n-2];
+    return "("+root->get_left()->to_string() +","+root->get_right()->to_string() + ")"+root->get_name()+";";
+}
+
 Tree::~Tree() {
     for (size_t i = 0; i < nodes.size(); i++) {delete nodes[i];}
 }
@@ -236,7 +242,7 @@ Tree* Tree::random_tree(size_t n,double avg_bra_len) {
         t->nodes[m]->set_right(to_merge[b]);
         to_merge[a]->set_father(t->nodes[m]);
         to_merge[b]->set_father(t->nodes[m]);
-        t->nodes[m]->set_dist_father(rexp(rng));
+        if (to_merge.size()>3) t->nodes[m]->set_dist_father(rexp(rng));
         to_merge[a] = t->nodes[m];
         to_merge[b] = to_merge.back();
         to_merge.pop_back();
@@ -514,6 +520,7 @@ void Tree::reorder() {
     int a=0;
     while (nodes[2*n-2-a]->get_father()!=nullptr) a++;
     todo.push_back(nodes[2*n-2-a]);
+    todo[0]->set_dist_father(0.0);
     //If only a single leaf on the left of the root, swap left and right
     if (todo[0]->get_left()->get_left()==nullptr) {
         Node * n=todo[0]->get_left();
@@ -755,40 +762,42 @@ Tree * Tree::copy_tree(Tree * t) {
     return t2;
 }
 
-size_t Tree::select_rSPR(size_t moving, double * sampled_dist, double * sampled_graft_loc, double * q) {
-    *q=0.0;
+double Tree::select_rSPR(size_t moving, size_t * newbro, double * sampled_dist, double * sampled_graft_loc) {
     size_t max=2*static_cast<int>(n)-3;
-    size_t newbro;
     vector probs=vector<double>(max+1,0.0);
-    for (newbro=0;newbro<max;newbro++) {
-        Node*cur=nodes[newbro];
+    for (size_t newb=0;newb<max;newb++) {
+        Node*cur=nodes[newb];
         bool checked=true;
         while (cur!=nullptr) {
             if (cur->get_index()==moving) {checked=false;break;}
             cur=cur->get_father();
         }
-        if (newbro==nodes[moving]->get_father()->get_index()) checked=false;
+        if (newb==nodes[moving]->get_father()->get_index()) checked=false;
         if (checked) {
             int diffs=0;
             for (size_t pos=0;pos<ali->get_npat();pos++) {
-                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newbro]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
+                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
             }
-            probs[newbro]=(1.0+ali->get_l())/(bra_len_prior_mean+diffs);
+            probs[newb]=(1.0+ali->get_l())/(bra_len_prior_mean+diffs);
         }
     }
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
-    newbro=dist(rng);
-    double selected_dist=(1.0/probs[newbro]);//This is the distance between moving and newbro
-    std::exponential_distribution<double> dist2(1.0 / selected_dist);  // takes rate = 1/mu
-    *sampled_dist=dist2(rng);
+    *newbro=dist(rng);
+    size_t oldf=nodes[moving]->get_father()->get_index();
+    size_t oldbro=nodes[oldf]->get_left()->get_index();
+    if (oldbro==moving) oldbro=nodes[oldf]->get_right()->get_index();
+    double selected_dist=(1.0/probs[*newbro]);//This is the distance between moving and newbro
+    std::exponential_distribution<double> rexp(1.0 / selected_dist);  // takes rate = 1/mu
+    *sampled_dist=rexp(rng);
     double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
-    *q+=log(probs[newbro]/sum);//This is the probability of having selected newbro
-    *q+=-log(selected_dist)-(*sampled_dist)/selected_dist;//This is the probability of the new distance
-    double m=nodes[newbro]->get_dist_father();
+    double q=log(probs[*newbro]/sum);//This is the probability of having selected newbro
+    q+=-log(selected_dist)-(*sampled_dist)/selected_dist;//This is the probability of the new distance
+    double m=nodes[*newbro]->get_dist_father();
+    if (*newbro==oldbro) m=nodes[*newbro]->get_dist_father()+nodes[*newbro]->get_father()->get_dist_father();
     std::uniform_real_distribution unifm(0.0,m);
     *sampled_graft_loc=unifm(rng);
-    *q+=-log(m);//Probability of new sampled_graft_loc
-    return(newbro);
+    q+=-log(m);//Probability of new sampled_graft_loc
+    return(q);
 }
 
 double Tree::rSPR(string * name_moving) {
@@ -805,8 +814,11 @@ double Tree::rSPR(string * name_moving) {
         if (oldbro<=2*n-4) checked=true;
     }
     //Next select the new brother which can be any node other than root, null node, moving or its descendents
-    double q,sampled_dist,sampled_graft_loc;
-    size_t newbro=select_rSPR(moving, &sampled_dist, &sampled_graft_loc, &q);
+    double sampled_dist,sampled_graft_loc;
+    size_t newbro;
+    double q=select_rSPR(moving, &newbro, &sampled_dist, &sampled_graft_loc);
+    double m=nodes[newbro]->get_dist_father();
+    if (newbro==oldbro) m=nodes[newbro]->get_dist_father()+nodes[newbro]->get_father()->get_dist_father();
     //Pruning
     double d=nodes[oldbro]->get_dist_father();
     if (nodes[oldf]->get_father()!=nullptr) {
@@ -818,12 +830,9 @@ double Tree::rSPR(string * name_moving) {
     nodes[oldbro]->set_dist_father(d);
     nodes[moving]->set_dist_father(sampled_dist);
     //Regrafting
-    if (nodes[newbro]->get_father()!=nullptr) {
-        int newbrof=nodes[newbro]->get_father()->get_index();
-        if (nodes[newbrof]->get_left()->get_index()!=newbro) nodes[newbrof]->set_right(nodes[oldf]); else nodes[newbrof]->set_left(nodes[oldf]);
-    }
+    int newbrof=nodes[newbro]->get_father()->get_index();
+    if (nodes[newbrof]->get_left()->get_index()!=newbro) nodes[newbrof]->set_right(nodes[oldf]); else nodes[newbrof]->set_left(nodes[oldf]);
     nodes[oldf]->set_father(nodes[newbro]->get_father());
-    double m=nodes[newbro]->get_dist_father();
     nodes[oldf]->set_dist_father(sampled_graft_loc);
     nodes[oldf]->set_left(nodes[moving]);
     nodes[oldf]->set_right(nodes[newbro]);
@@ -872,6 +881,10 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     q+=log(probs[newbro]/sum);//This is the probability of having selected newbro
     q+=-log(selected_dist)-(sampled_dist)/selected_dist;//This is the probability of the new distance
     double m=nodes[newbro]->get_dist_father();
+    size_t oldf=nodes[moving]->get_father()->get_index();
+    size_t oldbro=nodes[oldf]->get_left()->get_index();
+    if (oldbro==moving) oldbro=nodes[oldf]->get_right()->get_index();
+    if (newbro==oldbro) m=nodes[newbro]->get_dist_father()+nodes[newbro]->get_father()->get_dist_father();
     q+=-log(m);//Probability of new sampled_graft_loc
     if (profiling) Profiler::prof.stop(__func__);
     return q;

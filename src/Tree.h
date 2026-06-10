@@ -34,6 +34,8 @@ public:
     static Tree* copy_tree(Tree * t);
     ///Return the tree as a newick string
     string to_string();
+    ///Return the tree as a newick string, revealing internal formating
+    string to_string_internal();
     ///Destructor for a tree
     ~Tree();
     ///Return number of leaves in the tree
@@ -77,7 +79,7 @@ public:
     ///Perform SPR move and return log of the proposal probability
     double rSPR(string * name_moving);
     ///Select new bro for SPR move
-    size_t select_rSPR(size_t moving, double * selected_dist, double * sampled_graft_loc, double * q);
+    double select_rSPR(size_t moving, size_t * newbro, double * selected_dist, double * sampled_graft_loc);
     ///Tree prior
     double prior();
     ///Probability of proposing from this to tree, given name of moving node
