@@ -13,6 +13,9 @@ test_prior(n = 5, niter = 1000, bra_len_prior_mean = 0.001)
 
 \item{bra_len_prior_mean}{Mean of the exponential prior on branch lengths}
 }
+\value{
+Object of class cf2out
+}
 \description{
 Testing that prior is sampled when no likelihood
 }

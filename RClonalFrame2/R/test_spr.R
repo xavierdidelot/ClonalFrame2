@@ -5,7 +5,8 @@
 #' @export
 test_spr=function(n=4,niter=1000)
 {
-  system(sprintf('../build-debug/test_spr %d %d > res.txt',n,niter))
+  seed=round(runif(1,min=0,max=1e9))
+  system(sprintf('../build-debug/test_spr %d %d %d > res.txt',n,niter,seed))
   trees=read.tree('res.txt')
   system('rm res.txt')
   clusters=rep(0,length(trees))

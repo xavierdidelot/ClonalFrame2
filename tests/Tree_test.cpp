@@ -73,7 +73,7 @@ int main() {
     //rSPR algorithm
     delete(t);
     t=Tree::random_tree(10,0.01);
-    t->simulate_sequences(1000);//otherwise can't do rSPR
+    t->simulate_sequences(0);
     for (int i=0;i<100;i++) {
         t2=Tree::copy_tree(t);
         string name_moving;

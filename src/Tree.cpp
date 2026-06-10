@@ -757,10 +757,10 @@ Tree * Tree::copy_tree(Tree * t) {
 
 size_t Tree::select_rSPR(size_t moving, double * sampled_dist, double * sampled_graft_loc, double * q) {
     *q=0.0;
-    size_t max=2*static_cast<int>(n)-4;
+    size_t max=2*static_cast<int>(n)-3;
     size_t newbro;
     vector probs=vector<double>(max+1,0.0);
-    for (newbro=0;newbro<=max;newbro++) {
+    for (newbro=0;newbro<max;newbro++) {
         Node*cur=nodes[newbro];
         bool checked=true;
         while (cur!=nullptr) {
@@ -837,6 +837,7 @@ double Tree::rSPR(string * name_moving) {
 }
 
 double Tree::lq_rSPR(Tree *tree2, string name_moving) {
+    if (profiling) Profiler::prof.start(__func__);
     size_t moving=0;
     while (this->nodes[moving]->get_name()!=name_moving) moving++;
     size_t moving2=0;
@@ -848,9 +849,9 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     double sampled_dist=tree2->nodes[moving2]->get_dist_father();
 
     double q=0.0;
-    size_t max=2*static_cast<int>(n)-4;
+    size_t max=2*static_cast<int>(n)-3;
     vector probs=vector<double>(max+1,0.0);
-    for (size_t newb=0;newb<=max;newb++) {
+    for (size_t newb=0;newb<max;newb++) {
         Node*cur=nodes[newb];
         bool checked=true;
         while (cur!=nullptr) {
@@ -872,5 +873,6 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     q+=-log(selected_dist)-(sampled_dist)/selected_dist;//This is the probability of the new distance
     double m=nodes[newbro]->get_dist_father();
     q+=-log(m);//Probability of new sampled_graft_loc
+    if (profiling) Profiler::prof.stop(__func__);
     return q;
 }

@@ -2,6 +2,7 @@
 #' @param n Number of sequences
 #' @param niter Number of iterations
 #' @param bra_len_prior_mean Mean of the exponential prior on branch lengths
+#' @return Object of class cf2out
 #' @export
 test_prior=function(n=5,niter=1000,bra_len_prior_mean=1e-3)
 {
@@ -54,12 +55,12 @@ test_prior=function(n=5,niter=1000,bra_len_prior_mean=1e-3)
   xs=seq(0,max(b1),length.out=1000)
   lines(xs,dexp(xs,rate=1/bra_len_prior_mean))
 
-  qqplot(p2,x$iterations[,'tree_prior'],xlab='Theoretical',ylab='Observed')
+  qqplot(p2,x$iterations[,'tree_prior'],xlab='rtree',ylab='CF2 prior')
   abline(0, 1, col = 2, lty = 2)
-  qqplot(s2,x$iterations[,'sum_bra_len'],xlab='Theoretical',ylab='Observed')
+  qqplot(s2,x$iterations[,'sum_bra_len'],xlab='rtree',ylab='CF2 prior')
   abline(0, 1, col = 2, lty = 2)
-  qqplot(b2,b1,xlab='Theoretical',ylab='Observed')
+  qqplot(b2,b1,xlab='rtree',ylab='CF2 prior')
   abline(0, 1, col = 2, lty = 2)
 
-  invisible(trees)
+  invisible(x)
 }
