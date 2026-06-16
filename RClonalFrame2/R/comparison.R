@@ -59,14 +59,14 @@ tree_noise=function(tree,eps=0.01) {
 #' @param l Length of sequences
 #' @param mu Mean of branch lengths
 #' @param niter Number of iterations
-#' @param eps Standard deviation of normal noise to apply to distances
 #' @param showPlot Whether to show a plot of the results
 #' @returns Matrix of results
 #' @export
 #'
-comparisonCpp=function(n=20,l=10000,mu=0.01,niter=100,eps=0.01,showPlot=T) {
-  system(sprintf('../build-debug/tests/comparison %d %d %f %d %f > res.txt',n,l,mu,niter,eps))
-  allres=read.table('res.txt',sep=',')
+comparisonCpp=function(n=20,l=10000,mu=0.01,niter=100,showPlot=T) {
+  system(sprintf('../build-release/comparison %d %d %f %d %d > res.txt',n,l,mu,niter,round(runif(1,min=0,max=1e9))))
+  allres=read.table('res.txt',sep='\t',fill=T)
+  allres=allres[seq(2,nrow(allres),2),]
   system('rm res.txt')
   methods=c('pruning','joint','parsimony')
   colnames(allres)<-methods

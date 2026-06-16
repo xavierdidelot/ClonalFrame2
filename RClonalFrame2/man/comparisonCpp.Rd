@@ -4,14 +4,7 @@
 \alias{comparisonCpp}
 \title{Comparison of likelihood functions in C++}
 \usage{
-comparisonCpp(
-  n = 20,
-  l = 10000,
-  mu = 0.01,
-  niter = 100,
-  eps = 0.01,
-  showPlot = T
-)
+comparisonCpp(n = 20, l = 10000, mu = 0.01, niter = 100, showPlot = T)
 }
 \arguments{
 \item{n}{Number of sequences}
@@ -21,8 +14,6 @@ comparisonCpp(
 \item{mu}{Mean of branch lengths}
 
 \item{niter}{Number of iterations}
-
-\item{eps}{Standard deviation of normal noise to apply to distances}
 
 \item{showPlot}{Whether to show a plot of the results}
 }
