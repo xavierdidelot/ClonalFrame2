@@ -1,7 +1,7 @@
 #Testing that SPR gives uniform distribution of topologies
 rm(list=ls())
-n=4
-niter=1000
+n=4#Number of sequences
+niter=1000#Number of iterations
 seed=round(runif(1,min=0,max=1e9))
 system(sprintf('../build-release/test_spr %d %d %d > res.txt',n,niter,seed))
 trees=read.tree('res.txt')

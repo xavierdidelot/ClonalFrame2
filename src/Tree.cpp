@@ -764,6 +764,7 @@ Tree * Tree::copy_tree(Tree * t) {
 
 double Tree::select_rSPR(size_t moving, size_t * newbro, double * sampled_dist, double * sampled_graft_loc) {
     size_t max=2*static_cast<int>(n)-3;
+    vector dists=vector<double>(max+1,0.0);
     vector probs=vector<double>(max+1,0.0);
     for (size_t newb=0;newb<max;newb++) {
         Node*cur=nodes[newb];
@@ -776,9 +777,10 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * sampled_dist, 
         if (checked) {
             int diffs=0;
             for (size_t pos=0;pos<ali->get_npat();pos++) {
-                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
+                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_father()->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
             }
-            probs[newb]=(1.0+ali->get_l())/(bra_len_prior_mean+diffs);
+            dists[newb]=(bra_len_prior_mean*100.0+diffs)/(100.0+ali->get_l());
+            probs[newb]=pow((ali->get_l()*bra_len_prior_mean/(1.0+ali->get_l()*bra_len_prior_mean)),diffs);
         }
     }
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
@@ -786,16 +788,21 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * sampled_dist, 
     size_t oldf=nodes[moving]->get_father()->get_index();
     size_t oldbro=nodes[oldf]->get_left()->get_index();
     if (oldbro==moving) oldbro=nodes[oldf]->get_right()->get_index();
-    double selected_dist=(1.0/probs[*newbro]);//This is the distance between moving and newbro
-    std::exponential_distribution<double> rexp(1.0 / selected_dist);  // takes rate = 1/mu
-    *sampled_dist=rexp(rng);
+    //*newbro=oldbro;
+    double selected_dist=dists[*newbro];//This is the selected distance
+    double shape=3.0;
+    double scale=selected_dist/shape;
+    std::gamma_distribution<double> rgamma(shape, scale);
+    *sampled_dist=rgamma(rng);
     double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
-    double q=log(probs[*newbro]/sum);//This is the probability of having selected newbro
-    q+=-log(selected_dist)-(*sampled_dist)/selected_dist;//This is the probability of the new distance
+    double q=0.0;
+    q+=log(probs[*newbro]/sum);//This is the probability of having selected newbro
+    q+=(shape - 1.0) * log(*sampled_dist) - *sampled_dist / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
     double m=nodes[*newbro]->get_dist_father();
     if (*newbro==oldbro) m=nodes[*newbro]->get_dist_father()+nodes[*newbro]->get_father()->get_dist_father();
     std::uniform_real_distribution unifm(0.0,m);
     *sampled_graft_loc=unifm(rng);
+    //*sampled_graft_loc=nodes[*newbro]->get_father()->get_dist_father();
     q+=-log(m);//Probability of new sampled_graft_loc
     return(q);
 }
@@ -859,6 +866,7 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
 
     double q=0.0;
     size_t max=2*static_cast<int>(n)-3;
+    vector dists=vector<double>(max+1,0.0);
     vector probs=vector<double>(max+1,0.0);
     for (size_t newb=0;newb<max;newb++) {
         Node*cur=nodes[newb];
@@ -871,15 +879,18 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
         if (checked) {
             int diffs=0;
             for (size_t pos=0;pos<ali->get_npat();pos++) {
-                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
+                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_father()->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
             }
-            probs[newb]=(1.0+ali->get_l())/(bra_len_prior_mean+diffs);
+            dists[newb]=(bra_len_prior_mean*100.0+diffs)/(100.0+ali->get_l());
+            probs[newb]=pow((ali->get_l()*bra_len_prior_mean/(1.0+ali->get_l()*bra_len_prior_mean)),diffs);
         }
     }
-    double selected_dist=(1.0/probs[newbro]);//This is the distance between moving and newbro
+    double selected_dist=dists[newbro];//This is the selected distance
     double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
     q+=log(probs[newbro]/sum);//This is the probability of having selected newbro
-    q+=-log(selected_dist)-(sampled_dist)/selected_dist;//This is the probability of the new distance
+    double shape=3.0;
+    double scale=selected_dist/shape;
+    q+=(shape - 1.0) * log(sampled_dist) - sampled_dist / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
     double m=nodes[newbro]->get_dist_father();
     size_t oldf=nodes[moving]->get_father()->get_index();
     size_t oldbro=nodes[oldf]->get_left()->get_index();
