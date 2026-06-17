@@ -6,24 +6,21 @@
 //This script compares the likelihood estimated using several approximations
 //Arguments are n, l, mu, niter, seed
 int main(int argc, const char *argv[]) {
-    int n=argc>1?std::stoi(argv[1]):20;
-    int l=argc>2?std::stoi(argv[2]):10000;
-    double mu=argc>3?std::stof(argv[3]):0.01;
-    int niter=argc>4?std::stoi(argv[4]):100;
-    int seed=argc>5?std::stoi(argv[5]):0;
+    int n=std::stoi(argv[1]);
+    int l=std::stoi(argv[2]);
+    double avg_bra_len=std::stof(argv[3]);
+    int niter=std::stoi(argv[4]);
+    int seed=std::stoi(argv[5]);
     setSeed(seed);
-    auto t = Tree::random_tree(n,mu);
+    auto t = Tree::random_tree(n,avg_bra_len);
     t->simulate_sequences(l);
-    //auto a=Alignment::make_from_tree(t,false);
+    auto a=Alignment::make_from_tree(t,false);
     //a->write("tmp.fasta",true);
     for (int i=0;i<niter;i++) {
         Tree * t2;
-        //t2=Tree::noise_tree(t,0.01);
-        //t2->set_sequences(a);
-        t2=Tree::copy_tree(t);
-        if (i>0) {
-            string moving;
-            t2->rSPR(&moving);
+        if (i==0) t2=Tree::copy_tree(t); else {
+            t2=Tree::noise_tree(t,avg_bra_len);
+            t2->set_sequences(a);
         }
         std::println("{}",t2->to_string());
         double r1=t2->likelihood();

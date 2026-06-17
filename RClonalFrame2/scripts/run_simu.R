@@ -2,8 +2,8 @@
 library(RClonalFrame2)
 rm(list=ls())
 set.seed(0)
-n=20#Number of sequences
-l=10#Genome length
+n=50#Number of sequences
+l=1e6#Genome length
 rho=0
 delta=500
 nu=0.05

@@ -3,10 +3,10 @@ rm(list=ls())
 set.seed(0)
 n=20
 l=1000000
-mu=0.001
+avg_bra_len=1e-4
 niter=100
 seed=round(runif(1,min=0,max=1e9))
-system(sprintf('../build-release/comparison %d %d %f %d %d > res.txt',n,l,mu,niter,seed))
+system(sprintf('../build-release/comparison %d %d %f %d %d > res.txt',n,l,avg_bra_len,niter,seed))
 allres=read.table('res.txt',sep='\t',fill=T)
 trees=allres[seq(1,nrow(allres),2),1]
 allres=allres[seq(2,nrow(allres),2),]
@@ -14,8 +14,20 @@ system('rm res.txt')
 t=read.tree(text=trees[1])
 methods=c('pruning','joint','parsimony')
 colnames(allres)<-methods
-pdf('fig_compare.pdf',7,7)
+pdf('scripts/fig_compare.pdf',10,10)
+source('scripts/fig_label.R')
+par(mfrow=c(2,2),mai=c(0.7,0.7,0.7,0.7))
+plot(midpoint(read.tree(text=trees[1])))
+axisPhylo(1)
+fig_label('A',cex=2)
+plot(midpoint(read.tree(text=trees[2])))
+axisPhylo(1)
+fig_label('B',cex=2)
+plot(midpoint(read.tree(text=trees[3])))
+axisPhylo(1)
+fig_label('C',cex=2)
 plot(allres[,1],allres[,2],xlab='Unconditional likelihood',ylab='Conditional likelihood')
 abline(0,1)
+fig_label('D',cex=2)
 dev.off()
-system('open fig_compare.pdf')
+system('open scripts/fig_compare.pdf')
