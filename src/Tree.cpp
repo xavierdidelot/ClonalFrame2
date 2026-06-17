@@ -766,6 +766,7 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * sampled_dist, 
     size_t max=2*static_cast<int>(n)-3;
     vector dists=vector<double>(max+1,0.0);
     vector probs=vector<double>(max+1,0.0);
+    //Select the new brother which can be any node other than root, null node, moving, its father or its descendents
     for (size_t newb=0;newb<max;newb++) {
         Node*cur=nodes[newb];
         bool checked=true;
@@ -777,7 +778,7 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * sampled_dist, 
         if (checked) {
             int diffs=0;
             for (size_t pos=0;pos<ali->get_npat();pos++) {
-                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_father()->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
+                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
             }
             dists[newb]=(bra_len_prior_mean*100.0+diffs)/(100.0+ali->get_l());
             probs[newb]=pow((ali->get_l()*bra_len_prior_mean/(1.0+ali->get_l()*bra_len_prior_mean)),diffs);
@@ -785,15 +786,14 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * sampled_dist, 
     }
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
     *newbro=dist(rng);
-    size_t oldf=nodes[moving]->get_father()->get_index();
-    size_t oldbro=nodes[oldf]->get_left()->get_index();
-    if (oldbro==moving) oldbro=nodes[oldf]->get_right()->get_index();
-    //*newbro=oldbro;
+    size_t oldbro=nodes[moving]->get_brother()->get_index();
+    //*newbro=oldbro;//To remove: forces the regrafting to be on the same branch as before
     double selected_dist=dists[*newbro];//This is the selected distance
     double shape=3.0;
     double scale=selected_dist/shape;
     std::gamma_distribution<double> rgamma(shape, scale);
     *sampled_dist=rgamma(rng);
+    //*sampled_dist=nodes[moving]->get_dist_father();//To remove: forces branch above moving to remain of the same length
     double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
     double q=0.0;
     q+=log(probs[*newbro]/sum);//This is the probability of having selected newbro
@@ -802,7 +802,7 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * sampled_dist, 
     if (*newbro==oldbro) m=nodes[*newbro]->get_dist_father()+nodes[*newbro]->get_father()->get_dist_father();
     std::uniform_real_distribution unifm(0.0,m);
     *sampled_graft_loc=unifm(rng);
-    //*sampled_graft_loc=nodes[*newbro]->get_father()->get_dist_father();
+    //*sampled_graft_loc=nodes[*newbro]->get_father()->get_dist_father();//To remove: forces the regrafting to be at the same point of the branch as before
     q+=-log(m);//Probability of new sampled_graft_loc
     return(q);
 }
@@ -816,11 +816,10 @@ double Tree::rSPR(string * name_moving) {
     while (checked==false) {
         moving=unif(rng);
         oldf=nodes[moving]->get_father()->get_index();
-        oldbro=nodes[oldf]->get_left()->get_index();
-        if (oldbro==moving) oldbro=nodes[oldf]->get_right()->get_index();
+        oldbro=nodes[moving]->get_brother()->get_index();
         if (oldbro<=2*n-4) checked=true;
     }
-    //Next select the new brother which can be any node other than root, null node, moving or its descendents
+    //Next select where and how to regraft
     double sampled_dist,sampled_graft_loc;
     size_t newbro;
     double q=select_rSPR(moving, &newbro, &sampled_dist, &sampled_graft_loc);
@@ -858,8 +857,7 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     while (this->nodes[moving]->get_name()!=name_moving) moving++;
     size_t moving2=0;
     while (tree2->nodes[moving2]->get_name()!=name_moving) moving2++;
-    string name_newbro=tree2->nodes[moving2]->get_father()->get_left()->get_name();
-    if (name_newbro==name_moving) name_newbro=tree2->nodes[moving2]->get_father()->get_right()->get_name();
+    string name_newbro=tree2->nodes[moving2]->get_brother()->get_name();
     size_t newbro=0;
     while (this->nodes[newbro]->get_name()!=name_newbro) newbro++;
     double sampled_dist=tree2->nodes[moving2]->get_dist_father();
@@ -879,7 +877,7 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
         if (checked) {
             int diffs=0;
             for (size_t pos=0;pos<ali->get_npat();pos++) {
-                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_father()->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
+                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
             }
             dists[newb]=(bra_len_prior_mean*100.0+diffs)/(100.0+ali->get_l());
             probs[newb]=pow((ali->get_l()*bra_len_prior_mean/(1.0+ali->get_l()*bra_len_prior_mean)),diffs);
@@ -892,9 +890,7 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     double scale=selected_dist/shape;
     q+=(shape - 1.0) * log(sampled_dist) - sampled_dist / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
     double m=nodes[newbro]->get_dist_father();
-    size_t oldf=nodes[moving]->get_father()->get_index();
-    size_t oldbro=nodes[oldf]->get_left()->get_index();
-    if (oldbro==moving) oldbro=nodes[oldf]->get_right()->get_index();
+    size_t oldbro=nodes[moving]->get_brother()->get_index();
     if (newbro==oldbro) m=nodes[newbro]->get_dist_father()+nodes[newbro]->get_father()->get_dist_father();
     q+=-log(m);//Probability of new sampled_graft_loc
     if (profiling) Profiler::prof.stop(__func__);

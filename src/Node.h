@@ -31,6 +31,12 @@ public:
     void set_right(Node * r) {right = r;}
     ///Return father node
     Node * get_father() {return father;}
+    ///Return brother of a node
+    Node * get_brother() {
+        Node * b=get_father()->get_left();
+        if (b==this) b=get_father()->get_right();
+        return b;
+    }
     ///Set father node
     void set_father(Node * f) {father=f;};
     ///Return distance to father

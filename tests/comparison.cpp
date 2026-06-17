@@ -6,6 +6,7 @@
 //This script compares the likelihood estimated using several approximations
 //Arguments are n, l, mu, niter, seed
 int main(int argc, const char *argv[]) {
+    if (argc<6) return 0;
     int n=std::stoi(argv[1]);
     int l=std::stoi(argv[2]);
     double avg_bra_len=std::stof(argv[3]);
