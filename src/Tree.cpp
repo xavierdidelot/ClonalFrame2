@@ -762,9 +762,8 @@ Tree * Tree::copy_tree(Tree * t) {
     return t2;
 }
 
-double Tree::select_rSPR(size_t moving, size_t * newbro, double * sampled_dist, double * sampled_graft_loc) {
+double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f, double * b) {
     size_t max=2*static_cast<int>(n)-3;
-    vector dists=vector<double>(max+1,0.0);
     vector probs=vector<double>(max+1,0.0);
     //Select the new brother which can be any node other than root, null node, moving, its father or its descendents
     for (size_t newb=0;newb<max;newb++) {
@@ -780,36 +779,31 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * sampled_dist, 
             for (size_t pos=0;pos<ali->get_npat();pos++) {
                 if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
             }
-            dists[newb]=(bra_len_prior_mean*100.0+diffs)/(100.0+ali->get_l());
             probs[newb]=pow((ali->get_l()*bra_len_prior_mean/(1.0+ali->get_l()*bra_len_prior_mean)),diffs);
         }
     }
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
     *newbro=dist(rng);
-    size_t oldbro=nodes[moving]->get_brother()->get_index();
-    //*newbro=oldbro;//To remove: forces the regrafting to be on the same branch as before
-    double selected_dist=dists[*newbro];//This is the selected distance
+    //*newbro=nodes[moving]->get_brother()->get_index();//To remove: forces the regrafting to be on the same branch as before
     double shape=3.0;
-    double scale=selected_dist/shape;
+    double scale=bra_len_prior_mean/shape;
     std::gamma_distribution<double> rgamma(shape, scale);
-    *sampled_dist=rgamma(rng);
-    //*sampled_dist=nodes[moving]->get_dist_father();//To remove: forces branch above moving to remain of the same length
+    *m=rgamma(rng);
+    *f=rgamma(rng);
+    *b=rgamma(rng);
     double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
     double q=0.0;
     q+=log(probs[*newbro]/sum);//This is the probability of having selected newbro
-    q+=(shape - 1.0) * log(*sampled_dist) - *sampled_dist / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
-    double m=nodes[*newbro]->get_dist_father();
-    if (*newbro==oldbro) m=nodes[*newbro]->get_dist_father()+nodes[*newbro]->get_father()->get_dist_father();
-    std::uniform_real_distribution unifm(0.0,m);
-    *sampled_graft_loc=unifm(rng);
-    //*sampled_graft_loc=nodes[*newbro]->get_father()->get_dist_father();//To remove: forces the regrafting to be at the same point of the branch as before
-    q+=-log(m);//Probability of new sampled_graft_loc
+    q+=(shape - 1.0) * log(*m) - *m / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
+    q+=(shape - 1.0) * log(*f) - *f / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
+    q+=(shape - 1.0) * log(*b) - *b / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
     return(q);
 }
 
 double Tree::rSPR(string * name_moving) {
+    if (n==3) return 0;
     if (profiling) Profiler::prof.start(__func__);
-    //First select which node is moving, which can be any node other than the root or null node
+    //First select which node is moving, which can be any node other than the root, the null node and their three descendents
     std::uniform_int_distribution unif(0,2*static_cast<int>(n)-4);//qratio unchanged
     size_t moving,oldf,oldbro;
     bool checked=false;//check that oldbro is not null node, otherwise problem for reverse move
@@ -817,33 +811,28 @@ double Tree::rSPR(string * name_moving) {
         moving=unif(rng);
         oldf=nodes[moving]->get_father()->get_index();
         oldbro=nodes[moving]->get_brother()->get_index();
-        if (oldbro<=2*n-4) checked=true;
+        if (oldf<=2*n-4 && oldbro<=2*n-4) checked=true;
     }
     //Next select where and how to regraft
-    double sampled_dist,sampled_graft_loc;
+    double m,f,b;
     size_t newbro;
-    double q=select_rSPR(moving, &newbro, &sampled_dist, &sampled_graft_loc);
-    double m=nodes[newbro]->get_dist_father();
-    if (newbro==oldbro) m=nodes[newbro]->get_dist_father()+nodes[newbro]->get_father()->get_dist_father();
+    double q=select_rSPR(moving, &newbro, &m, &f, &b);
     //Pruning
-    double d=nodes[oldbro]->get_dist_father();
-    if (nodes[oldf]->get_father()!=nullptr) {
-        d+=nodes[oldf]->get_dist_father();
-        int oldgf=nodes[oldf]->get_father()->get_index();
-        if (nodes[oldgf]->get_left()->get_index()!=oldf) nodes[oldgf]->set_right(nodes[oldbro]); else nodes[oldgf]->set_left(nodes[oldbro]);
-    }
+    double d=nodes[oldbro]->get_dist_father()+nodes[oldf]->get_dist_father();
+    int oldgf=nodes[oldf]->get_father()->get_index();
+    if (nodes[oldgf]->get_left()->get_index()==oldf) nodes[oldgf]->set_left(nodes[oldbro]); else nodes[oldgf]->set_right(nodes[oldbro]);
     nodes[oldbro]->set_father(nodes[oldf]->get_father());
     nodes[oldbro]->set_dist_father(d);
-    nodes[moving]->set_dist_father(sampled_dist);
+    nodes[moving]->set_dist_father(m);
     //Regrafting
     int newbrof=nodes[newbro]->get_father()->get_index();
     if (nodes[newbrof]->get_left()->get_index()!=newbro) nodes[newbrof]->set_right(nodes[oldf]); else nodes[newbrof]->set_left(nodes[oldf]);
     nodes[oldf]->set_father(nodes[newbro]->get_father());
-    nodes[oldf]->set_dist_father(sampled_graft_loc);
+    nodes[oldf]->set_dist_father(f);
     nodes[oldf]->set_left(nodes[moving]);
     nodes[oldf]->set_right(nodes[newbro]);
     nodes[newbro]->set_father(nodes[oldf]);
-    nodes[newbro]->set_dist_father(m-sampled_graft_loc);
+    nodes[newbro]->set_dist_father(b);
     //Update node matrix
     *name_moving=nodes[moving]->get_name();
     reorder();
@@ -852,6 +841,7 @@ double Tree::rSPR(string * name_moving) {
 }
 
 double Tree::lq_rSPR(Tree *tree2, string name_moving) {
+    if (n==3) return 0;
     if (profiling) Profiler::prof.start(__func__);
     size_t moving=0;
     while (this->nodes[moving]->get_name()!=name_moving) moving++;
@@ -860,11 +850,12 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     string name_newbro=tree2->nodes[moving2]->get_brother()->get_name();
     size_t newbro=0;
     while (this->nodes[newbro]->get_name()!=name_newbro) newbro++;
-    double sampled_dist=tree2->nodes[moving2]->get_dist_father();
+    double m=tree2->nodes[moving2]->get_dist_father();
+    double f=tree2->nodes[moving2]->get_father()->get_dist_father();
+    double b=tree2->nodes[moving2]->get_brother()->get_dist_father();
 
     double q=0.0;
     size_t max=2*static_cast<int>(n)-3;
-    vector dists=vector<double>(max+1,0.0);
     vector probs=vector<double>(max+1,0.0);
     for (size_t newb=0;newb<max;newb++) {
         Node*cur=nodes[newb];
@@ -879,20 +870,16 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
             for (size_t pos=0;pos<ali->get_npat();pos++) {
                 if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
             }
-            dists[newb]=(bra_len_prior_mean*100.0+diffs)/(100.0+ali->get_l());
             probs[newb]=pow((ali->get_l()*bra_len_prior_mean/(1.0+ali->get_l()*bra_len_prior_mean)),diffs);
         }
     }
-    double selected_dist=dists[newbro];//This is the selected distance
     double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
     q+=log(probs[newbro]/sum);//This is the probability of having selected newbro
     double shape=3.0;
-    double scale=selected_dist/shape;
-    q+=(shape - 1.0) * log(sampled_dist) - sampled_dist / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
-    double m=nodes[newbro]->get_dist_father();
-    size_t oldbro=nodes[moving]->get_brother()->get_index();
-    if (newbro==oldbro) m=nodes[newbro]->get_dist_father()+nodes[newbro]->get_father()->get_dist_father();
-    q+=-log(m);//Probability of new sampled_graft_loc
+    double scale=bra_len_prior_mean/shape;
+    q+=(shape - 1.0) * log(m) - m / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
+    q+=(shape - 1.0) * log(f) - f / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
+    q+=(shape - 1.0) * log(b) - b / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
     if (profiling) Profiler::prof.stop(__func__);
     return q;
 }

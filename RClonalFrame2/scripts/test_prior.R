@@ -1,8 +1,8 @@
 # Testing that prior is sampled when no likelihood
 rm(list=ls())
-n=5#Number of sequences
+n=4#Number of sequences
 niter=1000#Number of iterations
-bra_len_prior_mean=1e-3#Mean of the exponential prior on branch lengths
+bra_len_prior_mean=1#Mean of the exponential prior on branch lengths
 x=run_cf2(simu_pars=c(n,0,bra_len_prior_mean,0,0,0,1),update_pars=c(1000,0,0,0),burn=0,iter=niter,thin=1,profile=T,bra_len_prior_mean = bra_len_prior_mean)
 
 trees=vector("list",niter)

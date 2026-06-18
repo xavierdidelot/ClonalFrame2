@@ -74,7 +74,7 @@ int main() {
     delete(t);
     t=Tree::random_tree(10,0.01);
     t->simulate_sequences(1000);
-    for (int i=0;i<100;i++) {
+    for (int i=0;i<1000;i++) {
         t2=Tree::copy_tree(t);
         string name_moving;
         double q1=t2->rSPR(&name_moving);

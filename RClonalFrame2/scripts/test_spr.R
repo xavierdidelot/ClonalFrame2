@@ -1,9 +1,10 @@
 #Testing that SPR gives uniform distribution of topologies
+library(RClonalFrame2)
 rm(list=ls())
 n=4#Number of sequences
 niter=1000#Number of iterations
 seed=round(runif(1,min=0,max=1e9))
-system(sprintf('../build-release/test_spr %d %d %d > res.txt',n,niter,seed))
+system(sprintf('../build-debug/test_spr %d %d %d > res.txt',n,niter,seed))
 trees=read.tree('res.txt')
 system('rm res.txt')
 clusters=rep(0,length(trees))
@@ -17,4 +18,4 @@ for (i in seq_along(trees)) {
 }
 counts=table(clusters)
 print(counts)
-print(chisq.test(counts))
+if (n>3) print(chisq.test(counts))

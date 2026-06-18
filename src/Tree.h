@@ -79,7 +79,7 @@ public:
     ///Perform SPR move and return log of the proposal probability
     double rSPR(string * name_moving);
     ///Select new bro for SPR move
-    double select_rSPR(size_t moving, size_t * newbro, double * selected_dist, double * sampled_graft_loc);
+    double select_rSPR(size_t moving, size_t * newbro, double * m, double * f, double * b);
     ///Tree prior
     double prior();
     ///Probability of proposing from this to tree, given name of moving node
