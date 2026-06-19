@@ -10,7 +10,7 @@
 #' @param profile Whether to activate the profiler
 #' @param verbose Whether to activate verbose mode
 #' @param simu_pars Vector containing the seven simulation parameters
-#' @param update_pars Vector containing the four per-iteration update numbers
+#' @param update_pars Vector containing the five per-iteration update numbers
 #' @param path Path to ClonalFrame2 executable
 #' @returns Object of class cf2out
 #' @export
@@ -34,7 +34,7 @@ run_cf2 <- function(inputfile,outputfile,burn,iter,thin,seed,ncpu,bra_len_prior_
   if (!missing(profile) && profile) args=sprintf('%s -p ',args)
   if (!missing(verbose) && verbose) args=sprintf('%s -v ',args)
   if (!missing(simu_pars)) args=sprintf('%s -S %d,%d,%f,%f,%f,%f,%d ',args,simu_pars[1],simu_pars[2],simu_pars[3],simu_pars[4],simu_pars[5],simu_pars[6],simu_pars[7])
-  if (!missing(update_pars)) args=sprintf('%s -U %d,%d,%d,%d ',args,update_pars[1],update_pars[2],update_pars[3],update_pars[4])
+  if (!missing(update_pars)) args=sprintf('%s -U %d,%d,%d,%d,%s ',args,update_pars[1],update_pars[2],update_pars[3],update_pars[4],update_pars[5])
   message('Compiling if possible and needed...')
   if (file.exists(sprintf('%s/Makefile',path))) system(sprintf('make -C %s',path))
   message('Running ClonalFrame2...')

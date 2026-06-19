@@ -785,7 +785,7 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
     *newbro=dist(rng);
     //*newbro=nodes[moving]->get_brother()->get_index();//To remove: forces the regrafting to be on the same branch as before
-    double shape=3.0;
+    double shape=1.0;
     double scale=bra_len_prior_mean/shape;
     std::gamma_distribution<double> rgamma(shape, scale);
     *m=rgamma(rng);
@@ -803,10 +803,10 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
 double Tree::rSPR(string * name_moving) {
     if (n==3) return 0;
     if (profiling) Profiler::prof.start(__func__);
-    //First select which node is moving, which can be any node other than the root, the null node and their three descendents
-    std::uniform_int_distribution unif(0,2*static_cast<int>(n)-4);//qratio unchanged
+    //First select which node is moving, which can be any node other than the root, the null node and their three children
+    std::uniform_int_distribution unif(0,2*static_cast<int>(n)-4);
     size_t moving,oldf,oldbro;
-    bool checked=false;//check that oldbro is not null node, otherwise problem for reverse move
+    bool checked=false;
     while (checked==false) {
         moving=unif(rng);
         oldf=nodes[moving]->get_father()->get_index();
@@ -819,14 +819,14 @@ double Tree::rSPR(string * name_moving) {
     double q=select_rSPR(moving, &newbro, &m, &f, &b);
     //Pruning
     double d=nodes[oldbro]->get_dist_father()+nodes[oldf]->get_dist_father();
-    int oldgf=nodes[oldf]->get_father()->get_index();
-    if (nodes[oldgf]->get_left()->get_index()==oldf) nodes[oldgf]->set_left(nodes[oldbro]); else nodes[oldgf]->set_right(nodes[oldbro]);
+    Node * oldgf=nodes[oldf]->get_father();
+    if (oldgf->get_left()->get_index()==oldf) oldgf->set_left(nodes[oldbro]); else oldgf->set_right(nodes[oldbro]);
     nodes[oldbro]->set_father(nodes[oldf]->get_father());
     nodes[oldbro]->set_dist_father(d);
     nodes[moving]->set_dist_father(m);
     //Regrafting
-    int newbrof=nodes[newbro]->get_father()->get_index();
-    if (nodes[newbrof]->get_left()->get_index()!=newbro) nodes[newbrof]->set_right(nodes[oldf]); else nodes[newbrof]->set_left(nodes[oldf]);
+    Node * newbrof=nodes[newbro]->get_father();
+    if (newbrof->get_left()->get_index()!=newbro) newbrof->set_right(nodes[oldf]); else newbrof->set_left(nodes[oldf]);
     nodes[oldf]->set_father(nodes[newbro]->get_father());
     nodes[oldf]->set_dist_father(f);
     nodes[oldf]->set_left(nodes[moving]);
@@ -875,7 +875,7 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     }
     double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
     q+=log(probs[newbro]/sum);//This is the probability of having selected newbro
-    double shape=3.0;
+    double shape=1.0;
     double scale=bra_len_prior_mean/shape;
     q+=(shape - 1.0) * log(m) - m / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
     q+=(shape - 1.0) * log(f) - f / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance

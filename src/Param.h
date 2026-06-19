@@ -48,6 +48,7 @@ private:
     int update_rho;
     int update_delta;
     int update_nu;
+    int update_lengths;
 };
 
 

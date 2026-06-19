@@ -1,9 +1,10 @@
 # Testing that prior is sampled when no likelihood
 rm(list=ls())
-n=4#Number of sequences
+n=100#Number of sequences
+topology_test=(n<10)#Slow if n>10
 niter=1000#Number of iterations
 bra_len_prior_mean=1#Mean of the exponential prior on branch lengths
-x=run_cf2(simu_pars=c(n,0,bra_len_prior_mean,0,0,0,1),update_pars=c(1000,0,0,0),burn=0,iter=niter,thin=1,profile=T,bra_len_prior_mean = bra_len_prior_mean)
+x=run_cf2(simu_pars=c(n,0,bra_len_prior_mean,0,0,0,1),update_pars=c(100,0,0,0,0),burn=0,iter=niter,thin=1,profile=T,bra_len_prior_mean = bra_len_prior_mean)
 
 trees=vector("list",niter)
 b1=rep(0,niter)
@@ -14,18 +15,20 @@ for (i in 1:niter) {
   b1[i]=trees[[i]]$edge.length[w]
 }
 
-clusters=rep(0,length(trees))
-reps=vector('list',length(trees))
-k=0
-for (i in seq_along(trees)) {
-  assigned=FALSE
-  if (k>0) for (j in 1:k)
-    if (phangorn::RF.dist(trees[[i]], reps[[j]]) == 0) {clusters[i]=j;assigned=TRUE;break}
-  if (!assigned) {k=k+1;reps[[k]]=trees[[i]];clusters[i]=k}
+if (topology_test) {
+  clusters=rep(0,length(trees))
+  reps=vector('list',length(trees))
+  k=0
+  for (i in seq_along(trees)) {
+    assigned=FALSE
+    if (k>0) for (j in 1:k)
+      if (phangorn::RF.dist(trees[[i]], reps[[j]]) == 0) {clusters[i]=j;assigned=TRUE;break}
+    if (!assigned) {k=k+1;reps[[k]]=trees[[i]];clusters[i]=k}
+  }
+  counts=table(clusters)
+  print(counts)
+  if (length(counts)>1) print(chisq.test(counts))
 }
-counts=table(clusters)
-print(counts)
-if (n>3) print(chisq.test(counts))
 
 trees2=vector("list",niter)
 b2=rep(0,niter)

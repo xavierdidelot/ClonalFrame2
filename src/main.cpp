@@ -25,7 +25,7 @@ static string helptxt =
                 length of sequences, mean branch length, rho, delta, nu
                 and whether to start from the correct parameters
     -U STR      Indicates number of updates to use per iteration for each move
-                STR is 4 int values for tree, rho, delta and nu updates
+                STR is 5 int values for tree, rho, delta, nu and lengths updates
     -p          Activate profiler
     -v          Verbose mode
     -h          Show help
@@ -42,7 +42,7 @@ int main(int argc, const char *argv[]) {
     string infile="";
     string outfile="";
     string simu_str="";
-    string update_str="1,1,1,1";
+    string update_str="1,1,1,1,1";
     vector<string> remainder;
     bool help=false;
     while (i < argc) {

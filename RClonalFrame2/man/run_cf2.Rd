@@ -43,7 +43,7 @@ run_cf2(
 
 \item{simu_pars}{Vector containing the seven simulation parameters}
 
-\item{update_pars}{Vector containing the four per-iteration update numbers}
+\item{update_pars}{Vector containing the five per-iteration update numbers}
 
 \item{path}{Path to ClonalFrame2 executable}
 }
