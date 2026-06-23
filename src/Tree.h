@@ -88,7 +88,9 @@ public:
     static inline double dgamma(double x,double shape,double scale)
         {return (shape - 1.0) * log(x) - x / scale - shape * log(scale) - lgamma(shape);}
     ///Determine the shape and scale parameters of the gamma distribution for the length of a branch
-    void determine_shape_scale(double * shape, double * scale);
+    void determine_shape_scale(double diffs, double * shape, double * scale);
+    ///Count number of differences between ancestral sequences of two nodes
+    int count_diffs(Node * n1, Node * n2);
 
 private:
     Tree() = default;

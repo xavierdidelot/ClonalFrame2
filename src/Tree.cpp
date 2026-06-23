@@ -775,38 +775,48 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
         }
         if (newb==nodes[moving]->get_father()->get_index()) checked=false;
         if (checked) {
-            int diffs=0;
-            for (size_t pos=0;pos<ali->get_npat();pos++) {
-                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
-            }
+            int diffs=count_diffs(nodes[moving],nodes[newb]);
             probs[newb]=pow((ali->get_l()*bra_len_prior_mean/(1.0+ali->get_l()*bra_len_prior_mean)),diffs);
         }
     }
+    size_t oldbro=nodes[moving]->get_brother()->get_index();
+    double sum_minus_old = std::accumulate(probs.begin(), probs.end(), 0.0)-probs[oldbro];
+    if (sum_minus_old>0.0) {
+        for (double &x : probs) x /= sum_minus_old*2.0;
+        probs[oldbro]=0.5;
+    } else probs[oldbro]=1.0;
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
     *newbro=dist(rng);
-    //*newbro=nodes[moving]->get_brother()->get_index();//To remove: forces the regrafting to be on the same branch as before
-    double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
-    double q=log(probs[*newbro]/sum);//This is the probability of having selected newbro
+    //*newbro=oldbro;//Use only for testing: forces the regrafting to be on the same branch as before
+    double q=log(probs[*newbro]);//This is the probability of having selected newbro
 
     double shape=1,scale=1;
+    double d1,d2,d3,dm,df,db;
+    d1=count_diffs(nodes[moving],nodes[*newbro]->get_father());
+    d2=count_diffs(nodes[moving],nodes[*newbro]);
+    d3=count_diffs(nodes[*newbro],nodes[*newbro]->get_father());
+    dm=(d1+d2-d3)/2.0;
+    df=(d1+d3-d2)/2.0;
+    db=(d2+d3-d1)/2.0;
     std::gamma_distribution<double> rgamma(shape, scale);
-    determine_shape_scale(&shape,&scale);
+    determine_shape_scale(dm,&shape,&scale);
     rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
     *m=rgamma(rng);
     q+=dgamma(*m,shape,scale);//This is the dgamma probability of the new distance m
 
-    determine_shape_scale(&shape,&scale);
+    determine_shape_scale(df,&shape,&scale);
     rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
     *f=rgamma(rng);
     q+=dgamma(*f,shape,scale);//This is the dgamma probability of the new distance f
 
-    determine_shape_scale(&shape,&scale);
+    determine_shape_scale(db,&shape,&scale);
     rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
     *b=rgamma(rng);
     q+=dgamma(*b,shape,scale);//This is the dgamma probability of the new distance b
 
     if (*newbro!=nodes[moving]->get_brother()->get_index()) {
-        determine_shape_scale(&shape,&scale);
+        int diffs=count_diffs(nodes[moving]->get_brother(),nodes[moving]->get_father()->get_father());
+        determine_shape_scale(diffs,&shape,&scale);
         rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
         *d=rgamma(rng);
         q+=dgamma(*d,shape,scale);//This is the dgamma probability of the new distance d
@@ -885,31 +895,52 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
         }
         if (newb==nodes[moving]->get_father()->get_index()) checked=false;
         if (checked) {
-            int diffs=0;
-            for (size_t pos=0;pos<ali->get_npat();pos++) {
-                if (!Alignment::nuc_is_currently_same(nodes[moving]->get_seq()->at(pos),nodes[newb]->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
-            }
+            int diffs=count_diffs(nodes[moving],nodes[newb]);
             probs[newb]=pow((ali->get_l()*bra_len_prior_mean/(1.0+ali->get_l()*bra_len_prior_mean)),diffs);
         }
     }
-    double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
-    q+=log(probs[newbro]/sum);//This is the probability of having selected newbro
+    double sum_minus_old = std::accumulate(probs.begin(), probs.end(), 0.0)-probs[oldbro];
+    if (sum_minus_old>0.0) {
+        for (double &x : probs) x /= sum_minus_old*2.0;
+        probs[oldbro]=0.5;
+    } else probs[oldbro]=1.0;
+    q+=log(probs[newbro]);//This is the probability of having selected newbro
     double shape,scale;
-    determine_shape_scale(&shape,&scale);
+    double d1,d2,d3,dm,df,db;
+    d1=count_diffs(nodes[moving],nodes[newbro]->get_father());
+    d2=count_diffs(nodes[moving],nodes[newbro]);
+    d3=count_diffs(nodes[newbro],nodes[newbro]->get_father());
+    dm=(d1+d2-d3)/2.0;
+    df=(d1+d3-d2)/2.0;
+    db=(d2+d3-d1)/2.0;
+    determine_shape_scale(dm,&shape,&scale);
     q+=dgamma(m,shape,scale);//This is the dgamma probability of the new distance m
-    determine_shape_scale(&shape,&scale);
+    determine_shape_scale(df,&shape,&scale);
     q+=dgamma(f,shape,scale);//This is the dgamma probability of the new distance f
-    determine_shape_scale(&shape,&scale);
+    determine_shape_scale(db,&shape,&scale);
     q+=dgamma(b,shape,scale);//This is the dgamma probability of the new distance b
     if (nodes[newbro]->get_name()!=nodes[oldbro]->get_name()) {
-        determine_shape_scale(&shape,&scale);
+        int diffs=count_diffs(nodes[oldbro],nodes[oldbro]->get_father()->get_father());
+        determine_shape_scale(diffs,&shape,&scale);
         q+=dgamma(d,shape,scale);//This is the dgamma probability of the new distance d
     }
     if (profiling) Profiler::prof.stop(__func__);
     return q;
 }
 
-void Tree::determine_shape_scale(double *shape, double *scale) {
-    *shape=2.0;
-    *scale=bra_len_prior_mean/(*shape);
+void Tree::determine_shape_scale(double diffs, double *shape, double *scale) {
+    double d=0.0;
+    if (ali->get_l()>0) d=-0.75*std::log(1.0-4.0/3.0*diffs/ali->get_l());
+    double ediffs=d*ali->get_l();
+    double coef=1.0+0.5*ali->get_l()/1e5;
+    *shape=1.0+ediffs/coef;
+    *scale=bra_len_prior_mean/(ali->get_l()/coef*bra_len_prior_mean+1.0);
+}
+
+int Tree::count_diffs(Node *n1, Node *n2) {
+    int diffs=0;
+    for (size_t pos=0;pos<ali->get_npat();pos++) {
+        if (!Alignment::nuc_is_currently_same(n1->get_seq()->at(pos),n2->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
+    }
+    return(diffs);
 }
