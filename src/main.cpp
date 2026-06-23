@@ -25,7 +25,7 @@ static string helptxt =
                 length of sequences, mean branch length, rho, delta, nu
                 and whether to start from the correct parameters
     -U STR      Indicates number of updates to use per iteration for each move
-                STR is 5 int values for tree, rho, delta, nu and lengths updates
+                STR is 5 int values for rho, delta, nu, lengths and SPR
     -p          Activate profiler
     -v          Verbose mode
     -h          Show help

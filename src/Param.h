@@ -44,11 +44,11 @@ private:
     double ll;
     double tree_prior;
     vector<double> paccepted;
-    int update_tree;
     int update_rho;
     int update_delta;
     int update_nu;
     int update_lengths;
+    int update_spr;
 };
 
 

@@ -1,11 +1,11 @@
 # Testing that prior is sampled when no likelihood
 rm(list=ls())
 library(RClonalFrame2)
-n=100#Number of sequences
+n=10#Number of sequences
 topology_test=(n<10)#Slow if n>10
 niter=1000#Number of iterations
 bra_len_prior_mean=1#Mean of the exponential prior on branch lengths
-x=run_cf2(simu_pars=c(n,0,bra_len_prior_mean,0,0,0,1),update_pars=c(100,0,0,0,0),burn=0,iter=niter,thin=1,profile=T,bra_len_prior_mean = bra_len_prior_mean)
+x=run_cf2(simu_pars=c(n,0,bra_len_prior_mean,0,0,0,1),update_pars=c(0,0,0,0,100),burn=0,iter=niter,thin=1,profile=T,bra_len_prior_mean = bra_len_prior_mean)
 
 trees=vector("list",niter)
 b1=rep(0,niter)
