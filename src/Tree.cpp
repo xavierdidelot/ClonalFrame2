@@ -762,7 +762,7 @@ Tree * Tree::copy_tree(Tree * t) {
     return t2;
 }
 
-double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f, double * b) {
+double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f, double * b, double * d) {
     size_t max=2*static_cast<int>(n)-3;
     vector probs=vector<double>(max+1,0.0);
     //Select the new brother which can be any node other than root, null node, moving, its father or its descendents
@@ -785,18 +785,32 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
     *newbro=dist(rng);
     //*newbro=nodes[moving]->get_brother()->get_index();//To remove: forces the regrafting to be on the same branch as before
-    double shape=1.0;
-    double scale=bra_len_prior_mean/shape;
-    std::gamma_distribution<double> rgamma(shape, scale);
-    *m=rgamma(rng);
-    *f=rgamma(rng);
-    *b=rgamma(rng);
     double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
-    double q=0.0;
-    q+=log(probs[*newbro]/sum);//This is the probability of having selected newbro
-    q+=(shape - 1.0) * log(*m) - *m / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
-    q+=(shape - 1.0) * log(*f) - *f / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
-    q+=(shape - 1.0) * log(*b) - *b / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
+    double q=log(probs[*newbro]/sum);//This is the probability of having selected newbro
+
+    double shape=1,scale=1;
+    std::gamma_distribution<double> rgamma(shape, scale);
+    determine_shape_scale(&shape,&scale);
+    rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
+    *m=rgamma(rng);
+    q+=dgamma(*m,shape,scale);//This is the dgamma probability of the new distance m
+
+    determine_shape_scale(&shape,&scale);
+    rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
+    *f=rgamma(rng);
+    q+=dgamma(*f,shape,scale);//This is the dgamma probability of the new distance f
+
+    determine_shape_scale(&shape,&scale);
+    rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
+    *b=rgamma(rng);
+    q+=dgamma(*b,shape,scale);//This is the dgamma probability of the new distance b
+
+    if (*newbro!=nodes[moving]->get_brother()->get_index()) {
+        determine_shape_scale(&shape,&scale);
+        rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
+        *d=rgamma(rng);
+        q+=dgamma(*d,shape,scale);//This is the dgamma probability of the new distance d
+    }
     return(q);
 }
 
@@ -814,11 +828,10 @@ double Tree::rSPR(string * name_moving) {
         if (oldf<=2*n-4 && oldbro<=2*n-4) checked=true;
     }
     //Next select where and how to regraft
-    double m,f,b;
+    double m,f,b,d;
     size_t newbro;
-    double q=select_rSPR(moving, &newbro, &m, &f, &b);
+    double q=select_rSPR(moving, &newbro, &m, &f, &b, &d);
     //Pruning
-    double d=nodes[oldbro]->get_dist_father()+nodes[oldf]->get_dist_father();
     Node * oldgf=nodes[oldf]->get_father();
     if (oldgf->get_left()->get_index()==oldf) oldgf->set_left(nodes[oldbro]); else oldgf->set_right(nodes[oldbro]);
     nodes[oldbro]->set_father(nodes[oldf]->get_father());
@@ -850,9 +863,15 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     string name_newbro=tree2->nodes[moving2]->get_brother()->get_name();
     size_t newbro=0;
     while (this->nodes[newbro]->get_name()!=name_newbro) newbro++;
+    string name_oldbro=this->nodes[moving]->get_brother()->get_name();
+    size_t oldbro2=0;
+    while (tree2->nodes[oldbro2]->get_name()!=name_oldbro) oldbro2++;
+    size_t oldbro=0;
+    while (this->nodes[oldbro]->get_name()!=name_oldbro) oldbro++;
     double m=tree2->nodes[moving2]->get_dist_father();
     double f=tree2->nodes[moving2]->get_father()->get_dist_father();
     double b=tree2->nodes[moving2]->get_brother()->get_dist_father();
+    double d=tree2->nodes[oldbro2]->get_dist_father();
 
     double q=0.0;
     size_t max=2*static_cast<int>(n)-3;
@@ -875,11 +894,22 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     }
     double sum = std::accumulate(probs.begin(), probs.end(), 0.0);
     q+=log(probs[newbro]/sum);//This is the probability of having selected newbro
-    double shape=1.0;
-    double scale=bra_len_prior_mean/shape;
-    q+=(shape - 1.0) * log(m) - m / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
-    q+=(shape - 1.0) * log(f) - f / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
-    q+=(shape - 1.0) * log(b) - b / scale - shape * log(scale) - lgamma(shape);//This is the dgamma probability of the new distance
+    double shape,scale;
+    determine_shape_scale(&shape,&scale);
+    q+=dgamma(m,shape,scale);//This is the dgamma probability of the new distance m
+    determine_shape_scale(&shape,&scale);
+    q+=dgamma(f,shape,scale);//This is the dgamma probability of the new distance f
+    determine_shape_scale(&shape,&scale);
+    q+=dgamma(b,shape,scale);//This is the dgamma probability of the new distance b
+    if (nodes[newbro]->get_name()!=nodes[oldbro]->get_name()) {
+        determine_shape_scale(&shape,&scale);
+        q+=dgamma(d,shape,scale);//This is the dgamma probability of the new distance d
+    }
     if (profiling) Profiler::prof.stop(__func__);
     return q;
+}
+
+void Tree::determine_shape_scale(double *shape, double *scale) {
+    *shape=2.0;
+    *scale=bra_len_prior_mean/(*shape);
 }

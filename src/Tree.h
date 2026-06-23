@@ -79,11 +79,16 @@ public:
     ///Perform SPR move and return log of the proposal probability
     double rSPR(string * name_moving);
     ///Select new bro for SPR move
-    double select_rSPR(size_t moving, size_t * newbro, double * m, double * f, double * b);
+    double select_rSPR(size_t moving, size_t * newbro, double * m, double * f, double * b, double * d);
     ///Tree prior
     double prior();
     ///Probability of proposing from this to tree, given name of moving node
     double lq_rSPR(Tree *tree2, string name_moving);
+    ///dgamma function, returning log(pdf)
+    static inline double dgamma(double x,double shape,double scale)
+        {return (shape - 1.0) * log(x) - x / scale - shape * log(scale) - lgamma(shape);}
+    ///Determine the shape and scale parameters of the gamma distribution for the length of a branch
+    void determine_shape_scale(double * shape, double * scale);
 
 private:
     Tree() = default;

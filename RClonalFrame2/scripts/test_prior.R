@@ -1,5 +1,6 @@
 # Testing that prior is sampled when no likelihood
 rm(list=ls())
+library(RClonalFrame2)
 n=100#Number of sequences
 topology_test=(n<10)#Slow if n>10
 niter=1000#Number of iterations
