@@ -26,6 +26,8 @@ static string helptxt =
                 and whether to start from the correct parameters
     -U STR      Indicates number of updates to use per iteration for each move
                 STR is 5 int values for rho, delta, nu, lengths and SPR
+    -P STR      Indicates prior as 6 comma-separated values for mean and sd
+                of rho, delta and nu (default is 1,1,500,500,0.05,0.05)
     -p          Activate profiler
     -v          Verbose mode
     -h          Show help
@@ -43,6 +45,7 @@ int main(int argc, const char *argv[]) {
     string outfile="";
     string simu_str="";
     string update_str="1,1,1,1,1";
+    string prior_str="1,1,500,500,0.05,0.05";
     vector<string> remainder;
     bool help=false;
     while (i < argc) {
@@ -59,6 +62,7 @@ int main(int argc, const char *argv[]) {
                 case('b'):bra_len_prior_mean=std::stof(argv[++i]);break;
                 case('S'):simu_str=argv[++i];break;
                 case('U'):update_str=argv[++i];break;
+                case('P'):prior_str=argv[++i];break;
                 case('v'):verbose = true;break;
                 case('p'):profiling = true;break;
                 case('h'):help=true;break;
@@ -141,9 +145,9 @@ int main(int argc, const char *argv[]) {
         t->set_sequences(a);
         if (verbose) vprint("Starting from correct tree and parameters...");
         p=new Param(t);
-        p->set_rho(rho);
-        p->set_delta(delta);
-        p->set_nu(nu);
+        if (rho>0) p->set_rho(rho); else p->set_rho(1e-5);
+        if (delta>0) p->set_delta(delta); else p->set_delta(1e-5);
+        if (nu>0) p->set_nu(nu); else p->set_nu(1e-5);
     } else {
         delete t;
         if (verbose) vprint("Building initial tree...");
@@ -156,6 +160,7 @@ int main(int argc, const char *argv[]) {
     if (verbose) vprint("Performing initial ancestral reconstruction...");
     t->jointml();
     p->select_updates(update_str);
+    p->select_priors(prior_str);
     p->mcmc(burn, nbit, thin);
     t = p->get_tree();
     delete(a);

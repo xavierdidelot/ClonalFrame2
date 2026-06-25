@@ -802,24 +802,24 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
     determine_shape_scale(dm,&shape,&scale);
     rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
     *m=rgamma(rng);
-    q+=dgamma(*m,shape,scale);//This is the dgamma probability of the new distance m
+    q+=dgamma_shape_scale(*m,shape,scale);//This is the dgamma probability of the new distance m
 
     determine_shape_scale(df,&shape,&scale);
     rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
     *f=rgamma(rng);
-    q+=dgamma(*f,shape,scale);//This is the dgamma probability of the new distance f
+    q+=dgamma_shape_scale(*f,shape,scale);//This is the dgamma probability of the new distance f
 
     determine_shape_scale(db,&shape,&scale);
     rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
     *b=rgamma(rng);
-    q+=dgamma(*b,shape,scale);//This is the dgamma probability of the new distance b
+    q+=dgamma_shape_scale(*b,shape,scale);//This is the dgamma probability of the new distance b
 
     if (*newbro!=nodes[moving]->get_brother()->get_index()) {
         int diffs=count_diffs(nodes[moving]->get_brother(),nodes[moving]->get_father()->get_father());
         determine_shape_scale(diffs,&shape,&scale);
         rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
         *d=rgamma(rng);
-        q+=dgamma(*d,shape,scale);//This is the dgamma probability of the new distance d
+        q+=dgamma_shape_scale(*d,shape,scale);//This is the dgamma probability of the new distance d
     }
     return(q);
 }
@@ -914,15 +914,15 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     df=(d1+d3-d2)/2.0;
     db=(d2+d3-d1)/2.0;
     determine_shape_scale(dm,&shape,&scale);
-    q+=dgamma(m,shape,scale);//This is the dgamma probability of the new distance m
+    q+=dgamma_shape_scale(m,shape,scale);//This is the dgamma probability of the new distance m
     determine_shape_scale(df,&shape,&scale);
-    q+=dgamma(f,shape,scale);//This is the dgamma probability of the new distance f
+    q+=dgamma_shape_scale(f,shape,scale);//This is the dgamma probability of the new distance f
     determine_shape_scale(db,&shape,&scale);
-    q+=dgamma(b,shape,scale);//This is the dgamma probability of the new distance b
+    q+=dgamma_shape_scale(b,shape,scale);//This is the dgamma probability of the new distance b
     if (nodes[newbro]->get_name()!=nodes[oldbro]->get_name()) {
         int diffs=count_diffs(nodes[oldbro],nodes[oldbro]->get_father()->get_father());
         determine_shape_scale(diffs,&shape,&scale);
-        q+=dgamma(d,shape,scale);//This is the dgamma probability of the new distance d
+        q+=dgamma_shape_scale(d,shape,scale);//This is the dgamma probability of the new distance d
     }
     if (profiling) Profiler::prof.stop(__func__);
     return q;

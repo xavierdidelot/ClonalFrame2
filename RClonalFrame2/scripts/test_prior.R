@@ -5,7 +5,7 @@ n=10#Number of sequences
 topology_test=(n<10)#Slow if n>10
 niter=1000#Number of iterations
 bra_len_prior_mean=1#Mean of the exponential prior on branch lengths
-x=run_cf2(simu_pars=c(n,0,bra_len_prior_mean,0,0,0,1),update_pars=c(0,0,0,0,100),burn=0,iter=niter,thin=1,profile=T,bra_len_prior_mean = bra_len_prior_mean)
+x=run_cf2(simu_pars=c(n,0,bra_len_prior_mean,0,0,0,1),update_pars=c(100,100,100,100,100),burn=0,iter=niter,thin=1,profile=T,bra_len_prior_mean = bra_len_prior_mean)
 
 trees=vector("list",niter)
 b1=rep(0,niter)
@@ -45,10 +45,10 @@ for (i in 1:niter) {
 }
 
 par(mfrow=c(3,3))
-plot(x$iterations[,'tree_prior'],main='Tree prior',type='l',xlab='',ylab='')
+plot(x$iterations[,'prior_tree'],main='Tree prior',type='l',xlab='',ylab='')
 plot(x$iterations[,'sum_bra_len'],main='Sum branch lengths',type='l',xlab='',ylab='')
 plot(b1,main='Branch length 1',type='l',xlab='',ylab='')
-hist(x$iterations[,'tree_prior'],main='Tree prior',xlab='',probability=T)
+hist(x$iterations[,'prior_tree'],main='Tree prior',xlab='',probability=T)
 hist(x$iterations[,'sum_bra_len'],main='Sum branch lengths',xlab='',probability=T)
 xs=seq(0,max(x$iterations[,'sum_bra_len']),length.out=1000)
 lines(xs,dgamma(xs,shape=2*n-3,rate=1/bra_len_prior_mean))
@@ -56,9 +56,29 @@ hist(b1,main='Branch length 1',xlab='',probability=T)
 xs=seq(0,max(b1),length.out=1000)
 lines(xs,dexp(xs,rate=1/bra_len_prior_mean))
 
-qqplot(p2,x$iterations[,'tree_prior'],xlab='rtree',ylab='CF2 prior')
+qqplot(p2,x$iterations[,'prior_tree'],xlab='rtree',ylab='CF2 prior')
 abline(0, 1, col = 2, lty = 2)
 qqplot(s2,x$iterations[,'sum_bra_len'],xlab='rtree',ylab='CF2 prior')
 abline(0, 1, col = 2, lty = 2)
 qqplot(b2,b1,xlab='rtree',ylab='CF2 prior')
+abline(0, 1, col = 2, lty = 2)
+
+par(mfrow=c(3,3))
+plot(x$iterations[,'rho'],main='Rho',type='l',xlab='',ylab='')
+plot(x$iterations[,'delta'],main='Delta',type='l',xlab='',ylab='')
+plot(x$iterations[,'nu'],main='Nu',type='l',xlab='',ylab='')
+hist(x$iterations[,'rho'],main='Rho',xlab='',probability=T)
+xs=seq(0,max(x$iterations[,'rho']),length.out=1000)
+lines(xs,dexp(xs,1))
+hist(x$iterations[,'delta'],main='Delta',xlab='',probability=T)
+xs=seq(0,max(x$iterations[,'delta']),length.out=1000)
+lines(xs,dexp(xs,1/500))
+hist(x$iterations[,'nu'],main='Nu',xlab='',probability=T)
+xs=seq(0,max(x$iterations[,'nu']),length.out=1000)
+lines(xs,dexp(xs,1/0.05))
+qqplot(rexp(nrow(x$iterations),1),x$iterations[,'rho'],xlab='rexp',ylab='CF2 prior')
+abline(0, 1, col = 2, lty = 2)
+qqplot(rexp(nrow(x$iterations),1/500),x$iterations[,'delta'],xlab='rexp',ylab='CF2 prior')
+abline(0, 1, col = 2, lty = 2)
+qqplot(rexp(nrow(x$iterations),1/0.05),x$iterations[,'nu'],xlab='rexp',ylab='CF2 prior')
 abline(0, 1, col = 2, lty = 2)

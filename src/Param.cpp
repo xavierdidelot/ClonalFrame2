@@ -14,6 +14,7 @@ Param::Param(Tree *t) {
     update_nu=1;
     update_lengths=1;
     update_spr=1;
+    prior_params={1,1,500,500,0.05,0.05};
 }
 
 Param::~Param() {
@@ -45,10 +46,13 @@ void Param::mcmc(int burn, int nbit, int thin) {
     tree->jointml();
     if (verbose) vprint("Performing initial likelihood computation...");
     ll=tree->likelihood_anc_rec(rho,delta,nu);
-    tree_prior=tree->prior();
+    prior_tree=tree->prior();
+    prior_rho=dgamma_mean_sd(rho,prior_params[0],prior_params[1]);
+    prior_delta=dgamma_mean_sd(delta,prior_params[2],prior_params[3]);
+    prior_nu=dgamma_mean_sd(nu,prior_params[4],prior_params[5]);
     double sdRho=0.1;
     double sdDelta=10.0;
-    double sdNu=1e-4;
+    double sdNu=1e-3;
     double sdLengths=bra_len_prior_mean*0.01;
     double acceptance_target=0.234;
     double acceptance_delta=1.0/acceptance_target/(1.0-acceptance_target);
@@ -70,17 +74,19 @@ void Param::mcmc(int burn, int nbit, int thin) {
             to_json_file();
         }
 
-        //#Adaptive MH move for rho using flat prior //Gamma(1e-3,1e3) prior
+        //#Adaptive MH move for rho using Gamma prior
         for (int rep=0;rep<update_rho;rep++) {
             rnorm.param(std::normal_distribution<double>::param_type(rho,sdRho));
             double rho2=std::fabs(rnorm(rng));
+            double prior_rho2=dgamma_mean_sd(rho2,prior_params[0],prior_params[1]);
             ll2=tree->likelihood_anc_rec(rho2,delta,nu);
-            mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
+            mh=ll2-ll+prior_rho2-prior_rho;
             if (log(runif(rng))<mh) {
                 paccepted[0]=(paccepted[0]*(i*update_rho+rep)+1)/(i*update_rho+rep+1);
                 if (verbose) vprint("Rho move accepted rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sdRho={:.2e} paccept={:.2f}",rho,rho2,ll,ll2,sdRho,paccepted[1]);
                 ll=ll2;
                 rho=rho2;
+                prior_rho=prior_rho2;
             } else {
                 paccepted[0]=(paccepted[0]*(i*update_rho+rep)+0)/(i*update_rho+rep+1);
                 if (verbose) vprint("Rho move rejected rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sdRho={:.2e} paccept={:.2f}",rho,rho2,ll,ll2,sdRho,paccepted[1]);
@@ -88,17 +94,19 @@ void Param::mcmc(int burn, int nbit, int thin) {
             sdRho=sdRho*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
         }
 
-        //#Adaptive MH move for delta using flat prior //Gamma(1e-3,1e3) prior
+        //#Adaptive MH move for delta using Gamma prior
         for (int rep=0;rep<update_delta;rep++) {
             rnorm.param(std::normal_distribution<double>::param_type(delta,sdDelta));
             double delta2=std::fabs(rnorm(rng));
+            double prior_delta2=dgamma_mean_sd(delta2,prior_params[2],prior_params[3]);
             ll2=tree->likelihood_anc_rec(rho,delta2,nu);
-            mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
+            mh=ll2-ll+prior_delta2-prior_delta;
             if (log(runif(rng))<mh) {
                 paccepted[1]=(paccepted[1]*(i*update_delta+rep)+1)/(i*update_delta+rep+1);
                 if (verbose) vprint("Delta move accepted delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sdDelta={:.2e} paccept={:.2f}",delta,delta2,ll,ll2,sdDelta,paccepted[2]);
                 ll=ll2;
                 delta=delta2;
+                prior_delta=prior_delta2;
             } else {
                 paccepted[1]=(paccepted[1]*(i*update_delta+rep)+0)/(i*update_delta+rep+1);
                 if (verbose) vprint("Delta move rejected delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sdDelta={:.2e} paccept={:.2f}",delta,delta2,ll,ll2,sdDelta,paccepted[2]);
@@ -106,17 +114,19 @@ void Param::mcmc(int burn, int nbit, int thin) {
             sdDelta=sdDelta*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
         }
 
-        //#Adaptive MH move for nu using flat prior //Gamma(1e-3,1e3) prior
+        //#Adaptive MH move for nu using using Gamma prior
         for (int rep=0;rep<update_nu;rep++) {
             rnorm.param(std::normal_distribution<double>::param_type(nu,sdNu));
             double nu2=std::fabs(rnorm(rng));
+            double prior_nu2=dgamma_mean_sd(nu2,prior_params[4],prior_params[5]);
             ll2=tree->likelihood_anc_rec(rho,delta,nu2);
-            mh=ll2-ll;//+dgamma(rho2,shape=1e-3,scale=1e3,log=T)-dgamma(rho,shape=1e-3,scale=1e3,log=T);
+            mh=ll2-ll+prior_nu2-prior_nu;
             if (log(runif(rng))<mh) {
                 paccepted[2]=(paccepted[2]*(i*update_nu+rep)+1)/(i*update_nu+rep+1);
                 if (verbose) vprint("Nu move accepted nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e} paccept={:.2f}",nu,nu2,ll,ll2,sdNu,paccepted[3]);
                 ll=ll2;
                 nu=nu2;
+                prior_nu=prior_nu2;
             } else {
                 paccepted[2]=(paccepted[2]*(i*update_nu+rep)+0)/(i*update_nu+rep+1);
                 if (verbose) vprint("Nu move rejected nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e} paccept={:.2f}",nu,nu2,ll,ll2,sdNu,paccepted[3]);
@@ -133,18 +143,18 @@ void Param::mcmc(int burn, int nbit, int thin) {
             }
             tree2->jointml();
             ll2=tree2->likelihood_anc_rec(rho,delta,nu);
-            double tree_prior2=tree2->prior();
-            mh=ll2-ll+tree_prior2-tree_prior;
+            double prior_tree2=tree2->prior();
+            mh=ll2-ll+prior_tree2-prior_tree;
             if (log(runif(rng))<mh) {
                 paccepted[3]=(paccepted[3]*(i*update_lengths+rep)+1)/(i*update_lengths+rep+1);
-                if (verbose) vprint("Branch lengths move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} paccept={:.2e}",ll,ll2,tree_prior,tree_prior2,paccepted[4]);
+                if (verbose) vprint("Branch lengths move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} paccept={:.2e}",ll,ll2,prior_tree,prior_tree2,paccepted[4]);
                 ll=ll2;
-                tree_prior=tree_prior2;
+                prior_tree=prior_tree2;
                 delete tree;
                 tree=tree2;
             } else {
                 paccepted[3]=(paccepted[3]*(i*update_lengths+rep)+0)/(i*update_lengths+rep+1);
-                if (verbose) vprint("Branch lengths move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} paccept={:.2e}",ll,ll2,tree_prior,tree_prior2,paccepted[4]);
+                if (verbose) vprint("Branch lengths move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} paccept={:.2e}",ll,ll2,prior_tree,prior_tree2,paccepted[4]);
                 delete tree2;
             }
             sdLengths=sdLengths*exp(acceptance_delta/(i+1)*(std::min(1.0,exp(mh))-acceptance_target));
@@ -159,17 +169,17 @@ void Param::mcmc(int burn, int nbit, int thin) {
             tree2->jointml();
             double q21=tree2->lq_rSPR(tree,name_moving);
             ll2=tree2->likelihood_anc_rec(rho,delta,nu);
-            double tree_prior2=tree2->prior();
-            if (log(runif(rng))<ll2-ll+tree_prior2-tree_prior+q21-q12) {
+            double prior_tree2=tree2->prior();
+            if (log(runif(rng))<ll2-ll+prior_tree2-prior_tree+q21-q12) {
                 paccepted[4]=(paccepted[4]*(i*update_spr+rep)+1)/(i*update_spr+rep+1);
-                if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} lq21={:.2e} lq21={:.2e} paccept={:.2e}",ll,ll2,tree_prior,tree_prior2,q21,q12,paccepted[0]);
+                if (verbose) vprint("Tree move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} lq21={:.2e} lq21={:.2e} paccept={:.2e}",ll,ll2,prior_tree,prior_tree2,q21,q12,paccepted[0]);
                 ll=ll2;
-                tree_prior=tree_prior2;
+                prior_tree=prior_tree2;
                 delete tree;
                 tree=tree2;
             } else {
                 paccepted[0]=(paccepted[0]*(i*update_spr+rep)+0)/(i*update_spr+rep+1);
-                if (verbose) vprint("Tree move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} lq21={:.2e} lq21={:.2e} paccept={:.2e}",ll,ll2,tree_prior,tree_prior2,q21,q12,paccepted[0]);
+                if (verbose) vprint("Tree move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} lq21={:.2e} lq21={:.2e} paccept={:.2e}",ll,ll2,prior_tree,prior_tree2,q21,q12,paccepted[0]);
                 delete tree2;
             }
         }
@@ -184,7 +194,10 @@ void Param::mcmc(int burn, int nbit, int thin) {
 void Param::to_json_file() {
     std::println(out, "\t\t{{");
     std::println(out,"\t\t\t\"likelihood\": {:.6e},",ll);
-    std::println(out,"\t\t\t\"tree_prior\": {:.6e},",tree_prior);
+    std::println(out,"\t\t\t\"prior_tree\": {:.6e},",prior_tree);
+    std::println(out,"\t\t\t\"prior_rho\": {:.6e},",prior_rho);
+    std::println(out,"\t\t\t\"prior_delta\": {:.6e},",prior_delta);
+    std::println(out,"\t\t\t\"prior_nu\": {:.6e},",prior_nu);
     std::println(out,"\t\t\t\"sum_bra_len\": {:.6e},",tree->sum_bra_len());
     std::println(out,"\t\t\t\"tree\": \"{}\",",tree->to_string());
     std::println(out,"\t\t\t\"rho\": {:.6e},",rho);
@@ -202,4 +215,7 @@ void Param::select_updates(const string &s) {
     std::sscanf(s.c_str(), "%d,%d,%d,%d,%d", &update_rho, &update_delta, &update_nu,&update_lengths,&update_spr);
 }
 
+void Param::select_priors(const string &s) {
+    std::sscanf(s.c_str(), "%lf,%lf,%lf,%lf,%lf,%lf", &prior_params[0], &prior_params[1], &prior_params[2],&prior_params[3],&prior_params[4],&prior_params[5]);
+}
 

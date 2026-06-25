@@ -84,9 +84,6 @@ public:
     double prior();
     ///Probability of proposing from this to tree, given name of moving node
     double lq_rSPR(Tree *tree2, string name_moving);
-    ///dgamma function, returning log(pdf)
-    static inline double dgamma(double x,double shape,double scale)
-        {return (shape - 1.0) * log(x) - x / scale - shape * log(scale) - lgamma(shape);}
     ///Determine the shape and scale parameters of the gamma distribution for the length of a branch
     void determine_shape_scale(double diffs, double * shape, double * scale);
     ///Count number of differences between ancestral sequences of two nodes
