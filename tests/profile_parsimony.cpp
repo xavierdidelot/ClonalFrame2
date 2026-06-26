@@ -7,7 +7,7 @@
 
 int main() {
     auto start = std::chrono::high_resolution_clock::now();
-    auto t = Tree::random_tree(1000,0.0001);
+    auto t = Tree::random_tree(1000,1e-4,1e-4);
     t->simulate_sequences(10000);
     int s1=0,s2=0;
     auto end = std::chrono::high_resolution_clock::now();

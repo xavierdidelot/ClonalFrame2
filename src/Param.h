@@ -34,8 +34,6 @@ public:
     void to_json_file();
     ///Selection of updates to perform in MCMC
     void select_updates(const string & string);
-    ///Selection of priors to use in MCMC
-    void select_priors(const string & string);
 
 private:
     void print_progress(int current, int total);
@@ -49,7 +47,6 @@ private:
     double prior_delta;
     double prior_nu;
     vector<double> paccepted;
-    vector<double> prior_params;
     int update_rho;
     int update_delta;
     int update_nu;

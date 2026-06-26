@@ -14,7 +14,6 @@ Param::Param(Tree *t) {
     update_nu=1;
     update_lengths=1;
     update_spr=1;
-    prior_params={1,1,500,500,0.05,0.05};
 }
 
 Param::~Param() {
@@ -53,7 +52,7 @@ void Param::mcmc(int burn, int nbit, int thin) {
     double sdRho=0.1;
     double sdDelta=10.0;
     double sdNu=1e-3;
-    double sdLengths=bra_len_prior_mean*0.01;
+    double sdLengths=prior_params[6]*0.01;
     double acceptance_target=0.234;
     double acceptance_delta=1.0/acceptance_target/(1.0-acceptance_target);
     double ll2;
@@ -213,9 +212,5 @@ void Param::to_json_file() {
 
 void Param::select_updates(const string &s) {
     std::sscanf(s.c_str(), "%d,%d,%d,%d,%d", &update_rho, &update_delta, &update_nu,&update_lengths,&update_spr);
-}
-
-void Param::select_priors(const string &s) {
-    std::sscanf(s.c_str(), "%lf,%lf,%lf,%lf,%lf,%lf", &prior_params[0], &prior_params[1], &prior_params[2],&prior_params[3],&prior_params[4],&prior_params[5]);
 }
 

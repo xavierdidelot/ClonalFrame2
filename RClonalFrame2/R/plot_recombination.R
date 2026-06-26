@@ -45,7 +45,7 @@ plot_recombination = function(x, ...) {
   plot(c(),c(),xaxs="i",xlim=c(0,genome_length),ylim=c(1,Ntip(tree)),xlab='Genomic Position',ylab='',yaxt='n')
   labs=tree$tip.label
   labs=gsub("NODE[0-9]+","",labs)
-  axis(2,at=1:Ntip(tree),labels=labs)
+  axis(2,at=1:Ntip(tree),labels=labs,gap.axis=-100)
   for (i in (1:Ntip(tree))) {
     w=which(recevents$branch==tree$tip.label[i])
     if (length(w)==0) next

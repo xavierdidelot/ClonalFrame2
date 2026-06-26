@@ -13,7 +13,7 @@ int main(int argc, const char *argv[]) {
     int niter=std::stoi(argv[4]);
     int seed=std::stoi(argv[5]);
     setSeed(seed);
-    auto t = Tree::random_tree(n,avg_bra_len);
+    auto t = Tree::random_tree(n,avg_bra_len,avg_bra_len);
     t->simulate_sequences(l);
     auto a=Alignment::make_from_tree(t,false);
     //a->write("tmp.fasta",true);

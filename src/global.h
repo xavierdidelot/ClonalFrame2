@@ -35,7 +35,7 @@ inline bool profiling=false;//Profiling mode
 
 inline const size_t maxskip=1000;
 
-inline double bra_len_prior_mean=1e-3;//Mean of the exponential prior on branch lengths
+inline std::vector<double> prior_params={1,1,500,500,0.05,0.05,1e-4,1e-4};
 
 ///dgamma functions, returning log(pdf)
 inline double dgamma_shape_scale(double x,double shape,double scale)

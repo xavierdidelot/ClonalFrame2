@@ -218,7 +218,7 @@ void Tree::simulate_pattern_analysis() {
     ali=a2;
 }
 
-Tree* Tree::random_tree(size_t n,double avg_bra_len) {
+Tree* Tree::random_tree(size_t n,double b_mean, double b_sd) {
     auto t = new Tree();
     t->n=n;
     t->nodes=vector<Node *>(n+n-1);
@@ -227,10 +227,10 @@ Tree* Tree::random_tree(size_t n,double avg_bra_len) {
         if (i<n) t->nodes[i]->set_name("seq" + std::to_string(i + 1));
     }
     auto to_merge = vector<Node *>(n);
-    std::exponential_distribution rexp(1.0/avg_bra_len);
+    std::gamma_distribution rgamma(b_mean*b_mean/b_sd/b_sd,b_sd*b_sd/b_mean);
     for (size_t i = 0; i < n; i++) {
         to_merge[i]=t->nodes[i];
-        to_merge[i]->set_dist_father(rexp(rng));
+        to_merge[i]->set_dist_father(rgamma(rng));
     }
     size_t m=n+1;
     while (to_merge.size() > 2) {
@@ -242,7 +242,7 @@ Tree* Tree::random_tree(size_t n,double avg_bra_len) {
         t->nodes[m]->set_right(to_merge[b]);
         to_merge[a]->set_father(t->nodes[m]);
         to_merge[b]->set_father(t->nodes[m]);
-        if (to_merge.size()>3) t->nodes[m]->set_dist_father(rexp(rng));
+        if (to_merge.size()>3) t->nodes[m]->set_dist_father(rgamma(rng));
         to_merge[a] = t->nodes[m];
         to_merge[b] = to_merge.back();
         to_merge.pop_back();
@@ -407,8 +407,7 @@ int Tree::count_subs() {
 
 double Tree::sum_bra_len() {
     double res=0;
-        for (size_t i=0;i<nodes.size();i++) {
-            if (nodes[i]->get_father()==nullptr) continue;
+        for (size_t i=0;i<nodes.size()-2;i++) {
             res+=nodes[i]->get_dist_father();
         }
     return res;
@@ -714,8 +713,17 @@ double Tree::likelihood() {
 }
 
 double Tree::prior() {
-    double s=sum_bra_len();
-    return -s/bra_len_prior_mean-log(bra_len_prior_mean)*(2.0*n-3.0);
+    if (prior_params[6]==prior_params[7]) {
+        //Special Exponential case
+        return -sum_bra_len()/prior_params[6]-log(prior_params[6])*(2.0*n-3.0);
+    }
+    double shape=prior_params[6]*prior_params[6]/prior_params[7]/prior_params[7];
+    double scale=prior_params[7]*prior_params[7]/prior_params[6];
+    double res=0;
+    for (size_t i=0;i<nodes.size()-2;i++) {
+        res+=dgamma_shape_scale(nodes[i]->get_dist_father(),shape,scale);
+    }
+    return res;
 }
 
 Tree* Tree::noise_tree(Tree * t,double eps) {
@@ -776,7 +784,7 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
         if (newb==nodes[moving]->get_father()->get_index()) checked=false;
         if (checked) {
             int diffs=count_diffs(nodes[moving],nodes[newb]);
-            probs[newb]=pow((ali->get_l()*bra_len_prior_mean/(1.0+ali->get_l()*bra_len_prior_mean)),diffs);
+            probs[newb]=pow((ali->get_l()*prior_params[6]/(1.0+ali->get_l()*prior_params[6])),diffs);
         }
     }
     size_t oldbro=nodes[moving]->get_brother()->get_index();
@@ -896,7 +904,7 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
         if (newb==nodes[moving]->get_father()->get_index()) checked=false;
         if (checked) {
             int diffs=count_diffs(nodes[moving],nodes[newb]);
-            probs[newb]=pow((ali->get_l()*bra_len_prior_mean/(1.0+ali->get_l()*bra_len_prior_mean)),diffs);
+            probs[newb]=pow((ali->get_l()*prior_params[6]/(1.0+ali->get_l()*prior_params[6])),diffs);
         }
     }
     double sum_minus_old = std::accumulate(probs.begin(), probs.end(), 0.0)-probs[oldbro];
@@ -934,7 +942,7 @@ void Tree::determine_shape_scale(double diffs, double *shape, double *scale) {
     double ediffs=d*ali->get_l();
     double coef=1.0+0.5*ali->get_l()/1e5;
     *shape=1.0+ediffs/coef;
-    *scale=bra_len_prior_mean/(ali->get_l()/coef*bra_len_prior_mean+1.0);
+    *scale=prior_params[6]/(ali->get_l()/coef*prior_params[6]+1.0);
 }
 
 int Tree::count_diffs(Node *n1, Node *n2) {

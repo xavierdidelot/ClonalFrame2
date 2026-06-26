@@ -4,8 +4,11 @@ library(RClonalFrame2)
 n=10#Number of sequences
 topology_test=(n<10)#Slow if n>10
 niter=1000#Number of iterations
-bra_len_prior_mean=1#Mean of the exponential prior on branch lengths
-x=run_cf2(simu_pars=c(n,0,bra_len_prior_mean,0,0,0,1),update_pars=c(100,100,100,100,100),burn=0,iter=niter,thin=1,profile=T,bra_len_prior_mean = bra_len_prior_mean)
+b_mean=0.01#Mean of the gamma prior on branch lengths
+b_sd=0.001#Sd of the gamma prior on branch lengths
+b_shape=b_mean*b_mean/b_sd/b_sd
+b_scale=b_sd*b_sd/b_mean
+x=run_cf2(simu_pars=c(n,0,0,0,0,b_mean,b_sd,1),update_pars=c(100,100,100,100,100),burn=0,iter=niter,thin=1,profile=T,prior_pars = c(1,1,500,500,0.05,0.05,b_mean,b_sd))
 
 trees=vector("list",niter)
 b1=rep(0,niter)
@@ -36,12 +39,12 @@ b2=rep(0,niter)
 p2=rep(0,niter)
 s2=rep(0,niter)
 for (i in 1:niter) {
-  trees2[[i]]=rtree(n,rooted=F,br=function(n) rexp(n,rate=1/bra_len_prior_mean))
+  trees2[[i]]=rtree(n,rooted=F,br=function(n) rgamma(n,shape=b_shape,scale=b_scale))
   w=which(trees2[[i]]$tip.label=='t1')
   w=which(trees2[[i]]$edge[,2]==w)
   b2[i]=trees[[i]]$edge.length[w]
   s2[i]=sum(trees2[[i]]$edge.length)
-  p2[i]=-s2[i]/bra_len_prior_mean-log(bra_len_prior_mean)*(2*n-3)
+  p2[i]=sum(dgamma(trees2[[i]]$edge.length,shape=b_shape,scale=b_scale,log=T))
 }
 
 par(mfrow=c(3,3))
@@ -50,11 +53,11 @@ plot(x$iterations[,'sum_bra_len'],main='Sum branch lengths',type='l',xlab='',yla
 plot(b1,main='Branch length 1',type='l',xlab='',ylab='')
 hist(x$iterations[,'prior_tree'],main='Tree prior',xlab='',probability=T)
 hist(x$iterations[,'sum_bra_len'],main='Sum branch lengths',xlab='',probability=T)
-xs=seq(0,max(x$iterations[,'sum_bra_len']),length.out=1000)
-lines(xs,dgamma(xs,shape=2*n-3,rate=1/bra_len_prior_mean))
+xs=seq(min(x$iterations[,'sum_bra_len']),max(x$iterations[,'sum_bra_len']),length.out=1000)
+lines(xs,dgamma(xs,shape=(2*n-3)*b_shape,scale=b_scale))
 hist(b1,main='Branch length 1',xlab='',probability=T)
-xs=seq(0,max(b1),length.out=1000)
-lines(xs,dexp(xs,rate=1/bra_len_prior_mean))
+xs=seq(min(b1),max(b1),length.out=1000)
+lines(xs,dgamma(xs,shape=b_shape,scale=b_scale))
 
 qqplot(p2,x$iterations[,'prior_tree'],xlab='rtree',ylab='CF2 prior')
 abline(0, 1, col = 2, lty = 2)

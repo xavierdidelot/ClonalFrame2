@@ -12,7 +12,6 @@ run_cf2(
   thin,
   seed,
   ncpu,
-  bra_len_prior_mean,
   profile,
   verbose,
   simu_pars,
@@ -36,8 +35,6 @@ run_cf2(
 
 \item{ncpu}{Number of cores to use}
 
-\item{bra_len_prior_mean}{Mean of the exponential prior on branch lengths}
-
 \item{profile}{Whether to activate the profiler}
 
 \item{verbose}{Whether to activate verbose mode}
@@ -46,7 +43,7 @@ run_cf2(
 
 \item{update_pars}{Vector containing the five per-iteration update numbers}
 
-\item{prior_pars}{Vector containing the six prior parameters}
+\item{prior_pars}{Vector containing the eight prior parameters}
 
 \item{path}{Path to ClonalFrame2 executable}
 }

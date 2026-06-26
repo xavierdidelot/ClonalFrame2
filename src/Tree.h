@@ -23,7 +23,7 @@ public:
     ///Create a deterministic tree with n leaves
     static Tree* deterministic_tree(size_t n);
     ///Create a random tree with n leaves
-    static Tree* random_tree(size_t n,double avg_bra_len);
+    static Tree* random_tree(size_t n,double b_mean, double b_sd);
     ///Create a tree using the NJ algorithm
     static Tree* nj(vector<vector<double>> * d,vector<string> * names);
     ///Create a tree from a Newick string

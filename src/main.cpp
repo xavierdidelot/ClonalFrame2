@@ -19,15 +19,14 @@ static string helptxt =
     -z NUM      Sets the number of iterations between samples (default is 10)
     -s NUM      Use given seed to initiate random number generator
     -c NUM      Number of cores to use (default is all available)
-    -b NUM      Mean of the prior on branch length
     -S STR      Generate a simulated dataset and run on it
-                STR is 7 comma-separated values for number of sequences,
-                length of sequences, mean branch length, rho, delta, nu
+                STR is 8 comma-separated values for number of sequences,
+                length of sequences, rho, delta, nu, bra len mean, bra len sd,
                 and whether to start from the correct parameters
     -U STR      Indicates number of updates to use per iteration for each move
                 STR is 5 int values for rho, delta, nu, lengths and SPR
-    -P STR      Indicates prior as 6 comma-separated values for mean and sd
-                of rho, delta and nu (default is 1,1,500,500,0.05,0.05)
+    -P STR      Indicates prior as 8 comma-separated values for mean and sd
+                of rho, delta, nu and b (default 1,1,500,500,0.05,0.05,1e-4,1e-4)
     -p          Activate profiler
     -v          Verbose mode
     -h          Show help
@@ -39,13 +38,11 @@ int main(int argc, const char *argv[]) {
     auto *orphan = new Node();orphan->set_dist_father(1.0); //just to test leak detection is working
 
     int burn = 10000, nbit = 20000, thin = 10;
-    bra_len_prior_mean=1e-3;
     int i=1;
     string infile="";
     string outfile="";
     string simu_str="";
     string update_str="1,1,1,1,1";
-    string prior_str="1,1,500,500,0.05,0.05";
     vector<string> remainder;
     bool help=false;
     while (i < argc) {
@@ -59,10 +56,10 @@ int main(int argc, const char *argv[]) {
                 case('z'):thin =  std::stoi(argv[++i]) ;break;
                 case('s'):setSeed(std::stoi(argv[++i]));break;
                 case('c'):n_cores =  std::stoi(argv[++i]);break;
-                case('b'):bra_len_prior_mean=std::stof(argv[++i]);break;
                 case('S'):simu_str=argv[++i];break;
                 case('U'):update_str=argv[++i];break;
-                case('P'):prior_str=argv[++i];break;
+                case('P'):std::sscanf(argv[++i], "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &prior_params[0], &prior_params[1],
+                    &prior_params[2],&prior_params[3],&prior_params[4],&prior_params[5],&prior_params[6],&prior_params[7]);break;
                 case('v'):verbose = true;break;
                 case('p'):profiling = true;break;
                 case('h'):help=true;break;
@@ -112,7 +109,7 @@ int main(int argc, const char *argv[]) {
     Alignment *a;
     Tree *t=nullptr;
     Param *p;
-    double bralen, rho, delta, nu;
+    double b_mean, b_sd, rho, delta, nu;
     int start_correct=0;
     if (simu_str.empty()) {
         a = Alignment::read_fasta(infile);
@@ -122,13 +119,13 @@ int main(int argc, const char *argv[]) {
         }
     } else {
         int n, l;
-        std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf,%d", &n, &l, &bralen, &rho, &delta, &nu, &start_correct);
+        std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf,%lf,%d", &n, &l, &rho, &delta, &nu, &b_mean, &b_sd, &start_correct);
         if (n<3) {
             std::println("Need a minimum of three genomes.");
             return 0;
         }
-        if (verbose) vprint("Generating true tree with {} leaves and mean branch length {}...", n, bralen);
-        t = Tree::random_tree(n, bralen);
+        if (verbose) vprint("Generating true tree with {} leaves and branch length with mean {} and sd {}...", n, b_mean, b_sd);
+        t = Tree::random_tree(n, b_mean, b_sd);
         if (verbose) vprint("Generating simulated alignment of length {} with rho={},delta={},nu={}...", l, rho, delta, nu);
         std::println(out,"\t\"simulation_parameters\": {{");
         std::println(out,"\t\t\"tree\": \"{}\",",t->to_string());
@@ -160,7 +157,6 @@ int main(int argc, const char *argv[]) {
     if (verbose) vprint("Performing initial ancestral reconstruction...");
     t->jointml();
     p->select_updates(update_str);
-    p->select_priors(prior_str);
     p->mcmc(burn, nbit, thin);
     t = p->get_tree();
     delete(a);
