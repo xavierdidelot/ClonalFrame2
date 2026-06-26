@@ -937,12 +937,14 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
 }
 
 void Tree::determine_shape_scale(double diffs, double *shape, double *scale) {
+    double b_shape=prior_params[6]*prior_params[6]/prior_params[7]/prior_params[7];
+    double b_scale=prior_params[7]*prior_params[7]/prior_params[6];
     double d=0.0;
     if (ali->get_l()>0) d=-0.75*std::log(1.0-4.0/3.0*diffs/ali->get_l());
     double ediffs=d*ali->get_l();
     double coef=1.0+0.5*ali->get_l()/1e5;
-    *shape=1.0+ediffs/coef;
-    *scale=prior_params[6]/(ali->get_l()/coef*prior_params[6]+1.0);
+    *shape=b_shape+ediffs/coef;
+    *scale=b_scale/(ali->get_l()/coef*b_scale+1.0);
 }
 
 int Tree::count_diffs(Node *n1, Node *n2) {

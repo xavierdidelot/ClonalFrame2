@@ -1,7 +1,7 @@
 # Testing that prior is sampled when no likelihood
 rm(list=ls())
 library(RClonalFrame2)
-n=10#Number of sequences
+n=5#Number of sequences
 topology_test=(n<10)#Slow if n>10
 niter=1000#Number of iterations
 b_mean=0.01#Mean of the gamma prior on branch lengths
@@ -85,3 +85,6 @@ qqplot(rexp(nrow(x$iterations),1/500),x$iterations[,'delta'],xlab='rexp',ylab='C
 abline(0, 1, col = 2, lty = 2)
 qqplot(rexp(nrow(x$iterations),1/0.05),x$iterations[,'nu'],xlab='rexp',ylab='CF2 prior')
 abline(0, 1, col = 2, lty = 2)
+
+plot(x)
+plot(x,'trace_acceptance')
