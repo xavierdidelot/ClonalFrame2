@@ -176,9 +176,11 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
             size_t upto=l;
             int m2=0;
             if (len*l>0.0) {
-                std::geometric_distribution geo(rec?b:a);
-                upto=curpos+geo(rng)+1;
-                if (upto>l) upto=l;
+                if ((rec?b:a)>0.0) {
+                    std::geometric_distribution geo(rec?b:a);
+                    upto=curpos+geo(rng)+1;
+                    if (upto>l) upto=l;
+                }
                 std::poisson_distribution pois((rec?nu:len)*(upto-curpos));
                 m2=pois(rng);
             }
@@ -189,15 +191,15 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
             m+=m2;
             if (rec) {
                 if (!first_write) {
-                    std::println(out, "\t\t,");
+                    std::println(out, ",");
                 } else first_write=false;
-                std::println(out, "\t\t{{\"branch\": \"{}\", \"beg\": {}, \"end\": {} }}",nodes[z]->get_name(),curpos,upto-1);
+                std::print(out, "\t\t{{\"branch\": \"{}\", \"beg\": {}, \"end\": {} }}",nodes[z]->get_name(),curpos,upto-1);
             }
             rec=!rec;
             curpos=upto;
         }
     }
-    std::println(out,"\t\t]");
+    std::println(out,"]");
     simulate_pattern_analysis();
     return(m);
 }
@@ -953,4 +955,25 @@ int Tree::count_diffs(Node *n1, Node *n2) {
         if (!Alignment::nuc_is_currently_same(n1->get_seq()->at(pos),n2->get_seq()->at(pos))) diffs+=ali->get_weights()->at(pos);
     }
     return(diffs);
+}
+
+void Tree::ancestral_to_json_file() {
+    auto patindex=ali->get_patindex();
+    auto npat=ali->get_npat();
+    auto l=ali->get_l();
+    std::println(out, "\t\"ancestral_sequences\": {{");
+    std::print(out, "\t\t\"patindex\": [");
+    if (l>0) std::print(out, "{}",patindex->at(0));
+    for (size_t i=1;i<l;i++) {
+        std::print(out, ",{}",patindex->at(i));
+    }
+    std::println(out, "],");
+    std::println(out, "\t\t\"patmatrix\": [");
+    for (size_t i=0;i<2*n-2;i++) {
+        std::print(out, "\t\t{{\"branch\": \"{}\", \"data\": \"",nodes[i]->get_name());
+        for (size_t j=0;j<npat;j++) std::print(out,"{}",Alignment::decode(0b00001111&nodes[i]->get_seq()->at(j)));
+        if (i<2*n-3) std::println(out, "\"}},"); else std::println(out, "\"}}");
+    }
+    std::println(out, "\t\t]");
+    std::println(out, "\t}},");
 }

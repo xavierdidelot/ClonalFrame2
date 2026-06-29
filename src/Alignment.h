@@ -76,11 +76,11 @@ public:
     vector<size_t> * get_refsites()  {return refsites;}
     vector<size_t> * get_refsites_diff()  {return refsites_diff;}
     void make_refsites();
+    static uint8_t encode(char in);
+    static char decode(uint8_t in);
 
 private:
     Alignment() = default;
-    static uint8_t encode(char in);
-    static char decode(uint8_t in);
     size_t n;
     size_t l;
 

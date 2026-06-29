@@ -4,10 +4,12 @@
 \alias{plot_recombination}
 \title{Plotting simulated recombination events from cf2out objects}
 \usage{
-plot_recombination(x, ...)
+plot_recombination(x, showSubs = F, ...)
 }
 \arguments{
 \item{x}{Output from ClonalFrame2}
+
+\item{showSubs}{Whether to show the individual substitutions on each branch}
 
 \item{...}{Additional parameters are passed on}
 }

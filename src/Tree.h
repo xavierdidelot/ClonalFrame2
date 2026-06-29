@@ -52,7 +52,7 @@ public:
     int simulate_sequences_rec(size_t l, double rho, double delta, double nu);
     ///Perform pattern analysis on alignment without ancestors while keeping ancestor sequences
     void simulate_pattern_analysis();
-    ///Assign sequences from alignment to the tree leaves
+    ///Assign sequences from alignment to the tree leaves (and nodes if available)
     void set_sequences(Alignment * ali);
     ///Parsimonious ancestral state reconstruction, returning number of substitutions in patterns
     int parsimony();
@@ -88,6 +88,8 @@ public:
     void determine_shape_scale(double diffs, double * shape, double * scale);
     ///Count number of differences between ancestral sequences of two nodes
     int count_diffs(Node * n1, Node * n2);
+    ///Write ancestral states to json file
+    void ancestral_to_json_file();
 
 private:
     Tree() = default;

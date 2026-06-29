@@ -31,7 +31,7 @@ public:
      */
     void mcmc(int burn,int nbit,int thin);
     ///Write to json file
-    void to_json_file();
+    void state_to_json_file();
     ///Selection of updates to perform in MCMC
     void select_updates(const string & string);
 

@@ -76,5 +76,9 @@ plot.cf2out = function(x, type='trace', ...) {
     plot_recombination(x,...)
   }
 
+  if (type=='simulation_with_subs') {
+    plot_recombination(x,showSubs=T,...)
+  }
+
   par(old.par)
 }

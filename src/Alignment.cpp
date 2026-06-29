@@ -108,8 +108,7 @@ Alignment* Alignment::make_from_tree(Tree *t, bool include_ancestors) {
 void Alignment::pattern_analysis() {
     if (verbose) vprint("Starting pattern analysis");
     auto data2=new vector<vector<uint8_t>*>(n);
-    size_t lplus=l;
-    if (lplus<100) lplus=100;
+    size_t lplus=l+100;
     for (size_t i=0;i<n;i++) data2->at(i)=new vector<uint8_t>(lplus);
     npat=0;
     delete patindex;

@@ -3,4 +3,4 @@
 if [ "$#" -eq 0 ]; then
   clang++ -fopenmp -std=c++23 -g -O1 -fsanitize=address -fno-omit-frame-pointer *.cpp -o /tmp/ClonalFrame2leaking
 fi
-MallocNanoZone=0 ASAN_OPTIONS=detect_leaks=1 /tmp/ClonalFrame2leaking -S 10,1000,1e-4,1,100,0.01,1 -v -x 10 -y 20 -z 1
+MallocNanoZone=0 ASAN_OPTIONS=detect_leaks=1 /tmp/ClonalFrame2leaking -S 10,1000,1,100,0.01,1e-4,1e-4,1 -v -x 10 -y 20 -z 1

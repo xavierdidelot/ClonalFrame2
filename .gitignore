@@ -4,3 +4,4 @@
 .positai
 *.o
 src/ClonalFrame2
+RClonalFrame2/scripts/*.pdf

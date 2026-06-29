@@ -101,7 +101,7 @@ int main(int argc, const char *argv[]) {
     string cmd;
     for (i = 0; i < argc; i++) {cmd.append(argv[i]);cmd.append(" ");}
     std::println("Command used: {}", cmd);
-    std::println(out,"\t\"Command\": \"{}\",",cmd);
+    std::println(out,"\t\"command\": \"{}\",",cmd);
 
     omp_set_num_threads(n_cores);
     std::println("Using {} cores.",n_cores);

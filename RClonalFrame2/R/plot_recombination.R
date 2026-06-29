@@ -1,13 +1,15 @@
 #' Plotting simulated recombination events from cf2out objects
 #' @param x Output from ClonalFrame2
+#' @param showSubs Whether to show the individual substitutions on each branch
 #' @param ... Additional parameters are passed on
 #' @return Plot of ClonalFrame2 simulation
-plot_recombination = function(x, ...) {
+plot_recombination = function(x,showSubs=F,...) {
   par(xpd=NA,mai=c(1,0.2,1,0.2),las=1)
   layout(matrix(c(1,2,2,2,2),nrow=1))
   genome_length=x$simulation_parameters$length
   newick=x$simulation_parameters$tree
   recevents=x$simulation_parameters$recombination_events
+  ancseqs=x$ancestral_sequences
 
   #Add leaves corresponding to nodes
   repeat {
@@ -46,9 +48,34 @@ plot_recombination = function(x, ...) {
   labs=tree$tip.label
   labs=gsub("NODE[0-9]+","",labs)
   axis(2,at=1:Ntip(tree),labels=labs,gap.axis=-100)
+
+  #Show substitutions
+  if (showSubs) {
+    for (i in (1:Ntip(tree))) {
+      father=which(tree$edge[,2]==i)
+      if (tree$edge.length[father]==0) father=which(tree$edge[,2]==tree$edge[father,1])
+      father=tree$edge[father,1]
+      father2=which(tree$edge[,1]==father & tree$edge.length==0)
+      w1=which(ancseqs$patmatrix$branch==tree$tip.label[i])
+      if (length(father2)==0) w2=which(ancseqs$patmatrix$branch==sprintf('NODE%d',Ntip(tree)))
+      else {
+        father2=tree$edge[father2,2]
+        w2=which(ancseqs$patmatrix$branch==tree$tip.label[father2])
+      }
+      s1=strsplit(ancseqs$patmatrix[w1,2],'')[[1]]
+      s2=strsplit(ancseqs$patmatrix[w2,2],'')[[1]]
+      s1=s1[ancseqs$patindex+1]
+      s2=s2[ancseqs$patindex+1]
+      diffs=which(s1!=s2)
+      points(diffs,rep(i,length(diffs)),col='black',pch=4)
+    }
+  }
+
+  #Show recombination events
   for (i in (1:Ntip(tree))) {
     w=which(recevents$branch==tree$tip.label[i])
     if (length(w)==0) next
     segments(recevents[w,2],i,recevents[w,3],i,col='blue',lwd=2)
   }
+
 }

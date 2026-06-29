@@ -39,10 +39,11 @@ void Param::mcmc(int burn, int nbit, int thin) {
     std::println(out, "\t\t\"nbit\": {},",nbit);
     std::println(out, "\t\t\"thin\": {}",thin);
     std::println(out, "\t}},");
-    std::println(out, "\t\"iterations\": [");
     std::uniform_real_distribution runif(0.0,1.0);
     if (verbose) vprint("Performing initial ancestral state reconstruction...");
     tree->jointml();
+    tree->ancestral_to_json_file();
+    std::println(out, "\t\"iterations\": [");
     if (verbose) vprint("Performing initial likelihood computation...");
     ll=tree->likelihood_anc_rec(rho,delta,nu);
     prior_tree=tree->prior();
@@ -70,7 +71,7 @@ void Param::mcmc(int burn, int nbit, int thin) {
             if (!first_write) {
                 std::println(out, "\t,");
             } else first_write=false;
-            to_json_file();
+            state_to_json_file();
         }
 
         //#Adaptive MH move for rho using Gamma prior
@@ -190,7 +191,7 @@ void Param::mcmc(int burn, int nbit, int thin) {
     if (verbose) vprint("Finished MCMC.");
 }
 
-void Param::to_json_file() {
+void Param::state_to_json_file() {
     std::println(out, "\t\t{{");
     std::println(out,"\t\t\t\"likelihood\": {:.6e},",ll);
     std::println(out,"\t\t\t\"prior_tree\": {:.6e},",prior_tree);
