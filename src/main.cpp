@@ -20,9 +20,11 @@ static string helptxt =
     -s NUM      Use given seed to initiate random number generator
     -c NUM      Number of cores to use (default is all available)
     -S STR      Generate a simulated dataset and run on it
-                STR is 8 comma-separated values for number of sequences,
-                length of sequences, rho, delta, nu, bra len mean, bra len sd,
-                and whether to start from the correct parameters
+                STR is 7 comma-separated values for number of sequences,
+                length of sequences, rho, delta, nu, branch length mean and sd
+    -I STR      Specify starting values (default is 1,500,0.05,nj
+                unless -S was used in which case default is correct values)
+                STR is 4 comma-separated values for rho, delta, nu and tree
     -U STR      Indicates number of updates to use per iteration for each move
                 STR is 5 int values for rho, delta, nu, lengths and SPR
     -P STR      Indicates prior as 8 comma-separated values for mean and sd
@@ -42,6 +44,7 @@ int main(int argc, const char *argv[]) {
     string infile="";
     string outfile="";
     string simu_str="";
+    string starting_str="";
     string update_str="1,1,1,1,1";
     vector<string> remainder;
     bool help=false;
@@ -57,6 +60,7 @@ int main(int argc, const char *argv[]) {
                 case('s'):setSeed(std::stoi(argv[++i]));break;
                 case('c'):n_cores =  std::stoi(argv[++i]);break;
                 case('S'):simu_str=argv[++i];break;
+                case('I'):starting_str=argv[++i];break;
                 case('U'):update_str=argv[++i];break;
                 case('P'):std::sscanf(argv[++i], "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &prior_params[0], &prior_params[1],
                     &prior_params[2],&prior_params[3],&prior_params[4],&prior_params[5],&prior_params[6],&prior_params[7]);break;
@@ -112,6 +116,7 @@ int main(int argc, const char *argv[]) {
     double b_mean, b_sd, rho, delta, nu;
     int start_correct=0;
     if (simu_str.empty()) {
+        if (starting_str.empty()) starting_str="1,500,0.05,nj";
         a = Alignment::read_fasta(infile);
         if (a->get_n()<3) {
             std::println("Need a minimum of three genomes.");
@@ -119,7 +124,8 @@ int main(int argc, const char *argv[]) {
         }
     } else {
         int n, l;
-        std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf,%lf,%d", &n, &l, &rho, &delta, &nu, &b_mean, &b_sd, &start_correct);
+        std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf,%lf", &n, &l, &rho, &delta, &nu, &b_mean, &b_sd);
+        if (starting_str.empty()) start_correct=1;
         if (n<3) {
             std::println("Need a minimum of three genomes.");
             return 0;
@@ -153,6 +159,10 @@ int main(int argc, const char *argv[]) {
         delete mat;
         t->set_sequences(a);
         p = new Param(t);
+        std::sscanf(starting_str.c_str(), "%lf,%lf,%lf", &rho, &delta, &nu);
+        p->set_rho(rho);
+        p->set_delta(delta);
+        p->set_nu(nu);
     }
     if (verbose) vprint("Performing initial ancestral reconstruction...");
     t->jointml();
