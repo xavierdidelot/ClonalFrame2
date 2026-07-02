@@ -4,7 +4,7 @@
 \alias{plot.cf2out}
 \title{Plotting method for cf2out objects}
 \usage{
-\method{plot}{cf2out}(x, type = "trace", ...)
+\method{plot}{cf2out}(x, type = "pars", ...)
 }
 \arguments{
 \item{x}{Output from ClonalFrame2}

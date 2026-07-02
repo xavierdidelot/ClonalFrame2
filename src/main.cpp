@@ -14,9 +14,9 @@ static string helptxt =
     Options:
     -i FILE     Select the input file
     -o FILE     Select the output file
-    -x NUM      Sets the number of burn-in iterations (default is 10000)
-    -y NUM      Total number of iterations (default is 20000)
-    -z NUM      Sets the number of iterations between samples (default is 10)
+    -x NUM      Sets the number of burn-in iterations (default is y/2)
+    -y NUM      Total number of iterations (default is 10000)
+    -z NUM      Sets the number of iterations between samples (default is y/2000)
     -s NUM      Use given seed to initiate random number generator
     -c NUM      Number of cores to use (default is all available)
     -S STR      Generate a simulated dataset and run on it
@@ -39,7 +39,7 @@ int main(int argc, const char *argv[]) {
     auto start = Clock::now();
     auto *orphan = new Node();orphan->set_dist_father(1.0); //just to test leak detection is working
 
-    int burn = 10000, nbit = 20000, thin = 10;
+    int burn = -1, nbit = 20000, thin = -1;
     int i=1;
     string infile="";
     string outfile="";
@@ -72,6 +72,9 @@ int main(int argc, const char *argv[]) {
         } else remainder.push_back(arg);
         i++;
     }
+    if (burn==-1) burn=nbit/2;
+    if (thin==-1) thin=nbit/2000;
+    if (thin==0) thin=1;
 
     vprint("This is ClonalFrame2, version {}", VERSION_STRING);
 
