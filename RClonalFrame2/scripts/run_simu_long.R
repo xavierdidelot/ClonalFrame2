@@ -7,8 +7,7 @@ l=1e6#Genome length
 rho=0
 delta=500
 nu=0.05
-bra_len_prior_mean=1e-4#Mean of the exponential prior on branch lengths
-x=run_cf2(simu_pars=c(n,l,rho,delta,nu,bra_len_prior_mean,bra_len_prior_mean),update_pars=c(0,0,0,10,10),burn=1000,iter=2000,thin=1,profile=T)
+x=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),burn=1e5,iter=2e5,thin=1e2,profile=T)
 plot(x)
 plot(x,'trace_acceptance')
 #plot(x,'trace_trees')

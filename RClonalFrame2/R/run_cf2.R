@@ -20,7 +20,7 @@ run_cf2 <- function(inputfile,outputfile,burn,iter,thin,seed,ncpu,profile,verbos
   if (missing(inputfile) && missing(simu_pars)) stop('Need to provide either an input file or simulation parameters')
   if (!missing(inputfile) && !missing(simu_pars)) stop('Cannot use both an input file and simulation parameters')
   if (!missing(inputfile) && !file.exists(inputfile)) stop('Input file is not found')
-  if (missing(path)) path='/Users/u1775021/github/ClonalFrame2/src'
+  if (missing(path)) path='/Users/u1775021/github/ClonalFrame2'
   if (!file.exists(sprintf('%s/ClonalFrame2',path))) stop('Could not find ClonalFrame2 executable')
   args=''
   if (!missing(inputfile)) args=sprintf('%s -i %s ',args,inputfile)
