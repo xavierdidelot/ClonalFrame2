@@ -5,3 +5,5 @@
 *.o
 src/ClonalFrame2
 RClonalFrame2/scripts/*.pdf
+/build-release
+/build-debug
