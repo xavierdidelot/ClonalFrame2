@@ -1,4 +1,6 @@
-.PHONY: all build debug clean
+PREFIX    := /usr/local
+
+.PHONY: all build debug clean doc
 
 all: build
 
@@ -12,4 +14,14 @@ debug:
 	$(MAKE) -C build-debug
 
 clean:
-	rm -rf build-release build-debug
+	rm -rf build-release build-debug docs
+
+doc:
+	doxygen
+
+install:
+	install ClonalFrame2 $(BINDIR)/ClonalFrame2
+
+uninstall:
+	rm -f $(BINDIR)/ClonalFrame2
+
