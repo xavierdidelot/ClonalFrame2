@@ -1,4 +1,5 @@
 PREFIX    := /usr/local
+BINDIR    := $(PREFIX)/bin
 
 .PHONY: all build debug clean doc
 
