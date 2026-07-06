@@ -194,10 +194,10 @@ void Param::state_to_json_file(int iter) {
     std::println(out,"\t\t\t\"rho\": {:.6e},",rho);
     std::println(out,"\t\t\t\"delta\": {:.6e},",delta);
     std::println(out,"\t\t\t\"nu\": {:.6e},",nu);
-    std::println(out,"\t\t\t\"paccepted_rho\": {:.6e},",iter==0?0.0:1.0*naccepted[0]/(iter*updates[0]));
-    std::println(out,"\t\t\t\"paccepted_delta\": {:.6e},",iter==0?0.0:1.0*naccepted[1]/(iter*updates[1]));
-    std::println(out,"\t\t\t\"paccepted_nu\": {:.6e},",iter==0?0.0:1.0*naccepted[2]/(iter*updates[2]));
-    std::println(out,"\t\t\t\"paccepted_lengths\": {:.6e},",iter==0?0.0:1.0*naccepted[3]/(iter*updates[3]));
-    std::println(out,"\t\t\t\"paccepted_spr\": {:.6e}",iter==0?0.0:1.0*naccepted[4]/(iter*updates[4]));
+    std::println(out,"\t\t\t\"paccepted_rho\": {:.6e},",    iter*updates[0]==0?0.0:1.0*naccepted[0]/(iter*updates[0]));
+    std::println(out,"\t\t\t\"paccepted_delta\": {:.6e},",  iter*updates[1]==0?0.0:1.0*naccepted[1]/(iter*updates[1]));
+    std::println(out,"\t\t\t\"paccepted_nu\": {:.6e},",     iter*updates[2]==0?0.0:1.0*naccepted[2]/(iter*updates[2]));
+    std::println(out,"\t\t\t\"paccepted_lengths\": {:.6e},",iter*updates[3]==0?0.0:1.0*naccepted[3]/(iter*updates[3]));
+    std::println(out,"\t\t\t\"paccepted_spr\": {:.6e}",     iter*updates[4]==0?0.0:1.0*naccepted[4]/(iter*updates[4]));
     std::println(out, "\t\t}}");
 }

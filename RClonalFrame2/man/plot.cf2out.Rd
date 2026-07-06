@@ -4,12 +4,14 @@
 \alias{plot.cf2out}
 \title{Plotting method for cf2out objects}
 \usage{
-\method{plot}{cf2out}(x, type = "pars", ...)
+\method{plot}{cf2out}(x, type = "pars", burnin, ...)
 }
 \arguments{
 \item{x}{Output from ClonalFrame2}
 
 \item{type}{Type of plot to do}
+
+\item{burnin}{Burnin proportion to apply in plot}
 
 \item{...}{Additional parameters are passed on}
 }

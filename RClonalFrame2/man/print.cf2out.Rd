@@ -4,10 +4,12 @@
 \alias{print.cf2out}
 \title{Print function for cf2out objects}
 \usage{
-\method{print}{cf2out}(x, ...)
+\method{print}{cf2out}(x, burnin, ...)
 }
 \arguments{
 \item{x}{Output from ClonalFrame2}
+
+\item{burnin}{Proportion of the MCMC output to be discarded as burnin}
 
 \item{...}{Passed on}
 }

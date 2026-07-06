@@ -2,13 +2,18 @@
 library(RClonalFrame2)
 rm(list=ls())
 set.seed(0)
-n=5#Number of sequences
-l=1e6#Genome length
-rho=1
+n=50#Number of sequences
+l=1e4#Genome length
+rho=0
 delta=500
 nu=0.05
-x=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e3,profile=T)
+x=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e4,profile=T)
 plot(x)
-plot(x,'trace_acceptance')
+plot(x,'trace_acceptance',burnin=0)
 #plot(x,'trace_trees')
 #plot(x,'simulation')
+print(tail(x$iterations$paccepted_spr,1))
+
+library(coda)
+m=as.mcmc(x)
+effectiveSize(m)

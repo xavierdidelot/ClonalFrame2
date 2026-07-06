@@ -5,30 +5,21 @@
 #'
 load_cf2 <- function(filename) {
   x=fromJSON(filename)
-  x$pcburn=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
   class(x)<-"cf2out"
-  return(x)
-}
-
-#' Set the percentage of burnin
-#' @param x Output from ClonalFrame2
-#' @param val New value for percentage of burnin
-#' @export
-pcburn <- function(x, val) {
-  stopifnot(inherits(x, "cf2out"))
-  x$pcburn=val
   return(x)
 }
 
 #' Print function for cf2out objects
 #' @param x Output from ClonalFrame2
+#' @param burnin Proportion of the MCMC output to be discarded as burnin
 #' @param ... Passed on
 #' @return Print out details of ClonalFrame2 results
 #' @export
-print.cf2out <- function(x, ...) {
+print.cf2out <- function(x, burnin, ...) {
   stopifnot(inherits(x, "cf2out"))
-  cat(sprintf('ClonalFrame2 output with %d sampled iterations and %d%% burnin\n',nrow(x$iterations),100*x$pcburn))
-  iters=max(1,floor(nrow(x$iterations)*x$pcburn)):nrow(x$iterations)
+  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  cat(sprintf('ClonalFrame2 output with %d sampled iterations and %d%% burnin\n',nrow(x$iterations),100*burnin))
+  iters=max(1,floor(nrow(x$iterations)*burnin)):nrow(x$iterations)
   for (nam in c('rho','delta','nu')) {
     v=x$iterations[iters,nam]
     v=sort(v)
@@ -52,12 +43,14 @@ summary.cf2out <- function(object, ...) {
 #' Plotting method for cf2out objects
 #' @param x Output from ClonalFrame2
 #' @param type Type of plot to do
+#' @param burnin Burnin proportion to apply in plot
 #' @param ... Additional parameters are passed on
 #' @return Plot of ClonalFrame2 results
 #' @export
-plot.cf2out = function(x, type='pars', ...) {
+plot.cf2out = function(x, type='pars', burnin, ...) {
+  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
   old.par=par(no.readonly = T)
-  iters=max(1,floor(nrow(x$iterations)*x$pcburn)):nrow(x$iterations)
+  iters=max(1,floor(nrow(x$iterations)*burnin)):nrow(x$iterations)
 
   if (type=='pars') {
     panel.hist <- function(x,truths,...)
@@ -121,3 +114,24 @@ plot.cf2out = function(x, type='pars', ...) {
 
   par(old.par)
 }
+
+
+#' Convert cf2out object to coda mcmc format
+#' @param x Output from ClonalFrame2
+#' @param burnin Proportion of the MCMC output to be discarded as burnin
+#' @param ... Additional parameters are passed on
+#' @return mcmc object from coda package
+#' @exportS3Method coda::as.mcmc
+as.mcmc.cf2out <- function(x,burnin,...) {
+  stopifnot(inherits(x, "cf2out"))
+  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  iters=max(1,floor(nrow(x$iterations)*burnin)):nrow(x$iterations)
+  mat=cbind(
+    x$iterations[iters,'rho'],
+    x$iterations[iters,'delta'],
+    x$iterations[iters,'nu'],
+    x$iterations[iters,'sum_bra_len'])
+  colnames(mat)<-c('rho','delta','nu','sum_bra_len')
+  return(coda::as.mcmc(mat,...))
+}
+
