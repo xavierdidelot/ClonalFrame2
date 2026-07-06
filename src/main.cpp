@@ -169,7 +169,8 @@ int main(int argc, const char *argv[]) {
     }
     if (verbose) vprint("Performing initial ancestral reconstruction...");
     t->jointml();
-    p->select_updates(update_str);
+    vector<int> * updates=p->get_updates();
+    std::sscanf(update_str.c_str(), "%d,%d,%d,%d,%d", &updates->at(0),&updates->at(1),&updates->at(2),&updates->at(3),&updates->at(4));
     p->mcmc(burn, nbit, thin);
     t = p->get_tree();
     delete(a);

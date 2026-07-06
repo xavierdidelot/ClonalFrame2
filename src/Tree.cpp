@@ -111,6 +111,10 @@ bool Tree::check_structure() {
             std::println(std::cerr,"Node with distance zero other than root or null node");
             return false;
         }
+        if (nodes[i]->get_dist_father()<0.0) {
+            std::println(std::cerr,"Node with negative distance");
+            return false;
+        }
         if (nodes[i]->get_left() != nullptr && nodes[i]->get_left()->get_father() != nodes[i]) {
             std::println(std::cerr,"Incorrect left pointer");
             return false;
@@ -830,7 +834,7 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
         rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
         *d=rgamma(rng);
         q+=dgamma_shape_scale(*d,shape,scale);//This is the dgamma probability of the new distance d
-    }
+    } else *d=-1.0;
     return(q);
 }
 
@@ -944,7 +948,7 @@ void Tree::determine_shape_scale(double diffs, double *shape, double *scale) {
     double d=0.0;
     if (ali->get_l()>0) d=-0.75*std::log(1.0-4.0/3.0*diffs/ali->get_l());
     double ediffs=d*ali->get_l();
-    double coef=1.0+0.5*ali->get_l()/1e5;
+    double coef=1.0+1.0*ali->get_l()/1e6;
     *shape=b_shape+ediffs/coef;
     *scale=b_scale/(ali->get_l()/coef*b_scale+1.0);
 }

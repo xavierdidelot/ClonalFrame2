@@ -31,9 +31,10 @@ public:
      */
     void mcmc(int burn,int nbit,int thin);
     ///Write to json file
-    void state_to_json_file();
-    ///Selection of updates to perform in MCMC
-    void select_updates(const string & string);
+    void state_to_json_file(int iter);
+    ///Return pointer to vector of updates
+    vector<int> * get_updates() {return &updates;}
+
 
 private:
     void print_progress(int current, int total);
@@ -46,12 +47,8 @@ private:
     double prior_rho;
     double prior_delta;
     double prior_nu;
-    vector<double> paccepted;
-    int update_rho;
-    int update_delta;
-    int update_nu;
-    int update_lengths;
-    int update_spr;
+    vector<int> naccepted;
+    vector<int> updates;
 };
 
 
