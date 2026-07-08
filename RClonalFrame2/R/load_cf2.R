@@ -145,11 +145,12 @@ as.rwty <- function(x,burnin,...) {
   stopifnot(inherits(x, "cf2out"))
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
   iters=max(1,floor(nrow(x$iterations)*burnin)):nrow(x$iterations)
-  f=file('/tmp/rwty.nwk','w')
+  filename=tempfile()
+  f=file(filename,'w')
   for (i in iters) {
     write(x$iterations[i,'tree'],file=f,append=T)
   }
   close(f)
-  r=load.trees('/tmp/rwty.nwk',type = "newick")
+  r=load.trees(filename,type = "newick")
   return(r)
 }

@@ -24,7 +24,7 @@ run_cf2 <- function(inputfile,outputfile,burn,iter,thin,seed,ncpu,profile,verbos
   if (!file.exists(sprintf('%s/ClonalFrame2',path))) stop('Could not find ClonalFrame2 executable')
   args=''
   if (!missing(inputfile)) args=sprintf('%s -i %s ',args,inputfile)
-  if (missing(outputfile)) outputfile='/tmp/out.json'
+  if (missing(outputfile)) outputfile=tempfile()
   args=sprintf('%s -o %s ',args,outputfile)
   if (!missing(burn)) args=sprintf('%s -x %d ',args,burn)
   if (!missing(iter)) args=sprintf('%s -y %d ',args,iter)

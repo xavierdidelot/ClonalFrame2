@@ -15,9 +15,9 @@ Usage: ClonalFrame2 [OPTIONS]
     Options:
     -i FILE     Select the input file
     -o FILE     Select the output file
-    -x NUM      Sets the number of burn-in iterations (default is 10000)
-    -y NUM      Total number of iterations (default is 20000)
-    -z NUM      Sets the number of iterations between samples (default is 10)
+    -x NUM      Sets the number of burn-in iterations (default is y/2)
+    -y NUM      Total number of iterations (default is 10000)
+    -z NUM      Sets the number of iterations between samples (default is y/2000)
     -s NUM      Use given seed to initiate random number generator
     -c NUM      Number of cores to use (default is all available)
     -S STR      Generate a simulated dataset and run on it
