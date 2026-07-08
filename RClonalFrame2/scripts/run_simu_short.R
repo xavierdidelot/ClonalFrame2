@@ -2,7 +2,7 @@
 library(RClonalFrame2)
 rm(list=ls())
 set.seed(0)
-n=50#Number of sequences
+n=10#Number of sequences
 l=1e4#Genome length
 rho=0
 delta=500
@@ -16,4 +16,8 @@ print(tail(x$iterations$paccepted_spr,1))
 
 library(coda)
 m=as.mcmc(x)
-effectiveSize(m)
+print(effectiveSize(m))
+
+library(rwty)
+r=as.rwty(x)
+print(topological.approx.ess(r,burnin=0))

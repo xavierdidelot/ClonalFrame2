@@ -135,3 +135,21 @@ as.mcmc.cf2out <- function(x,burnin,...) {
   return(coda::as.mcmc(mat,...))
 }
 
+#' Convert cf2out object to rwty.chain format
+#' @param x Output from ClonalFrame2
+#' @param burnin Proportion of the MCMC output to be discarded as burnin
+#' @param ... Additional parameters are passed on
+#' @return object of class rwty.chain from rwty package
+#' @export
+as.rwty <- function(x,burnin,...) {
+  stopifnot(inherits(x, "cf2out"))
+  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  iters=max(1,floor(nrow(x$iterations)*burnin)):nrow(x$iterations)
+  f=file('/tmp/rwty.nwk','w')
+  for (i in iters) {
+    write(x$iterations[i,'tree'],file=f,append=T)
+  }
+  close(f)
+  r=load.trees('/tmp/rwty.nwk',type = "newick")
+  return(r)
+}
