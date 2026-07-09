@@ -778,7 +778,7 @@ Tree * Tree::copy_tree(Tree * t) {
 
 double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f, double * b, double * d) {
     size_t max=2*static_cast<int>(n)-3;
-    vector probs=vector<double>(max+1,0.0);
+    vector probs=vector<double>(max+1,std::log(0.0));
     //Select the new brother which can be any node other than root, null node, moving, its father or its descendents
     for (size_t newb=0;newb<max;newb++) {
         Node*cur=nodes[newb];
@@ -790,13 +790,15 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
         if (newb==nodes[moving]->get_father()->get_index()) checked=false;
         if (checked) {
             int diffs=count_diffs(nodes[moving],nodes[newb]);
-            probs[newb]=pow((ali->get_l()*prior_params[6]/(1.0+ali->get_l()*prior_params[6])),diffs);
+            probs[newb]=diffs*std::log(ali->get_l()*prior_params[6]/(1.0+ali->get_l()*prior_params[6]));
         }
     }
+    double probs_max = *std::max_element(probs.begin(), probs.end());
+    for (double &x : probs) x = std::exp(x-probs_max);
     size_t oldbro=nodes[moving]->get_brother()->get_index();
     double sum_minus_old = std::accumulate(probs.begin(), probs.end(), 0.0)-probs[oldbro];
     if (sum_minus_old>0.0) {
-        for (double &x : probs) x /= sum_minus_old*2.0;
+        for (double &x : probs) x=x/sum_minus_old/2.0;
         probs[oldbro]=0.5;
     } else probs[oldbro]=1.0;
     std::discrete_distribution<int> dist(probs.begin(), probs.end());
@@ -905,7 +907,7 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
 
     double q=0.0;
     size_t max=2*static_cast<int>(n)-3;
-    vector probs=vector<double>(max+1,0.0);
+    vector probs=vector<double>(max+1,std::log(0.0));
     for (size_t newb=0;newb<max;newb++) {
         Node*cur=nodes[newb];
         bool checked=true;
@@ -916,12 +918,14 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
         if (newb==nodes[moving]->get_father()->get_index()) checked=false;
         if (checked) {
             int diffs=count_diffs(nodes[moving],nodes[newb]);
-            probs[newb]=pow((ali->get_l()*prior_params[6]/(1.0+ali->get_l()*prior_params[6])),diffs);
+            probs[newb]=std::log(ali->get_l()*prior_params[6]/(1.0+ali->get_l()*prior_params[6]))*diffs;
         }
     }
+    double probs_max = *std::max_element(probs.begin(), probs.end());
+    for (double &x : probs) x = std::exp(x-probs_max);
     double sum_minus_old = std::accumulate(probs.begin(), probs.end(), 0.0)-probs[oldbro];
     if (sum_minus_old>0.0) {
-        for (double &x : probs) x /= sum_minus_old*2.0;
+        for (double &x : probs) x=x/sum_minus_old/2.0;
         probs[oldbro]=0.5;
     } else probs[oldbro]=1.0;
     q+=log(probs[newbro]);//This is the probability of having selected newbro
