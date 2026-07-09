@@ -806,12 +806,15 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
 
     double shape=1,scale=1;
     double d1,d2,d3,dm,df,db;
-    d1=count_diffs(nodes[moving],nodes[*newbro]->get_father());
+    Node * newfather=nodes[*newbro]->get_father();
+    if (*newbro==oldbro) newfather=newfather->get_father();
+    d1=count_diffs(nodes[moving],newfather);
     d2=count_diffs(nodes[moving],nodes[*newbro]);
-    d3=count_diffs(nodes[*newbro],nodes[*newbro]->get_father());
+    d3=count_diffs(nodes[*newbro],newfather);
     dm=(d1+d2-d3)/2.0;
     df=(d1+d3-d2)/2.0;
     db=(d2+d3-d1)/2.0;
+    //if (verbose) vprint("d1={:.2e} d2={:.2e} d3={:.2e} dm={:.2e} df={:.2e} db={:.2e}",d1,d2,d3,dm,df,db);
     std::gamma_distribution<double> rgamma(shape, scale);
     determine_shape_scale(dm,&shape,&scale);
     rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
@@ -859,12 +862,15 @@ double Tree::rSPR(string * name_moving) {
     Node * oldgf=nodes[oldf]->get_father();
     if (oldgf->get_left()->get_index()==oldf) oldgf->set_left(nodes[oldbro]); else oldgf->set_right(nodes[oldbro]);
     nodes[oldbro]->set_father(nodes[oldf]->get_father());
+    //if (verbose) vprint("bro    {:.2e} {:.2e} {:.2e}",nodes[oldbro]->get_dist_father(),b,nodes[oldbro]->get_dist_father()-b);//because d=-1 so anticipating next change
     nodes[oldbro]->set_dist_father(d);
+    //if (verbose) vprint("moving {:.2e} {:.2e} {:.2e}",nodes[moving]->get_dist_father(),m,nodes[moving]->get_dist_father()-m);
     nodes[moving]->set_dist_father(m);
     //Regrafting
     Node * newbrof=nodes[newbro]->get_father();
     if (newbrof->get_left()->get_index()!=newbro) newbrof->set_right(nodes[oldf]); else newbrof->set_left(nodes[oldf]);
     nodes[oldf]->set_father(nodes[newbro]->get_father());
+    //if (verbose) vprint("father {:.2e} {:.2e} {:.2e}",nodes[oldf]->get_dist_father(),f,nodes[oldf]->get_dist_father()-f);
     nodes[oldf]->set_dist_father(f);
     nodes[oldf]->set_left(nodes[moving]);
     nodes[oldf]->set_right(nodes[newbro]);
@@ -921,9 +927,11 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     q+=log(probs[newbro]);//This is the probability of having selected newbro
     double shape,scale;
     double d1,d2,d3,dm,df,db;
-    d1=count_diffs(nodes[moving],nodes[newbro]->get_father());
+    Node * newfather=nodes[newbro]->get_father();
+    if (newbro==oldbro) newfather=newfather->get_father();
+    d1=count_diffs(nodes[moving],newfather);
     d2=count_diffs(nodes[moving],nodes[newbro]);
-    d3=count_diffs(nodes[newbro],nodes[newbro]->get_father());
+    d3=count_diffs(nodes[newbro],newfather);
     dm=(d1+d2-d3)/2.0;
     df=(d1+d3-d2)/2.0;
     db=(d2+d3-d1)/2.0;
@@ -945,6 +953,8 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
 void Tree::determine_shape_scale(double diffs, double *shape, double *scale) {
     double b_shape=prior_params[6]*prior_params[6]/prior_params[7]/prior_params[7];
     double b_scale=prior_params[7]*prior_params[7]/prior_params[6];
+    //double rho=0.1;double delta=500;double nu=0.05;
+    //diffs=diffs/(1.0+rho*delta*nu);//Corrected diffs for effect of recombination
     double d=0.0;
     if (ali->get_l()>0) d=-0.75*std::log(1.0-4.0/3.0*diffs/ali->get_l());
     double ediffs=d*ali->get_l();
