@@ -30,6 +30,8 @@ public:
      * @param outfile File to which output is written
      */
     void mcmc(int burn,int nbit,int thin);
+    void adapt(int index,double mh,int i,int rep);
+
     ///Write to json file
     void state_to_json_file(int iter);
     ///Return pointer to vector of updates
@@ -49,6 +51,11 @@ private:
     double prior_nu;
     vector<int> naccepted;
     vector<int> updates;
+    vector<double> sd;
+    const double adapt_target=0.234;
+    const double adapt_scale=1.0/adapt_target/(1.0-adapt_target);
+    vector<double> adapt_nstart;
+    vector<double> adapt_lambda;
 };
 
 

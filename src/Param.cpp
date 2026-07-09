@@ -46,14 +46,9 @@ void Param::mcmc(int burn, int nbit, int thin) {
     prior_rho=dgamma_mean_sd(rho,prior_params[0],prior_params[1]);
     prior_delta=dgamma_mean_sd(delta,prior_params[2],prior_params[3]);
     prior_nu=dgamma_mean_sd(nu,prior_params[4],prior_params[5]);
-    double sdRho=0.1;
-    double sdDelta=10.0;
-    double sdNu=1e-3;
-    double sdLengths=prior_params[6]*0.01;
-    double adapt_target=0.234;
-    double adapt_scale=1.0/adapt_target/(1.0-adapt_target);
-    double ll2;
-    double mh;
+    sd=vector<double> {0.1,10.0,1e-3,prior_params[6]*0.01};
+    adapt_nstart=vector(4,5.0*adapt_scale);
+    adapt_lambda=vector(4,1.0);
     naccepted=vector(5,0);
     std::normal_distribution<double> rnorm;
 
@@ -66,72 +61,72 @@ void Param::mcmc(int burn, int nbit, int thin) {
 
         //#Adaptive MH move for rho using Gamma prior
         for (int rep=0;rep<updates[0];rep++) {
-            rnorm.param(std::normal_distribution<double>::param_type(rho,sdRho));
+            rnorm.param(std::normal_distribution<double>::param_type(rho,sd[0]));
             double rho2=std::fabs(rnorm(rng));
             double prior_rho2=dgamma_mean_sd(rho2,prior_params[0],prior_params[1]);
-            ll2=tree->likelihood_anc_rec(rho2,delta,nu);
-            mh=ll2-ll+prior_rho2-prior_rho;
+            double ll2=tree->likelihood_anc_rec(rho2,delta,nu);
+            double mh=ll2-ll+prior_rho2-prior_rho;
             if (log(runif(rng))<mh) {
                 naccepted[0]++;
-                if (verbose) vprint("Rho move accepted rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sdRho={:.2e}",rho,rho2,ll,ll2,sdRho);
+                if (verbose) vprint("Rho move accepted rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sd_rho={:.2e}",rho,rho2,ll,ll2,sd[0]);
                 ll=ll2;
                 rho=rho2;
                 prior_rho=prior_rho2;
             } else {
-                if (verbose) vprint("Rho move rejected rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sdRho={:.2e}",rho,rho2,ll,ll2,sdRho);
+                if (verbose) vprint("Rho move rejected rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sd_rho={:.2e}",rho,rho2,ll,ll2,sd[0]);
             }
-            sdRho=sdRho*exp(adapt_scale/(i+1)*((mh>=0?1.0:std::exp(mh))-adapt_target));
+            adapt(0,mh,i,rep);
         }
 
         //#Adaptive MH move for delta using Gamma prior
         for (int rep=0;rep<updates[1];rep++) {
-            rnorm.param(std::normal_distribution<double>::param_type(delta,sdDelta));
+            rnorm.param(std::normal_distribution<double>::param_type(delta,sd[1]));
             double delta2=std::fabs(rnorm(rng));
             double prior_delta2=dgamma_mean_sd(delta2,prior_params[2],prior_params[3]);
-            ll2=tree->likelihood_anc_rec(rho,delta2,nu);
-            mh=ll2-ll+prior_delta2-prior_delta;
+            double ll2=tree->likelihood_anc_rec(rho,delta2,nu);
+            double mh=ll2-ll+prior_delta2-prior_delta;
             if (log(runif(rng))<mh) {
                 naccepted[1]++;
-                if (verbose) vprint("Delta move accepted delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sdDelta={:.2e}",delta,delta2,ll,ll2,sdDelta);
+                if (verbose) vprint("Delta move accepted delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sd_delta={:.2e}",delta,delta2,ll,ll2,sd[1]);
                 ll=ll2;
                 delta=delta2;
                 prior_delta=prior_delta2;
             } else {
-                if (verbose) vprint("Delta move rejected delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sdDelta={:.2e}",delta,delta2,ll,ll2,sdDelta);
+                if (verbose) vprint("Delta move rejected delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sd_delta={:.2e}",delta,delta2,ll,ll2,sd[1]);
             }
-            sdDelta=sdDelta*exp(adapt_scale/(i+1)*((mh>=0?1.0:std::exp(mh))-adapt_target));
+            adapt(1,mh,i,rep);
         }
 
         //#Adaptive MH move for nu using Gamma prior
         for (int rep=0;rep<updates[2];rep++) {
-            rnorm.param(std::normal_distribution<double>::param_type(nu,sdNu));
+            rnorm.param(std::normal_distribution<double>::param_type(nu,sd[2]));
             double nu2=std::fabs(rnorm(rng));
             double prior_nu2=dgamma_mean_sd(nu2,prior_params[4],prior_params[5]);
-            ll2=tree->likelihood_anc_rec(rho,delta,nu2);
-            mh=ll2-ll+prior_nu2-prior_nu;
+            double ll2=tree->likelihood_anc_rec(rho,delta,nu2);
+            double mh=ll2-ll+prior_nu2-prior_nu;
             if (log(runif(rng))<mh) {
                 naccepted[2]++;
-                if (verbose) vprint("Nu move accepted nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e}",nu,nu2,ll,ll2,sdNu);
+                if (verbose) vprint("Nu move accepted nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sd_nu={:.2e}",nu,nu2,ll,ll2,sd[2]);
                 ll=ll2;
                 nu=nu2;
                 prior_nu=prior_nu2;
             } else {
-                if (verbose) vprint("Nu move rejected nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sdNu={:.2e}",nu,nu2,ll,ll2,sdNu);
+                if (verbose) vprint("Nu move rejected nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sd_nu={:.2e}",nu,nu2,ll,ll2,sd[2]);
             }
-            sdNu=sdNu*exp(adapt_scale/(i+1)*((mh>=0?1.0:std::exp(mh))-adapt_target));
+            adapt(2,mh,i,rep);
         }
 
         //Adaptive MH move for branch lengths
         for (int rep=0;rep<updates[3];rep++) {
             Tree * tree2=Tree::copy_tree(tree);
-            rnorm.param(std::normal_distribution<double>::param_type(0,sdLengths));
+            rnorm.param(std::normal_distribution<double>::param_type(0,sd[3]));
             for (size_t b=0;b<2*tree2->get_n()-3;b++) {
                 tree2->get_node(b)->set_dist_father(std::fabs(tree2->get_node(b)->get_dist_father()+rnorm(rng)));
             }
             tree2->jointml();
-            ll2=tree2->likelihood_anc_rec(rho,delta,nu);
+            double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
             double prior_tree2=tree2->prior();
-            mh=ll2-ll+prior_tree2-prior_tree;
+            double mh=ll2-ll+prior_tree2-prior_tree;
             if (log(runif(rng))<mh) {
                 naccepted[3]++;
                 if (verbose) vprint("Branch lengths move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e}",ll,ll2,prior_tree,prior_tree2);
@@ -143,8 +138,7 @@ void Param::mcmc(int burn, int nbit, int thin) {
                 if (verbose) vprint("Branch lengths move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e}",ll,ll2,prior_tree,prior_tree2);
                 delete tree2;
             }
-            sdLengths=sdLengths*exp(adapt_scale/(i+1)*((mh>=0?1.0:std::exp(mh))-adapt_target));
-
+            adapt(3,mh,i,rep);
         }
 
         //SPR move
@@ -154,7 +148,7 @@ void Param::mcmc(int burn, int nbit, int thin) {
             double q12=tree2->rSPR(&name_moving);
             tree2->jointml();
             double q21=tree2->lq_rSPR(tree,name_moving);
-            ll2=tree2->likelihood_anc_rec(rho,delta,nu);
+            double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
             double prior_tree2=tree2->prior();
             if (log(runif(rng))<ll2-ll+prior_tree2-prior_tree+q21-q12) {
                 naccepted[4]++;
@@ -182,6 +176,18 @@ void Param::mcmc(int burn, int nbit, int thin) {
     if (verbose) vprint("Finished MCMC.");
 }
 
+void Param::adapt(int index,double mh,int i,int rep) {
+    double prob_accept=mh>=0?1.0:std::exp(mh);//this is same as min(1,exp(mh))
+    int it=1+rep+i*updates[index];
+    sd[index]*=exp(0.5*adapt_scale/(it+adapt_nstart[index])*(prob_accept-adapt_target));
+    double lambda=sd[index]*sd[index];
+    if (std::abs(std::log(lambda)-std::log(adapt_lambda[index]))>std::log(3.0)) {
+        //Restart Robbins-Munro
+        adapt_lambda[index]=lambda;
+        adapt_nstart[index]=5.0*adapt_scale-it;
+    }
+}
+
 void Param::state_to_json_file(int iter) {
     std::println(out, "\t\t{{");
     std::println(out,"\t\t\t\"likelihood\": {:.6e},",ll);
@@ -194,6 +200,10 @@ void Param::state_to_json_file(int iter) {
     std::println(out,"\t\t\t\"rho\": {:.6e},",rho);
     std::println(out,"\t\t\t\"delta\": {:.6e},",delta);
     std::println(out,"\t\t\t\"nu\": {:.6e},",nu);
+    std::println(out,"\t\t\t\"sd_rho\": {:.6e},",sd[0]);
+    std::println(out,"\t\t\t\"sd_delta\": {:.6e},",sd[1]);
+    std::println(out,"\t\t\t\"sd_nu\": {:.6e},",sd[2]);
+    std::println(out,"\t\t\t\"sd_lengths\": {:.6e},",sd[3]);
     std::println(out,"\t\t\t\"paccepted_rho\": {:.6e},",    iter*updates[0]==0?0.0:1.0*naccepted[0]/(iter*updates[0]));
     std::println(out,"\t\t\t\"paccepted_delta\": {:.6e},",  iter*updates[1]==0?0.0:1.0*naccepted[1]/(iter*updates[1]));
     std::println(out,"\t\t\t\"paccepted_nu\": {:.6e},",     iter*updates[2]==0?0.0:1.0*naccepted[2]/(iter*updates[2]));
