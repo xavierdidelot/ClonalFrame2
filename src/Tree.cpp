@@ -790,7 +790,7 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
         if (newb==nodes[moving]->get_father()->get_index()) checked=false;
         if (checked) {
             int diffs=count_diffs(nodes[moving],nodes[newb]);
-            probs[newb]=diffs*std::log(ali->get_l()*prior_params[6]/(1.0+ali->get_l()*prior_params[6]));
+            probs[newb]=ali->get_l()==0?0:std::log(ali->get_l()*prior_params[6]/(1.0+ali->get_l()*prior_params[6]))*diffs;
         }
     }
     double probs_max = *std::max_element(probs.begin(), probs.end());
@@ -918,7 +918,7 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
         if (newb==nodes[moving]->get_father()->get_index()) checked=false;
         if (checked) {
             int diffs=count_diffs(nodes[moving],nodes[newb]);
-            probs[newb]=std::log(ali->get_l()*prior_params[6]/(1.0+ali->get_l()*prior_params[6]))*diffs;
+            probs[newb]=ali->get_l()==0?0:std::log(ali->get_l()*prior_params[6]/(1.0+ali->get_l()*prior_params[6]))*diffs;
         }
     }
     double probs_max = *std::max_element(probs.begin(), probs.end());
