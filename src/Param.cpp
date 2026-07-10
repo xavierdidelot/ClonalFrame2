@@ -6,10 +6,11 @@
 
 Param::Param(Tree *t) {
     tree=t;
-    rho=1;
-    nu=0.01;
+    rho=0.1;
+    nu=0.05;
     delta=500.0;
     updates=vector<int>(5,1);
+    prior_params={1,1,500,500,0.05,0.05,1e-4,1e-4};
 }
 
 Param::~Param() {
@@ -42,7 +43,7 @@ void Param::mcmc(int burn, int nbit, int thin) {
     std::println(out, "\t\"iterations\": [");
     if (verbose) vprint("Performing initial likelihood computation...");
     ll=tree->likelihood_anc_rec(rho,delta,nu);
-    prior_tree=tree->prior();
+    prior_tree=tree->prior(this);
     prior_rho=dgamma_mean_sd(rho,prior_params[0],prior_params[1]);
     prior_delta=dgamma_mean_sd(delta,prior_params[2],prior_params[3]);
     prior_nu=dgamma_mean_sd(nu,prior_params[4],prior_params[5]);
@@ -125,7 +126,7 @@ void Param::mcmc(int burn, int nbit, int thin) {
             }
             tree2->jointml();
             double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
-            double prior_tree2=tree2->prior();
+            double prior_tree2=tree2->prior(this);
             double mh=ll2-ll+prior_tree2-prior_tree;
             if (log(runif(rng))<mh) {
                 naccepted[3]++;
@@ -145,11 +146,11 @@ void Param::mcmc(int burn, int nbit, int thin) {
         for (int rep=0;rep<updates[4];rep++) {
             Tree * tree2=Tree::copy_tree(tree);
             string name_moving;
-            double q12=tree2->rSPR(&name_moving);
+            double q12=tree2->rSPR(this,&name_moving);
             tree2->jointml();
-            double q21=tree2->lq_rSPR(tree,name_moving);
+            double q21=tree2->lq_rSPR(tree,this,name_moving);
             double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
-            double prior_tree2=tree2->prior();
+            double prior_tree2=tree2->prior(this);
             if (log(runif(rng))<ll2-ll+prior_tree2-prior_tree+q21-q12) {
                 naccepted[4]++;
                 if (verbose) vprint("Tree move accepted ll2-ll={:.2e} lp2-lp={:.2e} lq21-lq12={:.2e} mh={:.2e}",ll2-ll,prior_tree2-prior_tree,q21-q12,ll2-ll+prior_tree2-prior_tree+q21-q12);

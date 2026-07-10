@@ -1,5 +1,6 @@
 #include "../src/Tree.h"
 #include "../src/Alignment.h"
+#include "../src/Param.h"
 #include <cassert>
 #include <iostream>
 
@@ -74,13 +75,14 @@ int main() {
     delete(t);
     t=Tree::random_tree(20,1e-4,1e-4);
     t->simulate_sequences(1e5);
+    Param * p=new Param(t);
     for (int i=0;i<1000;i++) {
         t2=Tree::copy_tree(t);
         string name_moving;
-        double q1=t2->rSPR(&name_moving);
+        double q1=t2->rSPR(p,&name_moving);
         b=t->check_structure();
         assert(b);
-        double q2=t->lq_rSPR(t2,name_moving);
+        double q2=t->lq_rSPR(t2,p,name_moving);
         assert(q1==q2);
         delete t;
         t=t2;

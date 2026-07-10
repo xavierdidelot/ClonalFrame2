@@ -45,6 +45,7 @@ int main(int argc, const char *argv[]) {
     string outfile="";
     string simu_str="";
     string starting_str="";
+    string prior_params_str="";
     string update_str="1,1,1,1,1";
     vector<string> remainder;
     bool help=false;
@@ -62,8 +63,7 @@ int main(int argc, const char *argv[]) {
                 case('S'):simu_str=argv[++i];break;
                 case('I'):starting_str=argv[++i];break;
                 case('U'):update_str=argv[++i];break;
-                case('P'):std::sscanf(argv[++i], "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &prior_params[0], &prior_params[1],
-                    &prior_params[2],&prior_params[3],&prior_params[4],&prior_params[5],&prior_params[6],&prior_params[7]);break;
+                case('P'):prior_params_str=argv[++i];break;
                 case('v'):verbose = true;break;
                 case('p'):profiling = true;break;
                 case('h'):help=true;break;
@@ -166,6 +166,11 @@ int main(int argc, const char *argv[]) {
         p->set_rho(rho);
         p->set_delta(delta);
         p->set_nu(nu);
+    }
+    if (prior_params_str.length()>0) {
+        auto prior_params=*(p->get_prior_params());
+        std::sscanf(prior_params_str.c_str(), "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &prior_params[0], &prior_params[1],
+                        &prior_params[2],&prior_params[3],&prior_params[4],&prior_params[5],&prior_params[6],&prior_params[7]);
     }
     if (verbose) vprint("Performing initial ancestral reconstruction...");
     t->jointml();

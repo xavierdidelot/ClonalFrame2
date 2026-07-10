@@ -3,6 +3,7 @@
 
 #include "Tree.h"
 #include "Alignment.h"
+#include "Param.h"
 
 #include <iostream>
 
@@ -718,7 +719,8 @@ double Tree::likelihood() {
     return res;
 }
 
-double Tree::prior() {
+double Tree::prior(Param * p) {
+    auto prior_params=*(p->get_prior_params());
     if (prior_params[6]==prior_params[7]) {
         //Special Exponential case
         return -sum_bra_len()/prior_params[6]-log(prior_params[6])*(2.0*n-3.0);
@@ -776,7 +778,8 @@ Tree * Tree::copy_tree(Tree * t) {
     return t2;
 }
 
-double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f, double * b, double * d) {
+double Tree::select_rSPR(size_t moving, Param * p, size_t * newbro, double * m, double * f, double * b, double * d) {
+    auto prior_params=*(p->get_prior_params());
     size_t max=2*static_cast<int>(n)-3;
     vector probs=vector<double>(max+1,std::log(0.0));
     //Select the new brother which can be any node other than root, null node, moving, its father or its descendents
@@ -818,24 +821,24 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
     db=(d2+d3-d1)/2.0;
     //if (verbose) vprint("d1={:.2e} d2={:.2e} d3={:.2e} dm={:.2e} df={:.2e} db={:.2e}",d1,d2,d3,dm,df,db);
     std::gamma_distribution<double> rgamma(shape, scale);
-    determine_shape_scale(dm,&shape,&scale);
+    determine_shape_scale(dm,p,&shape,&scale);
     rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
     *m=rgamma(rng);
     q+=dgamma_shape_scale(*m,shape,scale);//This is the dgamma probability of the new distance m
 
-    determine_shape_scale(df,&shape,&scale);
+    determine_shape_scale(df,p,&shape,&scale);
     rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
     *f=rgamma(rng);
     q+=dgamma_shape_scale(*f,shape,scale);//This is the dgamma probability of the new distance f
 
-    determine_shape_scale(db,&shape,&scale);
+    determine_shape_scale(db,p,&shape,&scale);
     rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
     *b=rgamma(rng);
     q+=dgamma_shape_scale(*b,shape,scale);//This is the dgamma probability of the new distance b
 
     if (*newbro!=nodes[moving]->get_brother()->get_index()) {
         int diffs=count_diffs(nodes[moving]->get_brother(),nodes[moving]->get_father()->get_father());
-        determine_shape_scale(diffs,&shape,&scale);
+        determine_shape_scale(diffs,p,&shape,&scale);
         rgamma.param(std::gamma_distribution<double>::param_type(shape,scale));
         *d=rgamma(rng);
         q+=dgamma_shape_scale(*d,shape,scale);//This is the dgamma probability of the new distance d
@@ -843,7 +846,7 @@ double Tree::select_rSPR(size_t moving, size_t * newbro, double * m, double * f,
     return(q);
 }
 
-double Tree::rSPR(string * name_moving) {
+double Tree::rSPR(Param * p,string * name_moving) {
     if (n==3) return 0;
     if (profiling) Profiler::prof.start(__func__);
     //First select which node is moving, which can be any node other than the root, the null node and their three children
@@ -859,7 +862,7 @@ double Tree::rSPR(string * name_moving) {
     //Next select where and how to regraft
     double m,f,b,d;
     size_t newbro;
-    double q=select_rSPR(moving, &newbro, &m, &f, &b, &d);
+    double q=select_rSPR(moving, p,&newbro, &m, &f, &b, &d);
     //Pruning
     Node * oldgf=nodes[oldf]->get_father();
     if (oldgf->get_left()->get_index()==oldf) oldgf->set_left(nodes[oldbro]); else oldgf->set_right(nodes[oldbro]);
@@ -885,7 +888,8 @@ double Tree::rSPR(string * name_moving) {
     return(q);
 }
 
-double Tree::lq_rSPR(Tree *tree2, string name_moving) {
+double Tree::lq_rSPR(Tree *tree2, Param * p,string name_moving) {
+    auto prior_params=*(p->get_prior_params());
     if (n==3) return 0;
     if (profiling) Profiler::prof.start(__func__);
     size_t moving=0;
@@ -939,32 +943,38 @@ double Tree::lq_rSPR(Tree *tree2, string name_moving) {
     dm=(d1+d2-d3)/2.0;
     df=(d1+d3-d2)/2.0;
     db=(d2+d3-d1)/2.0;
-    determine_shape_scale(dm,&shape,&scale);
+    determine_shape_scale(dm,p,&shape,&scale);
     q+=dgamma_shape_scale(m,shape,scale);//This is the dgamma probability of the new distance m
-    determine_shape_scale(df,&shape,&scale);
+    determine_shape_scale(df,p,&shape,&scale);
     q+=dgamma_shape_scale(f,shape,scale);//This is the dgamma probability of the new distance f
-    determine_shape_scale(db,&shape,&scale);
+    determine_shape_scale(db,p,&shape,&scale);
     q+=dgamma_shape_scale(b,shape,scale);//This is the dgamma probability of the new distance b
     if (nodes[newbro]->get_name()!=nodes[oldbro]->get_name()) {
         int diffs=count_diffs(nodes[oldbro],nodes[oldbro]->get_father()->get_father());
-        determine_shape_scale(diffs,&shape,&scale);
+        determine_shape_scale(diffs,p,&shape,&scale);
         q+=dgamma_shape_scale(d,shape,scale);//This is the dgamma probability of the new distance d
     }
     if (profiling) Profiler::prof.stop(__func__);
     return q;
 }
 
-void Tree::determine_shape_scale(double diffs, double *shape, double *scale) {
+void Tree::determine_shape_scale(double diffs, Param * p, double *shape, double *scale) {
+    auto prior_params=*(p->get_prior_params());
     double b_shape=prior_params[6]*prior_params[6]/prior_params[7]/prior_params[7];
     double b_scale=prior_params[7]*prior_params[7]/prior_params[6];
-    //double rho=0.1;double delta=500;double nu=0.05;
-    //diffs=diffs/(1.0+rho*delta*nu);//Corrected diffs for effect of recombination
+    double rho=p->get_rho();
+    double delta=p->get_delta();
+    double nu=p->get_nu();
+    double L=ali->get_l();
+    diffs=diffs/(1.0+rho*delta*nu);//Corrected diffs for effect of recombination
+    //L=L/(rho*delta);
     double d=0.0;
-    if (ali->get_l()>0) d=-0.75*std::log(1.0-4.0/3.0*diffs/ali->get_l());
-    double ediffs=d*ali->get_l();
-    double coef=1.0+1.0*ali->get_l()/1e6;
-    *shape=b_shape+ediffs/coef;
-    *scale=b_scale/(ali->get_l()/coef*b_scale+1.0);
+    if (L>0) d=-0.75*std::log(1.0-4.0/3.0*diffs/L);
+    double ediffs=d*L;
+    double lambda=1.0+0.0*L/1e6;
+    //lambda=lambda*(1.0+rho*delta*nu);
+    *shape=b_shape+ediffs/lambda;
+    *scale=b_scale/(L/lambda*b_scale+1.0);
 }
 
 int Tree::count_diffs(Node *n1, Node *n2) {

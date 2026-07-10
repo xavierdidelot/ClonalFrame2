@@ -36,7 +36,8 @@ public:
     void state_to_json_file(int iter);
     ///Return pointer to vector of updates
     vector<int> * get_updates() {return &updates;}
-
+    ///Return pointer to vector of prior params
+    vector<double> * get_prior_params() {return &prior_params;}
 
 private:
     void print_progress(int current, int total);
@@ -56,6 +57,7 @@ private:
     const double adapt_scale=1.0/adapt_target/(1.0-adapt_target);
     vector<double> adapt_nstart;
     vector<double> adapt_lambda;
+    vector<double> prior_params;
 };
 
 

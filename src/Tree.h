@@ -13,6 +13,7 @@
 using std::string,std::vector;
 
 class Alignment;
+class Param;
 
 /**
  * @class Tree
@@ -77,15 +78,15 @@ public:
     ///Return alignment
     Alignment * get_alignment()  {return ali;}
     ///Perform SPR move and return log of the proposal probability
-    double rSPR(string * name_moving);
+    double rSPR(Param * p,string * name_moving);
     ///Select new bro for SPR move
-    double select_rSPR(size_t moving, size_t * newbro, double * m, double * f, double * b, double * d);
+    double select_rSPR(size_t moving, Param * p, size_t * newbro, double * m, double * f, double * b, double * d);
     ///Tree prior
-    double prior();
+    double prior(Param * p);
     ///Probability of proposing from this to tree, given name of moving node
-    double lq_rSPR(Tree *tree2, string name_moving);
+    double lq_rSPR(Tree *tree2, Param * p,string name_moving);
     ///Determine the shape and scale parameters of the gamma distribution for the length of a branch
-    void determine_shape_scale(double diffs, double * shape, double * scale);
+    void determine_shape_scale(double diffs, Param * p, double * shape, double * scale);
     ///Count number of differences between ancestral sequences of two nodes
     int count_diffs(Node * n1, Node * n2);
     ///Write ancestral states to json file

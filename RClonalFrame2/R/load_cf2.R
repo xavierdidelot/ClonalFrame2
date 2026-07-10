@@ -79,8 +79,13 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
     plot(iters,x$iterations[iters,'likelihood']+x$iterations[iters,'prior_tree']+x$iterations[iters,'prior_rho']+x$iterations[iters,'prior_delta']+x$iterations[iters,'prior_nu'],main='Posterior',type='l',xlab='Sampled iterations',ylab='')
     plot(iters,x$iterations[iters,'sum_bra_len'],main='Sum branch lengths',type='l',xlab='Sampled iterations',ylab='')
     plot(iters,x$iterations[iters,'rho'],main='Rho',type='l',xlab='Sampled iterations',ylab='')
+    if (!is.null(x$simulation_parameters)) lines(range(iters),rep(x$simulation_parameters$rho,2),col='red')
     plot(iters,x$iterations[iters,'delta'],main='Delta',type='l',xlab='Sampled iterations',ylab='')
+    if (!is.null(x$simulation_parameters)) lines(range(iters),rep(x$simulation_parameters$delta,2),col='red')
     plot(iters,x$iterations[iters,'nu'],main='Nu',type='l',xlab='Sampled iterations',ylab='')
+    if (!is.null(x$simulation_parameters)) lines(range(iters),rep(x$simulation_parameters$nu,2),col='red')
+    plot(iters,x$iterations[iters,'rho']*x$iterations[iters,'delta']*x$iterations[iters,'nu'],main='r/m',type='l',xlab='Sampled iterations',ylab='')
+    if (!is.null(x$simulation_parameters)) lines(range(iters),rep(x$simulation_parameters$rho*x$simulation_parameters$delta*x$simulation_parameters$nu,2),col='red')
   }
 
   if (type=='trace_acceptance') {

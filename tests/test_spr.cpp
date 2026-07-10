@@ -1,5 +1,6 @@
 #include "../src/Tree.h"
 #include "../src/Alignment.h"
+#include "../src/Param.h"
 #include <cassert>
 #include <iostream>
 
@@ -13,9 +14,10 @@ int main(int argc, const char *argv[]) {
     setSeed(seed);
     auto t = Tree::random_tree(n,0.01,0.01);
     t->simulate_sequences(0);
+    Param * p=new Param(t);
     for (int i=0;i<niter;i++) {
         std::println("{}",t->to_string());
         string s;
-        for (int j=0;j<10;j++) t->rSPR(&s);
+        for (int j=0;j<10;j++) t->rSPR(p,&s);
     }
 }
