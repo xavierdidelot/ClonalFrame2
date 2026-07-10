@@ -965,16 +965,15 @@ void Tree::determine_shape_scale(double diffs, Param * p, double *shape, double 
     double rho=p->get_rho();
     double delta=p->get_delta();
     double nu=p->get_nu();
+    nu=0.75-0.75*std::exp(-4.0*nu/3.0);
     double L=ali->get_l();
     diffs=diffs/(1.0+rho*delta*nu);//Corrected diffs for effect of recombination
-    //L=L/(rho*delta);
     double d=0.0;
     if (L>0) d=-0.75*std::log(1.0-4.0/3.0*diffs/L);
-    double ediffs=d*L;
-    double lambda=1.0+0.0*L/1e6;
-    //lambda=lambda*(1.0+rho*delta*nu);
-    *shape=b_shape+ediffs/lambda;
-    *scale=b_scale/(L/lambda*b_scale+1.0);
+    diffs=d*L;
+    double lambda=2;
+    *shape=b_shape+diffs/lambda;
+    *scale=b_scale*lambda/(L*b_scale+lambda);
 }
 
 int Tree::count_diffs(Node *n1, Node *n2) {
