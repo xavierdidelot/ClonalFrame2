@@ -2,12 +2,12 @@
 library(RClonalFrame2)
 rm(list=ls())
 set.seed(0)
-n=20#Number of sequences
+n=100#Number of sequences
 l=1e6#Genome length
 rho=0.1
 delta=500
 nu=0.05
-x=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e4,profile=T,update_pars = c(0,0,0,0,1))
+x=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e3,profile=T,update_pars = c(1,1,1,1,1))
 plot(x)
 plot(x,'trace',burnin=0)
 plot(x,'trace_sd',burnin=0)

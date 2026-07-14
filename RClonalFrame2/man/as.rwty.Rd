@@ -4,14 +4,12 @@
 \alias{as.rwty}
 \title{Convert cf2out object to rwty.chain format}
 \usage{
-as.rwty(x, burnin, ...)
+as.rwty(x, burnin)
 }
 \arguments{
 \item{x}{Output from ClonalFrame2}
 
 \item{burnin}{Proportion of the MCMC output to be discarded as burnin}
-
-\item{...}{Additional parameters are passed on}
 }
 \value{
 object of class rwty.chain from rwty package

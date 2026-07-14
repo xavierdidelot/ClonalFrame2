@@ -19,7 +19,7 @@ print.cf2out <- function(x, burnin, ...) {
   stopifnot(inherits(x, "cf2out"))
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
   cat(sprintf('ClonalFrame2 output with %d sampled iterations and %d%% burnin\n',nrow(x$iterations),100*burnin))
-  iters=max(1,floor(nrow(x$iterations)*burnin)):nrow(x$iterations)
+  iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
   for (nam in c('rho','delta','nu')) {
     v=x$iterations[iters,nam]
     v=sort(v)
@@ -50,7 +50,7 @@ summary.cf2out <- function(object, ...) {
 plot.cf2out = function(x, type='pars', burnin, ...) {
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
   old.par=par(no.readonly = T)
-  iters=max(1,floor(nrow(x$iterations)*burnin)):nrow(x$iterations)
+  iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
 
   if (type=='pars') {
     panel.hist <- function(x,truths,...)
@@ -89,7 +89,6 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
   }
 
   if (type=='trace_acceptance') {
-    iters=setdiff(iters,1)#first iteration always has zero paccept since nothing proposed yet
     par(mfrow=c(2,3))
     plot(x$iterations[iters,'paccepted_rho'],main='Rho',type='l',xlab='Sampled iterations',ylab='',ylim=c(0,1))
     plot(x$iterations[iters,'paccepted_delta'],main='Delta',type='l',xlab='Sampled iterations',ylab='',ylim=c(0,1))
@@ -138,7 +137,7 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
 as.mcmc.cf2out <- function(x,burnin,...) {
   stopifnot(inherits(x, "cf2out"))
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
-  iters=max(1,floor(nrow(x$iterations)*burnin)):nrow(x$iterations)
+  iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
   mat=cbind(
     x$iterations[iters,'rho'],
     x$iterations[iters,'delta'],
@@ -151,19 +150,50 @@ as.mcmc.cf2out <- function(x,burnin,...) {
 #' Convert cf2out object to rwty.chain format
 #' @param x Output from ClonalFrame2
 #' @param burnin Proportion of the MCMC output to be discarded as burnin
-#' @param ... Additional parameters are passed on
 #' @return object of class rwty.chain from rwty package
 #' @export
-as.rwty <- function(x,burnin,...) {
+as.rwty <- function(x,burnin) {
   stopifnot(inherits(x, "cf2out"))
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
-  iters=max(1,floor(nrow(x$iterations)*burnin)):nrow(x$iterations)
+  iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
   filename=tempfile()
   f=file(filename,'w')
   for (i in iters) {
     write(x$iterations[i,'tree'],file=f,append=T)
   }
   close(f)
-  r=load.trees(filename,type = "newick")
+  r=rwty::load.trees(filename,type = "newick")
   return(r)
+}
+
+#' Convert cf2out object to multiPhylo format
+#' @param x Output from ClonalFrame2
+#' @param burnin Proportion of the MCMC output to be discarded as burnin
+#' @return object of class multiPhylo from ape package
+#' @export
+as.multiPhylo <- function(x,burnin) {
+  stopifnot(inherits(x, "cf2out"))
+  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
+  trees=vector("list", length(iters))
+  for (i in 1:length(iters)) {
+    trees[[i]]=read.tree(text = x$iterations[iters[i],'tree'])
+  }
+  class(trees) <- "multiPhylo"
+  return(trees)
+}
+
+#' Find medoid
+#' @param x Output from ClonalFrame2 or a multiPhylo object
+#' @param burnin Proportion of the MCMC output to be discarded as burnin
+#' @param metric Metric to use, can be either wRF or KF
+#' @return Index of the medoid
+#' @export
+medoid <- function(x,burnin,metric='wRF') {
+  stopifnot(inherits(x, "cf2out") || inherits(x, "multiPhylo"))
+  if (inherits(x, "cf2out")) x=as.multiPhylo(x,burnin)
+  if (metric=='wRF') dmat=wRF.dist(x, rooted = FALSE)
+  if (metric=='KF')  dmat=KF.dist(x, rooted = FALSE)
+  ind=unname(which.min(rowSums(as.matrix(dmat))))
+  return(ind)
 }
