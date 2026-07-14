@@ -116,3 +116,12 @@ abline(0, 1, col = 2, lty = 2)
 fig_label('R',cex=2)
 dev.off()
 system('open scripts/test_prior.pdf')
+
+
+#Checking that consensus tree looks completely star-like
+m=as.multiPhylo(x)
+cons_topo=consensus(m, p = 0.5, rooted = FALSE)
+cons=add_edge_length(cons_topo, m, rooted = FALSE)
+plot(cons,show.tip.label = F)
+axisPhylo(1)
+

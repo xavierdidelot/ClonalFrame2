@@ -168,9 +168,9 @@ int main(int argc, const char *argv[]) {
         p->set_nu(nu);
     }
     if (prior_params_str.length()>0) {
-        auto prior_params=*(p->get_prior_params());
-        std::sscanf(prior_params_str.c_str(), "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &prior_params[0], &prior_params[1],
-                        &prior_params[2],&prior_params[3],&prior_params[4],&prior_params[5],&prior_params[6],&prior_params[7]);
+        vector<double> * prior_params=p->get_prior_params();
+        std::sscanf(prior_params_str.c_str(), "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &prior_params->at(0), &prior_params->at(1),
+            &prior_params->at(2),&prior_params->at(3),&prior_params->at(4),&prior_params->at(5),&prior_params->at(6),&prior_params->at(7));
     }
     if (verbose) vprint("Performing initial ancestral reconstruction...");
     t->jointml();
