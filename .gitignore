@@ -8,3 +8,4 @@ RClonalFrame2/scripts/*.pdf
 /build-release
 /build-debug
 ClonalFrame2
+*.RData

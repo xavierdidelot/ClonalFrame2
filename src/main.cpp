@@ -186,7 +186,12 @@ int main(int argc, const char *argv[]) {
 
     auto end = Clock::now();
     std::chrono::duration<double> elapsed = end - start;
-    vprint("Time spent running: {} seconds",elapsed.count());
+    double time=elapsed.count();
+    string unit="seconds";
+    if (time>60) {time=time/60;unit="minutes";}
+    if (time>60 && unit=="minutes") {time=time/60;unit="hours";}
+    if (time>24 && unit=="hours") {time=time/24;unit="days";}
+    vprint("Time spent running: {:.4f} {}.",time,unit);
     if (verbose) vprint("End of ClonalFrame2 run.");
     return 0;
 }

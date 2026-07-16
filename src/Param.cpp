@@ -47,7 +47,7 @@ void Param::mcmc(int burn, int nbit, int thin) {
     prior_rho=dgamma_mean_sd(rho,prior_params[0],prior_params[1]);
     prior_delta=dgamma_mean_sd(delta,prior_params[2],prior_params[3]);
     prior_nu=dgamma_mean_sd(nu,prior_params[4],prior_params[5]);
-    sd=vector<double> {0.1,10.0,1e-3,prior_params[6]*0.01};
+    sd=vector<double> {0.1,10.0,1e-3,1e-3};
     adapt_nstart=vector(4,5.0*adapt_scale);
     adapt_lambda=vector(4,1.0);
     naccepted=vector(5,0);
@@ -121,22 +121,26 @@ void Param::mcmc(int burn, int nbit, int thin) {
         for (int rep=0;rep<updates[3];rep++) {
             Tree * tree2=Tree::copy_tree(tree);
             rnorm.param(std::normal_distribution<double>::param_type(0,sd[3]));
+            double lqr=0.0;
             for (size_t b=0;b<2*tree2->get_n()-3;b++) {
-                tree2->get_node(b)->set_dist_father(std::fabs(tree2->get_node(b)->get_dist_father()+rnorm(rng)));
+                double cur=tree2->get_node(b)->get_dist_father();
+                double pro=cur*std::exp(rnorm(rng));
+                tree2->get_node(b)->set_dist_father(pro);
+                lqr=lqr+std::log(pro/cur);
             }
             tree2->jointml();
             double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
             double prior_tree2=tree2->prior(this);
-            double mh=ll2-ll+prior_tree2-prior_tree;
+            double mh=ll2-ll+prior_tree2-prior_tree+lqr;
             if (log(runif(rng))<mh) {
                 naccepted[3]++;
-                if (verbose) vprint("Branch lengths move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e}",ll,ll2,prior_tree,prior_tree2);
+                if (verbose) vprint("Branch lengths move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} mh={:2e}",ll,ll2,prior_tree,prior_tree2,mh);
                 ll=ll2;
                 prior_tree=prior_tree2;
                 delete tree;
                 tree=tree2;
             } else {
-                if (verbose) vprint("Branch lengths move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e}",ll,ll2,prior_tree,prior_tree2);
+                if (verbose) vprint("Branch lengths move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} mh={:2e}",ll,ll2,prior_tree,prior_tree2,mh);
                 delete tree2;
             }
             adapt(3,mh,i,rep);
@@ -151,15 +155,16 @@ void Param::mcmc(int burn, int nbit, int thin) {
             double q21=tree2->lq_rSPR(tree,this,name_moving);
             double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
             double prior_tree2=tree2->prior(this);
-            if (log(runif(rng))<ll2-ll+prior_tree2-prior_tree+q21-q12) {
+            double mh=ll2-ll+prior_tree2-prior_tree+q21-q12;
+            if (log(runif(rng))<mh) {
                 naccepted[4]++;
-                if (verbose) vprint("Tree move accepted ll2-ll={:.2e} lp2-lp={:.2e} lq21-lq12={:.2e} mh={:.2e}",ll2-ll,prior_tree2-prior_tree,q21-q12,ll2-ll+prior_tree2-prior_tree+q21-q12);
+                if (verbose) vprint("Tree move accepted ll2-ll={:.2e} lp2-lp={:.2e} lq21-lq12={:.2e} mh={:.2e}",ll2-ll,prior_tree2-prior_tree,q21-q12,mh);
                 ll=ll2;
                 prior_tree=prior_tree2;
                 delete tree;
                 tree=tree2;
             } else {
-                if (verbose) vprint("Tree move rejected ll2-ll={:.2e} lp2-lp={:.2e} lq21-lq12={:.2e} mh={:.2e}",ll2-ll,prior_tree2-prior_tree,q21-q12,ll2-ll+prior_tree2-prior_tree+q21-q12);
+                if (verbose) vprint("Tree move rejected ll2-ll={:.2e} lp2-lp={:.2e} lq21-lq12={:.2e} mh={:.2e}",ll2-ll,prior_tree2-prior_tree,q21-q12,mh);
                 delete tree2;
             }
         }
