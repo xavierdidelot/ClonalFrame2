@@ -124,6 +124,10 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
     plot_recombination(x,showSubs=T,...)
   }
 
+  if (type=='iteration') {
+    plot_iteration(x,...)
+  }
+
   par(old.par)
 }
 

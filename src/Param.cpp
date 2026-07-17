@@ -52,7 +52,7 @@ void Param::mcmc(int burn, int nbit, int thin) {
     adapt_lambda=vector(4,1.0);
     naccepted=vector(5,0);
     std::normal_distribution<double> rnorm;
-    std::gamma_distribution<double> rgamma;
+    //std::gamma_distribution<double> rgamma;
 
     //Writing initial state to output file
     state_to_json_file(0);
@@ -125,10 +125,10 @@ void Param::mcmc(int burn, int nbit, int thin) {
             double lqr=0.0;
             for (size_t b=0;b<2*tree2->get_n()-3;b++) {
                 double cur=tree2->get_node(b)->get_dist_father();
-                /*double pro=cur*std::exp(rnorm(rng));
-                lqr=lqr+std::log(pro/cur);*/
-                double pro=2.0*std::sqrt(cur)+rnorm(rng);pro=pro*pro/4.0;
-                lqr=lqr+0.5*std::log(pro/cur);
+                double pro=cur*std::exp(rnorm(rng));
+                lqr=lqr+std::log(pro/cur);
+                /*double pro=2.0*std::sqrt(cur)+rnorm(rng);pro=pro*pro/4.0;
+                lqr=lqr+0.5*std::log(pro/cur);*/
                 /*double var=sd[3]*sd[3];
                 rgamma.param(std::gamma_distribution<double>::param_type(cur/var,var));
                 double pro=rgamma(rng);

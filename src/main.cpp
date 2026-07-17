@@ -172,8 +172,6 @@ int main(int argc, const char *argv[]) {
         std::sscanf(prior_params_str.c_str(), "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &prior_params->at(0), &prior_params->at(1),
             &prior_params->at(2),&prior_params->at(3),&prior_params->at(4),&prior_params->at(5),&prior_params->at(6),&prior_params->at(7));
     }
-    if (verbose) vprint("Performing initial ancestral reconstruction...");
-    t->jointml();
     vector<int> * updates=p->get_updates();
     std::sscanf(update_str.c_str(), "%d,%d,%d,%d,%d", &updates->at(0),&updates->at(1),&updates->at(2),&updates->at(3),&updates->at(4));
     p->mcmc(burn, nbit, thin);
