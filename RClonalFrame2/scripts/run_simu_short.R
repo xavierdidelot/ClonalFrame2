@@ -16,6 +16,7 @@ plot(x,'trace_acceptance',burnin=0)
 #plot(x,'simulation')
 print(tail(x$iterations$paccepted_spr,1))
 
-RClonalFrame2:::extract_iteration(x)
-
-#profvis::profvis(RClonalFrame2:::extract_iteration(x))
+pdf('/tmp/tmp.pdf',10,10)
+plot(x,'iteration',iteration=10)
+dev.off()
+system('open /tmp/tmp.pdf')

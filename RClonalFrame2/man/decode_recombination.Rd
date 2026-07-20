@@ -4,23 +4,17 @@
 \alias{decode_recombination}
 \title{Decoding of recombined regions using forward-backward algorithm}
 \usage{
-decode_recombination(tree, seqs, anc, rho, delta, nu)
+decode_recombination(x, iteration, gap)
 }
 \arguments{
-\item{tree}{Phylogeny in ape::phylo format}
+\item{x}{Output from ClonalFrame2}
 
-\item{seqs}{Sequences in phangorn::phyDat format}
+\item{iteration}{Index of the iteration to extract (default is the last iteration)}
 
-\item{anc}{Ancestral sequences in phangorn::phyDat format}
-
-\item{rho}{Rho parameter}
-
-\item{delta}{Delta parameter}
-
-\item{nu}{Nu parameter}
+\item{gap}{Gap between sites in output (default is 100)}
 }
 \value{
-Probability of recombination for each branch and site
+Matrix of probability of recombination for each branch and n-th site with n=gap
 }
 \description{
 Decoding of recombined regions using forward-backward algorithm
