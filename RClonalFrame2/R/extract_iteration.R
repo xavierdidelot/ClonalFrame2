@@ -28,11 +28,12 @@ extract_iteration = function(x,iteration) {
   anc=phangorn:::joint_pml(pml)
 
   #Compute likelihood and check it is the same as in C++
-  d=likelihood_anc_rec(tree,seqs,anc,rho=rho,delta=delta,nu=nu)
-  print(c(likelihood,d))
+  #d=likelihood_anc_rec(tree,seqs,anc,rho=rho,delta=delta,nu=nu)
+  #print(c(likelihood,d))
 
   #Inference of recombined regions
-  x2=decode_recombination(tree,seqs,anc,rho=rho,delta=delta,nu=nu)
+  x2=decode_recombination(tree,seqs,anc,rho,delta,nu)
+  print(c(likelihood,x2))
   return(x2)
 }
 

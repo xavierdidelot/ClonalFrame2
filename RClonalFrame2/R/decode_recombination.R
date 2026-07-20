@@ -16,8 +16,7 @@ decode_recombination <- function(tree,seqs,anc,rho,delta,nu) {
   pid_nu =1/4+3/4*exp(-nu*4/3)
   pnid_nu=1/4-1/4*exp(-nu*4/3)
   for (i in 1:nrow(tree$edge)) {
-    if (tree$edge[i,2]<=n) bottom=seqs[[tree$tip.label[tree$edge[i,2]]]]
-    else bottom=anc[[tree$node.label[tree$edge[i,2]-n]]]
+    if (tree$edge[i,2]<=n) bottom=seqs[[tree$tip.label[tree$edge[i,2]]]] else bottom=anc[[tree$node.label[tree$edge[i,2]-n]]]
     top=anc[[tree$node.label[tree$edge[i,1]-n]]]
     len=tree$edge.length[i]
     ex=exp(-len*4/3)
@@ -26,21 +25,37 @@ decode_recombination <- function(tree,seqs,anc,rho,delta,nu) {
     a=1-exp(-rho*len)
     #b=1-exp(-1/delta)
     if (a==0) b=0.5 else b=1-exp(-rho*len/expm1(rho*len*delta))#Using M/M/inf queue
-    alpha1=b/(a+b)
-    alpha2=a/(a+b)
+    maxskip=100
+    gamma=c(1-a,a,b,1-b)
+    gammas=matrix(NA,maxskip,4)
+    gammas[1,]=gamma
+    if (maxskip>1) for (k in 2:maxskip) {
+      gammas[k,1]=gammas[k-1,1]*pid*gamma[1]+gammas[k-1,2]*pid_nu*gamma[3]
+      gammas[k,2]=gammas[k-1,1]*pid*gamma[2]+gammas[k-1,2]*pid_nu*gamma[4]
+      gammas[k,3]=gammas[k-1,3]*pid*gamma[1]+gammas[k-1,4]*pid_nu*gamma[3]
+      gammas[k,4]=gammas[k-1,3]*pid*gamma[2]+gammas[k-1,4]*pid_nu*gamma[4]
+    }
     lscale=0
+
     #Forward algorithm
-    for (j in 1:nsites) {
-      pat=patindex[j]
-      is_same=top[pat]==bottom[pat]
-      if (is_same) {p1=pid;p2=pid_nu} else {p1=pnid;p2=pnid_nu}
-      newalpha1=(alpha1*(1-a)+alpha2*b)*p1
-      alpha2=(alpha1*a+alpha2*(1-b))*p2
-      alpha1=newalpha1
-      scale=alpha1+alpha2
-      alpha1=alpha1/scale
-      alpha2=alpha2/scale
+    is_sames=top[patindex]==bottom[patindex]
+    jj=1
+    todosites=sort(unique(c(seq(1,nsites,maxskip),nsites,which(!is_sames))))
+    skippings=diff(c(0,todosites))
+    lentodosites=length(todosites)
+    alpha=matrix(NA,lentodosites+1,2)
+    alpha[1,1]=b/(a+b)
+    alpha[1,2]=a/(a+b)
+    for (jj in 1:lentodosites) {
+      j=todosites[jj]
+      skipping=skippings[jj]
+      if (is_sames[j]) {p1=pid;p2=pid_nu} else {p1=pnid;p2=pnid_nu}
+      alpha[jj+1,1]=(alpha[jj,1]*gammas[skipping,1]+alpha[jj,2]*gammas[skipping,3])*p1
+      alpha[jj+1,2]=(alpha[jj,1]*gammas[skipping,2]+alpha[jj,2]*gammas[skipping,4])*p2
+      scale=alpha[jj+1,1]+alpha[jj+1,2]
+      alpha[jj+1,]=alpha[jj+1,]/scale
       lscale=lscale+log(scale)
+      j=j+1
     }
     ll=ll+lscale
   }
