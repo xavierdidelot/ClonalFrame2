@@ -2,20 +2,22 @@
 % Please edit documentation in R/plot_recombination.R
 \name{plot_recombination}
 \alias{plot_recombination}
-\title{Plotting simulated recombination events from cf2out objects}
+\title{Plotting tree and recombination events of a given iteration from cf2out objects}
 \usage{
-plot_recombination(x, showSubs = F, ...)
+plot_recombination(x, iteration, gap, ...)
 }
 \arguments{
 \item{x}{Output from ClonalFrame2}
 
-\item{showSubs}{Whether to show the individual substitutions on each branch}
+\item{iteration}{Index of the iteration to plot (default is the last iteration)}
+
+\item{gap}{Gap between sites in output (default is 100)}
 
 \item{...}{Additional parameters are passed on}
 }
 \value{
-Plot of ClonalFrame2 simulation
+Plot of ClonalFrame2 result
 }
 \description{
-Plotting simulated recombination events from cf2out objects
+Plotting tree and recombination events of a given iteration from cf2out objects
 }

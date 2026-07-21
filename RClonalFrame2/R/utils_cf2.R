@@ -117,15 +117,15 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
   }
 
   if (type=='simulation') {
-    plot_recombination(x,...)
+    plot_simulation(x,...)
   }
 
   if (type=='simulation_with_subs') {
-    plot_recombination(x,showSubs=T,...)
+    plot_simulation(x,showSubs=T,...)
   }
 
-  if (type=='iteration') {
-    plot_iteration(x,...)
+  if (type=='recombination') {
+    plot_recombination(x,...)
   }
 
   par(old.par)
