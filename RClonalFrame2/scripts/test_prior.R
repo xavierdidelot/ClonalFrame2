@@ -115,7 +115,7 @@ qqplot(rgamma(nrow(x$iterations),shape=nu_shape,scale=nu_scale),x$iterations[,'n
 abline(0, 1, col = 2, lty = 2)
 fig_label('R',cex=2)
 dev.off()
-system('open scripts/test_prior.pdf')
+browseURL('scripts/test_prior.pdf')
 
 
 #Checking that consensus tree looks completely star-like

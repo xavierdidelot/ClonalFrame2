@@ -4,14 +4,18 @@
 \alias{plot_recombination}
 \title{Plotting tree and recombination events of a given iteration from cf2out objects}
 \usage{
-plot_recombination(x, iteration, gap, ...)
+plot_recombination(x, iteration, gap = 100, burnin, show_truth = T, ...)
 }
 \arguments{
 \item{x}{Output from ClonalFrame2}
 
-\item{iteration}{Index of the iteration to plot (default is the last iteration)}
+\item{iteration}{Index of the iteration to plot (default is the medoid)}
 
 \item{gap}{Gap between sites in output (default is 100)}
+
+\item{burnin}{Burnin proportion to apply if using medoid}
+
+\item{show_truth}{Whether to show the truth for a simulated dataset}
 
 \item{...}{Additional parameters are passed on}
 }

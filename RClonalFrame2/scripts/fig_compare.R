@@ -30,4 +30,4 @@ plot(allres[,1],allres[,2],xlab='Unconditional likelihood',ylab='Conditional lik
 abline(0,1)
 fig_label('D',cex=2)
 dev.off()
-system('open scripts/fig_compare.pdf')
+browseURL('scripts/fig_compare.pdf')

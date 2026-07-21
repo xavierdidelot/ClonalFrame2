@@ -90,11 +90,11 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
 
   if (type=='trace_acceptance') {
     par(mfrow=c(2,3))
-    plot(x$iterations[iters,'paccepted_rho'],main='Rho',type='l',xlab='Sampled iterations',ylab='',ylim=c(0,1))
-    plot(x$iterations[iters,'paccepted_delta'],main='Delta',type='l',xlab='Sampled iterations',ylab='',ylim=c(0,1))
-    plot(x$iterations[iters,'paccepted_nu'],main='Nu',type='l',xlab='Sampled iterations',ylab='',ylim=c(0,1))
-    plot(x$iterations[iters,'paccepted_lengths'],main='Lengths',type='l',xlab='Sampled iterations',ylab='',ylim=c(0,1))
-    plot(x$iterations[iters,'paccepted_spr'],main='SPR',type='l',xlab='Sampled iterations',ylab='',ylim=c(0,1))
+    plot(x$iterations[iters,'paccepted_rho'],main='Rho',type='l',xlab='Sampled iterations',ylab='')
+    plot(x$iterations[iters,'paccepted_delta'],main='Delta',type='l',xlab='Sampled iterations',ylab='')
+    plot(x$iterations[iters,'paccepted_nu'],main='Nu',type='l',xlab='Sampled iterations',ylab='')
+    plot(x$iterations[iters,'paccepted_lengths'],main='Lengths',type='l',xlab='Sampled iterations',ylab='')
+    plot(x$iterations[iters,'paccepted_spr'],main='SPR',type='l',xlab='Sampled iterations',ylab='')
   }
 
   if (type=='trace_sd') {
