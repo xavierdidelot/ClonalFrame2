@@ -119,7 +119,7 @@ int main(int argc, const char *argv[]) {
     double b_mean, b_sd, rho, delta, nu;
     int start_correct=0;
     if (simu_str.empty()) {
-        if (starting_str.empty()) starting_str="1,500,0.05,nj";
+        if (starting_str.empty()) starting_str="0.1,500,0.05,nj";
         a = Alignment::read_fasta(infile);
         if (a->get_n()<3) {
             std::println("Need a minimum of three genomes.");

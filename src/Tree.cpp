@@ -421,6 +421,7 @@ double Tree::sum_bra_len() {
 }
 
 double Tree::likelihood_anc() {
+    if (profiling) Profiler::prof.start(__func__);
     double ll=0.0;
     double len,ex,pid,pnid;
     int s1,s2;
@@ -446,12 +447,14 @@ double Tree::likelihood_anc() {
         ll+=pid*s1+pnid*s2;
     }
     ll=ll+log(0.25)*ali->get_patindex()->size();
+    if (profiling) Profiler::prof.stop(__func__);
     return ll;
 }
 
 double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
     size_t L=ali->get_l();
     if (L==0) return 0.0;
+    if (rho==0 || delta==0) return likelihood_anc();
     if (profiling) Profiler::prof.start(__func__);
     double ll=0.0;
     double ex_nu=exp(-4.0*nu/3.0);

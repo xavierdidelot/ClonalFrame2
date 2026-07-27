@@ -7,7 +7,7 @@ l=1e6#Genome length
 rho=0.1
 delta=500
 nu=0.05
-x=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e4,profile=T,update_pars = c(0,0,0,1,0))
+x=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e4,profile=T)
 save.image('long.RData')
 plot(x)
 plot(x,'trace',burnin=0)
