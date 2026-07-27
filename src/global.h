@@ -42,6 +42,7 @@ inline double dgamma_shape_scale(double x,double shape,double scale)
 inline double dgamma_mean_sd(double x,double mean,double sd) {
     double shape=mean*mean/sd/sd;
     double scale=sd*sd/mean;
+    if (x==0) return 0.0;
     return (shape - 1.0) * log(x) - x / scale - shape * log(scale) - lgamma(shape);
 }
 
