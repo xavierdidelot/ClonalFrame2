@@ -467,7 +467,7 @@ double Tree::likelihood_anc_rec(double rho, double delta, double nu) {
     #pragma omp parallel
     {
         vector gammas(maxskip, vector(4, 0.0));
-        #pragma omp for reduction(+:ll) schedule(static)
+        #pragma omp for reduction(+:ll) schedule(dynamic)
         for (size_t i=0;i<nodes.size();i++) {
             if (nodes[i]->get_father()==nullptr) continue;
             vector<uint8_t> * seq1=nodes[i]->get_father()->get_seq();
