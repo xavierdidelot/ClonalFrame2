@@ -4,11 +4,11 @@
 static string fasta=
     R"(
 >seq1
-ACGTACGT
+ACGTACGTACGT
 > seq2
-acgtACGT
+acgtACGTACGA
 >  seq3
-ACGTACGA
+ACGTACGANNNN
 )";
 
 
@@ -22,8 +22,8 @@ int main() {
     a->write("tmp2.fasta",true);
     remove("tmp2.fasta");
     size_t n=a->get_n();assert(n==3);
-    size_t l=a->get_l();assert(l==8);
-    size_t npat=a->get_npat();assert(npat==5);
+    size_t l=a->get_l();assert(l==12);
+    size_t npat=a->get_npat();assert(npat==5+1);
     uint8_t c=a->get_data(1,1);assert(c==2);
     string s=a->get_name(2);assert(s=="seq3");
     delete(a);

@@ -133,16 +133,27 @@ void Alignment::pattern_analysis() {
             h = h * 131 + data->at(i)->at(j);
         bool toadd=true;
         size_t j2=0;
-        // Check candidates with same hash (collision-safe)
-        auto it = hashmap.find(h);
-        if (it != hashmap.end()) {
-            for (size_t cand : it->second) {
-                bool same = true;
-                for (size_t i = 0; i < n; i++)
-                    if (data->at(i)->at(j) != data2->at(i)->at(cand)) { same = false; break; }
-                if (same) { toadd = false; j2 = cand; break; }
+        // Check the 4 non-polymorphic patterns ignoring missing data, so that non-polymorphic sites with missing data are treated as non-polymorphic sites
+        for (size_t cand = 0; cand < 4; cand++) {
+            bool same = true;
+            for (size_t i = 0; i < n; i++)
+                if (!nuc_is_unsure(data->at(i)->at(j)) && data->at(i)->at(j) != data2->at(i)->at(cand)) { same = false; break; }
+            if (same) { toadd = false; j2 = cand; break; }
+        }
+        // Check other patterns with same hash
+        if (toadd) {
+            auto it = hashmap.find(h);
+            if (it != hashmap.end()) {
+                for (size_t cand : it->second) {
+                    if (cand < 4) continue; // already handled above
+                    bool same = true;
+                    for (size_t i = 0; i < n; i++)
+                        if (data->at(i)->at(j) != data2->at(i)->at(cand)) { same = false; break; }
+                    if (same) { toadd = false; j2 = cand; break; }
+                }
             }
-        }        if (toadd) {
+        }
+        if (toadd) {
             for (size_t i=0;i<n;i++) {
                 data2->at(i)->at(npat)=data->at(i)->at(j);
             }

@@ -20,8 +20,9 @@ print.cf2out <- function(x, burnin, ...) {
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
   cat(sprintf('ClonalFrame2 output with %d sampled iterations and %d%% burnin\n',nrow(x$iterations),100*burnin))
   iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
-  for (nam in c('rho','delta','nu')) {
-    v=x$iterations[iters,nam]
+  for (nam in c('rho','delta','nu','r/m')) {
+    if (nam=='r/m') v=x$iterations[iters,'rho']*x$iterations[iters,'delta']*x$iterations[iters,'nu']
+    else v=x$iterations[iters,nam]
     v=sort(v)
     vals=c(mean(v),v[pmax(1,floor(length(v)*c(0.025,0.975)))])
     cat(sprintf('%s=%.2e [%.2e;%.2e]\n',nam,vals[1],vals[2],vals[3]))
@@ -195,9 +196,12 @@ as.multiPhylo <- function(x,burnin) {
 #' @export
 medoid <- function(x,burnin,metric='wRF') {
   stopifnot(inherits(x, "cf2out") || inherits(x, "multiPhylo"))
+  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  firstiter=max(1,floor((nrow(x$iterations)-1)*burnin)+2)
   if (inherits(x, "cf2out")) x=as.multiPhylo(x,burnin)
   if (metric=='wRF') dmat=wRF.dist(x, rooted = FALSE)
   if (metric=='KF')  dmat=KF.dist(x, rooted = FALSE)
   ind=unname(which.min(rowSums(as.matrix(dmat))))
+  ind=ind+firstiter-1
   return(ind)
 }
