@@ -29,12 +29,20 @@ for (ind in 1:100) {
   }
   allres=rbind(allres,res)
 }
-pdf('ana_simu_multi.pdf',12,5)
+
+if (is.null(allres)) allres=matrix(1,100,100)
+pdf('ana_simu_multi.pdf',10,4)
 ranges=matrix(c(-2,0,2,3,-2,-1),3,2,byrow = T)
 par(mfrow=c(1,3))
 for (para in 1:3) {
-  plot(-1,-1,xlim=ranges[para,],ylim=ranges[para,],xlab='',ylab='',pch=20)
-  points(log10(allres[,(para-1)*7+1]),log10(allres[,(para-1)*7+5]))
+  if (para==1) {v=c(0.01,0.05,0.1,0.5,1);xlab=expression(paste("True ",rho));ylab=expression(paste("Inferred ",rho))}
+  if (para==2) {v=c(100,200,500,1000);xlab=expression(paste("True ",delta));ylab=expression(paste("Inferred ",delta))}
+  if (para==3) {v=c(0.01,0.02,0.05,0.1);xlab=expression(paste("True ",nu));ylab=expression(paste("Inferred ",nu))}
+  plot(c(),c(),xlim=ranges[para,],ylim=ranges[para,],xlab=xlab,ylab=ylab,xaxt="n",yaxt="n")
+  v=log10(v)
+  axis(1,at=v,labels=10^v)
+  axis(2,at=v,labels=10^v)
+  points(log10(allres[,(para-1)*7+1]),log10(allres[,(para-1)*7+5]),pch=20)
   lines(ranges[para,],ranges[para,])
   for (i in 1:nrow(allres))
     lines(c(log10(allres[i,(para-1)*7+1]),log10(allres[i,(para-1)*7+1])),c(log10(allres[i,(para-1)*7+6]),log10(allres[i,(para-1)*7+7])))
