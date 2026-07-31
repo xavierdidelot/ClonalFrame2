@@ -2,24 +2,31 @@
 context("Testing pattern analysis")
 
 test_that("Testing pattern analysis.", {
-  for (i in 1:10) {
-    l=100
-    set.seed(i)
+  for (rep in 1:10) {
+    set.seed(rep)
     tree=rtree(10)
-    tree$edge.length=tree$edge.length*0.0#0.01
-    ali=as.DNAbin(simSeq(tree,l))
+    tree$edge.length=tree$edge.length*0.1
+    ali=as.DNAbin(simSeq(tree,1000))
     for (i in seq_len(nrow(ali))) {
       idx <- sample(ncol(ali), round(ncol(ali) * 0.5))
       ali[i, idx] <- as.raw(0xf0)
     }
     write.FASTA(ali,'tmp.fasta')
-    #system(sprintf('echo ">empty\n%s" >> tmp.fasta',paste0(rep('N',l),collapse = '')))
     m=system('../../../build-debug/test_patterns',intern=T)
     m=as.numeric(m)
     ali=read.FASTA('tmp.fasta')
-    pali=as.phyDat(ali)
+    mat=as.character(as.matrix(ali))
+    # Collapse non-polymorphic sites
+    for (j in 1:ncol(mat)) {
+      col=mat[, j]
+      bases=col[col %in% c('A','C','G','T','a','c','g','t')]
+      uniq=unique(bases)
+      if (length(uniq)==1) mat[, j]=uniq
+      if (length(uniq)==0) mat[, j]='A'
+    }
+    pali=phyDat(mat, type = "DNA")
     expect_equal(m,attr(pali,'nr'))
-    #system('rm tmp.fasta')
+    system('rm tmp.fasta')
   }
 })
 
