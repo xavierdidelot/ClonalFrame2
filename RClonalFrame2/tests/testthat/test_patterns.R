@@ -2,6 +2,7 @@
 context("Testing pattern analysis")
 
 test_that("Testing pattern analysis.", {
+  source('utils_testing.R')
   for (rep in 1:10) {
     set.seed(rep)
     tree=rtree(10)
@@ -15,16 +16,7 @@ test_that("Testing pattern analysis.", {
     m=system('../../../build-debug/test_patterns',intern=T)
     m=as.numeric(m)
     ali=read.FASTA('tmp.fasta')
-    mat=as.character(as.matrix(ali))
-    # Collapse non-polymorphic sites
-    for (j in 1:ncol(mat)) {
-      col=mat[, j]
-      bases=col[col %in% c('A','C','G','T','a','c','g','t')]
-      uniq=unique(bases)
-      if (length(uniq)==1) mat[, j]=uniq
-      if (length(uniq)==0) mat[, j]='A'
-    }
-    pali=phyDat(mat, type = "DNA")
+    pali=dnabin_to_phydat_collapsing(ali)
     expect_equal(m,attr(pali,'nr'))
     system('rm tmp.fasta')
   }

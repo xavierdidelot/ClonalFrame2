@@ -14,7 +14,8 @@ int main() {
     t->parsimony();
     a=Alignment::make_from_tree(t,true);
     t->write("tmp2.nwk");
-    a->write("tmp2.fasta",false);
+    a->write("tmp2.fasta",true);
+    a->write("tmp3.fasta",false);
     double s3=t->likelihood_anc();
     double s4=t->likelihood_anc_rec(0.0,202,0.055);
     double s5=t->likelihood_anc_rec(1.1,202,0.055);

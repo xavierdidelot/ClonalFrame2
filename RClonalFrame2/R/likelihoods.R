@@ -18,6 +18,7 @@ loadSeqs <- function(filename) {
 #' @export
 #'
 likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
+  seqs=resolve_tip_uncertainties(tree,seqs,anc)
   if (method=='phangorn') {
     nanc=names(anc)#setdiff(names(anc),tree$node.label[1])#remove root
     if (is.null(workenv)) workenv=list()#use a list, not an environment
@@ -207,4 +208,18 @@ likelihood_anc_rec <- function(tree,seqs,anc,rho,delta,nu) {
     }
     ll=ll+nsites*log(1/4)
     return(ll)
+}
+
+resolve_tip_uncertainties<-function(tree,seqs,anc)
+{
+  n=Ntip(tree)
+  for (i in 1:nrow(tree$edge)) {
+    if (tree$edge[i,2]>n) next
+    bottom=seqs[[tree$tip.label[tree$edge[i,2]]]]
+    top=anc[[tree$node.label[tree$edge[i,1]-n]]]
+    inds=which(bottom==16)#missing data
+    bottom[inds]=top[inds]
+    seqs[[tree$tip.label[tree$edge[i,2]]]]=bottom
+  }
+  return(seqs)
 }
