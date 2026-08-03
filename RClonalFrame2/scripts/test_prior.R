@@ -1,12 +1,12 @@
 # Testing that prior is sampled when no likelihood
 rm(list=ls())
 library(RClonalFrame2)
-set.seed(1)
+set.seed(10)
 n=100#Number of sequences
 topology_test=(n<10)#Slow if n>10
-niter=2000#Number of iterations
+niter=10000#Number of iterations
 prior_pars=c(1,0.5,500,250,0.05,0.025,0.001,0.0005)
-x=run_cf2(simu_pars=c(n,0,prior_pars[1],prior_pars[3],prior_pars[5],prior_pars[7],prior_pars[8]),update_pars=c(100,100,100,100,100),burn=0,iter=niter,thin=1,prior_pars = prior_pars)
+x=run_cf2(simu_pars=c(n,0,prior_pars[1],prior_pars[3],prior_pars[5],prior_pars[7],prior_pars[8]),update_pars=c(10,10,10,10,10),burn=0,iter=niter,thin=1,prior_pars = prior_pars)
 
 trees=vector("list",niter)
 b1=rep(0,niter)
@@ -117,11 +117,60 @@ fig_label('R',cex=2)
 dev.off()
 browseURL('scripts/test_prior.pdf')
 
+pdf('scripts/test_prior2.pdf',10,8)
+par(mfrow=c(3,2))
+par(xpd=NA)
+
+rho_shape=prior_pars[1]^2/prior_pars[2]^2
+rho_scale=prior_pars[2]^2/prior_pars[1]
+delta_shape=prior_pars[3]^2/prior_pars[4]^2
+delta_scale=prior_pars[4]^2/prior_pars[3]
+nu_shape=prior_pars[5]^2/prior_pars[6]^2
+nu_scale=prior_pars[6]^2/prior_pars[5]
+
+hist(x$iterations[,'rho'],main='Rho',xlab='',probability=T,breaks=20)
+fig_label('A',cex=2)
+xs=seq(0,max(x$iterations[,'rho']),length.out=1000)
+lines(xs,dgamma(xs,shape=rho_shape,scale=rho_scale))
+
+hist(x$iterations[,'delta'],main='Delta',xlab='',probability=T,breaks=20)
+fig_label('B',cex=2)
+xs=seq(0,max(x$iterations[,'delta']),length.out=1000)
+lines(xs,dgamma(xs,shape=delta_shape,scale=delta_scale))
+
+hist(x$iterations[,'nu'],main='Nu',xlab='',probability=T,breaks=20)
+fig_label('C',cex=2)
+xs=seq(0,max(x$iterations[,'nu']),length.out=1000)
+lines(xs,dgamma(xs,shape=nu_shape,scale=nu_scale))
+
+hist(x$iterations[,'sum_bra_len'],main='Sum branch lengths',xlab='',probability=T,breaks=20)
+fig_label('D',cex=2)
+xs=seq(min(x$iterations[,'sum_bra_len']),max(x$iterations[,'sum_bra_len']),length.out=1000)
+lines(xs,dgamma(xs,shape=(2*n-3)*b_shape,scale=b_scale))
+
+hist(b1,main='Single branch length',xlab='',probability=T,breaks=20)
+fig_label('E',cex=2)
+xs=seq(min(b1),max(b1),length.out=1000)
+lines(xs,dgamma(xs,shape=b_shape,scale=b_scale))
+
+hist(x$iterations[,'prior_tree'],main='Tree prior',xlab='',probability=T,breaks=20)
+fig_label('F',cex=2)
+xs=seq(min(x$iterations[,'prior_tree']),max(x$iterations[,'prior_tree']),length.out=1000)
+p_shape=mean(p2)^2/sd(p2)^2
+p_scale=sd(p2)^2/mean(p2)
+lines(xs,dgamma(xs,shape=p_shape,scale=p_scale))
+
+dev.off()
+browseURL('scripts/test_prior2.pdf')
 
 #Checking that consensus tree looks completely star-like
-m=as.multiPhylo(x)
+x2=x
+x2$iterations=x2$iterations[seq(1,nrow(x2$iterations),length.out=1000),]
+pdf('scripts/test_prior_consensus.pdf',10,8)
+m=as.multiPhylo(x2)
 cons_topo=consensus(m, p = 0.5, rooted = FALSE)
-cons=add_edge_length(cons_topo, m, rooted = FALSE)
+cons=add_edge_length(cons_topo, m, rooted = FALSE,fun=mean)
 plot(cons,show.tip.label = F)
 axisPhylo(1)
-
+dev.off()
+browseURL('scripts/test_prior_consensus.pdf')
