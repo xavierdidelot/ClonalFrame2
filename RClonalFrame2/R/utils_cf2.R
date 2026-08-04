@@ -194,7 +194,7 @@ as.multiPhylo <- function(x,burnin) {
 #' @param metric Metric to use, can be either wRF or KF
 #' @return Index of the medoid
 #' @export
-medoid <- function(x,burnin,metric='wRF') {
+medoid <- function(x,burnin,metric='KF') {
   stopifnot(inherits(x, "cf2out") || inherits(x, "multiPhylo"))
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
   firstiter=max(1,floor((nrow(x$iterations)-1)*burnin)+2)

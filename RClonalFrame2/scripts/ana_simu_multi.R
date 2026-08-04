@@ -6,6 +6,7 @@ l=1e6#Genome length
 burnin=0.5
 allres=c()
 nams=c('rho','delta','nu')
+scores=c()
 for (ind in 1:100) {
   filename=sprintf('long%d.RData',ind)
   if (!file.exists(filename)) next
@@ -28,6 +29,21 @@ for (ind in 1:100) {
     res=c(res,vals)
   }
   allres=rbind(allres,res)
+
+  truetree=read.tree(text=x0$simulation_parameters$tree)
+  l0=length(x0$iterations$tree)
+  l1=length(x$iterations$tree)
+  tree0=read.tree(text=x0$iterations$tree[l0],1)
+  tree1=read.tree(text= x$iterations$tree[l1],1)
+  score0=KF.dist(truetree,tree0)
+  score1=KF.dist(truetree,tree1)
+  score0int=KF.dist(tree0,read.tree(text=x0$iterations$tree[l0/2],1))
+  score1int=KF.dist(tree1,read.tree(text= x$iterations$tree[l1/2],1))
+  tree0$edge.length=tree0$edge.length/sum(tree0$edge.length)*sum(truetree$edge.length)
+  tree1$edge.length=tree1$edge.length/sum(tree1$edge.length)*sum(truetree$edge.length)
+  score0scaled=KF.dist(truetree,tree0)
+  score1scaled=KF.dist(truetree,tree1)
+  scores=rbind(scores,c(score0,score1,score0int,score1int,score0scaled,score1scaled))
 }
 
 if (is.null(allres)) allres=matrix(1,100,100)
@@ -49,3 +65,8 @@ for (para in 1:3) {
 }
 dev.off()
 browseURL('ana_simu_multi.pdf')
+
+para=1
+length(which(allres[,(para-1)*7+1]>=allres[,(para-1)*7+6] & allres[,(para-1)*7+1]<=allres[,(para-1)*7+7]))
+
+colMeans(scores)
