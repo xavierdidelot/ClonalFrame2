@@ -36,7 +36,6 @@ for (i in 1:4) {
 
 #pdf(sprintf('%s.pdf',alifile),10,8)
 plot(x[[3]],'recombination')
-tmp=RClonalFrame2:::decode_recombination(x[[3]],1,100)
 #dev.off()
 
 library(BactDating)
