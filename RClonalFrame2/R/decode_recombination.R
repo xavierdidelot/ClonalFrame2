@@ -24,7 +24,8 @@ decode_recombination <- function(x,iteration,gap) {
   l=as.list(a)
   seqs_split=lapply(l, function(x) strsplit(x, "")[[1]])
   seqs=phyDat(seqs_split, type = "DNA")
-  attr(seqs,'index')=ancseqs$patindex+1
+  tmpindex=attr(seqs,'index')
+  attr(seqs,'index')=tmpindex[ancseqs$patindex+1]
   attr(seqs,'weight')=tabulate(attr(seqs,'index'), nbins = attr(seqs,'nr'))
 
   #Perform ancestral state reconstruction
