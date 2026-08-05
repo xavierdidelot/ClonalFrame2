@@ -31,6 +31,9 @@ decode_recombination <- function(x,iteration,gap) {
   pml=phangorn::pml(tree,seqs,model='JC')
   anc=phangorn:::joint_pml(pml)
 
+  #Impute missing data if needed
+  #seqs=resolve_tip_uncertainties(tree,seqs,anc)
+
   #Inference of recombined regions
   ll=0
   ll2=0

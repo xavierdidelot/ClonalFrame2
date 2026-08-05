@@ -339,6 +339,7 @@ Tree* Tree::nj(vector<vector<double>> * d,vector<string> * names) {
     t->reorder();
     for (size_t i=0;i<t->nodes.size()-2;i++)
         if (std::isnan(t->nodes[i]->get_dist_father()) || t->nodes[i]->get_dist_father()<=1e-6) t->nodes[i]->set_dist_father(1e-6);
+    for (size_t i=n;i<t->nodes.size();i++) t->nodes[i]->set_name("NODE"+std::to_string(i));
     return t;
 }
 

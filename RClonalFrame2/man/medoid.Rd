@@ -4,7 +4,7 @@
 \alias{medoid}
 \title{Find medoid}
 \usage{
-medoid(x, burnin, metric = "wRF")
+medoid(x, burnin, metric = "KF")
 }
 \arguments{
 \item{x}{Output from ClonalFrame2 or a multiPhylo object}
