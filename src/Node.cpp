@@ -32,8 +32,10 @@ Node::Node(string s, vector <Node*> * nodes) {
             if (s[cur]==',' && counter==0) commas.push_back(cur);
         }
         if (commas.size()>1) {
-            s.insert(last-1,"):0.0");
+            s.insert(last,"):0.0");
             s.insert(commas[0]+1,"(");
+            last=s.size()-1;
+            while (s[last]!=')') last--;
         }
 
         std::istringstream iss(s.substr(last+1));

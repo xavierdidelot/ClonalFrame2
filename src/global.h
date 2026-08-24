@@ -1,5 +1,5 @@
-#ifndef GLOBAL_H
-#define GLOBAL_H
+#ifndef CLONALFRAME2_GLOBAL_H
+#define CLONALFRAME2_GLOBAL_H
 #include <omp.h>
 #include <random>
 #include <print>

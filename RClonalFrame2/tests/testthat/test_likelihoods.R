@@ -12,6 +12,8 @@ test_that("Testing likelihood functions.", {
       idx <- sample(ncol(ali), round(ncol(ali) * 0.5))
       ali[i, idx] <- as.raw(0xf0)
     }
+    if (i%%3==2) tree=unroot(tree)
+    if (i%%3==0) tree=midpoint(tree)
     write.tree(tree,'tmp.nwk')
     write.FASTA(ali,'tmp.fasta')
     m=system('../../../build-debug/test_likelihoods',intern=T)

@@ -27,27 +27,35 @@ Alignment * Alignment::read_fasta(const string &filename) {
         std::println("Error opening file {}",filename);
         exit(1);
     }
+
+    //First pass to check consistency and determine size
     size_t n=0;
+    size_t l1=0;
     size_t l=0;
-    while (true) {
-        getline(file,line);
-        if (file.eof()) break;
+    while (std::getline(file, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();//Windows compatibility
         if (line.empty()) continue;
         if (line.at(0)=='#') continue;
-        if (line.at(0)=='>') {n++;continue;}
-        if (n==1) l=l+line.length();
+        if (line.at(0)=='>') {
+            if (n==1) l1=l;
+            else if (l!=l1) {std::println("Error in file {}, sequence 1 is of length {} but sequence {} is of length {}.",filename,l1,n,l);file.close();exit(1);}
+            n++;l=0;continue;
+        }
+        l=l+line.length();
     }
+    if (l!=l1) {std::println("Error in file {}, sequence 1 is of length {} but sequence {} is of length {}.",filename,l1,n,l);file.close();exit(1);}
+
+    //Second pass to load data
     file.clear();
     file.seekg(0);
     a->data=new vector<vector<uint8_t>*>(n);
-    for (size_t i=0;i<n;i++) a->data->at(i)=new vector<uint8_t>(l);
+    for (size_t i=0;i<n;i++) a->data->at(i)=new vector<uint8_t>(l1);
     a->names=new vector<string>(n);
     n=0;
     l=0;
     std::regex reg("[> ]");
-    while (true) {
-        getline(file,line);
-        if (file.eof()) break;
+    while (std::getline(file, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();//Windows compatibility
         if (line.empty()) continue;
         if (line.at(0)=='#') continue;
         if (line.at(0)=='>') {l=0;n++;a->names->at(n-1)=regex_replace(line,reg,"");continue;}
@@ -58,6 +66,11 @@ Alignment * Alignment::read_fasta(const string &filename) {
     }
     if (verbose) vprint("Finished reading file made of {} genomes of length {}",n,l);
     file.close();
+
+    //Check names are unique
+    std::set<std::string> seen(a->names->begin(), a->names->end());
+    if (seen.size()!=a->names->size()) {std::println("Error in file {}, sequence names are not unique.",filename);exit(1);}
+
     a->n=n;
     a->l=l;
     a->pattern_analysis();

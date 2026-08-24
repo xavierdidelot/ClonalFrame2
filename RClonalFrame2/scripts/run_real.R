@@ -4,8 +4,8 @@ library(RClonalFrame2)
 alifile='~/data/harris2010/core.full.aln'
 iter=1e6
 x=vector('list',4)
-x[[1]]=run_cf2(alifile,iter=iter,starting_pars=c(0,0,0,0),update_pars=c(0,0,0,1,1),seed=1)
-x[[2]]=run_cf2(alifile,iter=iter,starting_pars=c(0,0,0,0),update_pars=c(0,0,0,1,1),seed=2)
+x[[1]]=run_cf2(alifile,iter=iter,starting_pars=c(0,0,0),update_pars=c(0,0,0,1,1),seed=1)
+x[[2]]=run_cf2(alifile,iter=iter,starting_pars=c(0,0,0),update_pars=c(0,0,0,1,1),seed=2)
 x[[3]]=run_cf2(alifile,iter=iter,seed=3)
 x[[4]]=run_cf2(alifile,iter=iter,seed=4)
 save.image(sprintf('%s.RData',alifile))

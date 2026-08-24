@@ -15,7 +15,7 @@ debug:
 	$(MAKE) -C build-debug
 
 clean:
-	rm -rf build-release build-debug docs
+	rm -rf build-release build-debug docs cmake-build-debug generated
 
 doc:
 	doxygen

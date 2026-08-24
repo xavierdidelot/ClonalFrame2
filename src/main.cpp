@@ -15,16 +15,16 @@ static string helptxt =
     -i FILE     Select the input file
     -o FILE     Select the output file
     -x NUM      Sets the number of burn-in iterations (default is y/2)
-    -y NUM      Total number of iterations (default is 10000)
+    -y NUM      Sets the total number of iterations (default is 10000)
     -z NUM      Sets the number of iterations between samples (default is y/2000)
     -s NUM      Use given seed to initiate random number generator
     -c NUM      Number of cores to use (default is all available)
     -S STR      Generate a simulated dataset and run on it
                 STR is 7 comma-separated values for number of sequences,
                 length of sequences, rho, delta, nu, branch length mean and sd
-    -I STR      Specify starting values (default is 1,500,0.05,nj
-                unless -S was used in which case default is correct values)
-                STR is 4 comma-separated values for rho, delta, nu and tree
+    -I STR      Specify starting parameter values (default is 1,500,0.05)
+                STR is 3 comma-separated values for rho, delta and nu
+                If -S is used without -I then start from correct values and tree
     -U STR      Indicates number of updates to use per iteration for each move
                 STR is 5 int values for rho, delta, nu, lengths and SPR
     -P STR      Indicates prior as 8 comma-separated values for mean and sd
@@ -119,7 +119,7 @@ int main(int argc, const char *argv[]) {
     double b_mean, b_sd, rho, delta, nu;
     int start_correct=0;
     if (simu_str.empty()) {
-        if (starting_str.empty()) starting_str="0.1,500,0.05,nj";
+        if (starting_str.empty()) starting_str="0.1,500,0.05";
         a = Alignment::read_fasta(infile);
         if (a->get_n()<3) {
             std::println("Need a minimum of three genomes.");

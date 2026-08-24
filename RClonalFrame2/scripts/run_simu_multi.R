@@ -9,8 +9,8 @@ for (ind in 1:100) {
   delta=10^runif(1,2,3)
   nu=10^runif(1,-2,-1)
   set.seed(ind)
-  x0=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e5,starting_pars=c(0,0,0,0),update_pars=c(0,0,0,1,1))
+  x0=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e5,starting_pars=c(0,0,0),update_pars=c(0,0,0,1,1))
   set.seed(ind)
-  x =run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e5,starting_pars=c(0.1,500,0.05,0))
+  x =run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e5,starting_pars=c(0.1,500,0.05))
   save.image(sprintf('long%d.RData',ind))
 }

@@ -42,7 +42,7 @@ run_cf2(
 
 \item{simu_pars}{Vector containing the six simulation parameters}
 
-\item{starting_pars}{Vector containing the four starting parameters}
+\item{starting_pars}{Vector containing the three starting parameters}
 
 \item{update_pars}{Vector containing the five per-iteration update numbers}
 

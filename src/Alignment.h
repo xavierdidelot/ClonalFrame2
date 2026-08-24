@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include "Tree.h"
 
 using std::string,std::vector;
