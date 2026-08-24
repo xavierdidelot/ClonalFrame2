@@ -7,7 +7,7 @@ l=1e6#Genome length
 rho=0.2
 delta=1000
 nu=0.05
-x=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e4,profile=T,update_pars = c(1,1,1,1,1))
+x=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e3,profile=T,update_pars = c(1,1,1,1,1))
 #plot(x)
 #plot(x,'trace',burnin=0)
 #plot(x,'trace_sd',burnin=0)
@@ -15,7 +15,6 @@ x=run_cf2(simu_pars=c(n,l,rho,delta,nu,1e-4,1e-4),iter=1e4,profile=T,update_pars
 #plot(x,'trace_trees')
 #plot(x,'simulation')
 #print(tail(x$iterations$paccepted_spr,1))
-#plot(x,'simulation')
 
 filename=tempfile(fileext="pdf")
 pdf(filename,14,7)

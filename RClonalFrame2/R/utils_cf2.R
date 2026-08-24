@@ -18,7 +18,7 @@ load_cf2 <- function(filename) {
 print.cf2out <- function(x, burnin, ...) {
   stopifnot(inherits(x, "cf2out"))
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
-  cat(sprintf('ClonalFrame2 output with %d sampled iterations and %d%% burnin\n',nrow(x$iterations),100*burnin))
+  cat(sprintf('ClonalFrame2 output with %d recorded iterations and %.0f%% burnin\n',nrow(x$iterations)-1,round(100*burnin)))
   iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
   for (nam in c('rho','delta','nu','r/m')) {
     if (nam=='r/m') v=x$iterations[iters,'rho']*x$iterations[iters,'delta']*x$iterations[iters,'nu']

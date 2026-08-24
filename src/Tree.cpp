@@ -993,6 +993,7 @@ void Tree::ancestral_to_json_file() {
     auto npat=ali->get_npat();
     auto l=ali->get_l();
     std::println(out, "\t\"ancestral_sequences\": {{");
+    std::println(out,"\t\t\"tree\": \"{}\",",this->to_string());
     std::print(out, "\t\t\"patindex\": [");
     if (l>0) std::print(out, "{}",patindex->at(0));
     for (size_t i=1;i<l;i++) {
@@ -1004,6 +1005,13 @@ void Tree::ancestral_to_json_file() {
         std::print(out, "\t\t{{\"branch\": \"{}\", \"data\": \"",nodes[i]->get_name());
         for (size_t j=0;j<npat;j++) std::print(out,"{}",Alignment::decode(0b00001111&nodes[i]->get_seq()->at(j)));
         if (i<2*n-3) std::println(out, "\"}},"); else std::println(out, "\"}}");
+    }
+    std::println(out, "\t\t],");
+    std::println(out, "\t\t\"datamatrix\": [");
+    for (size_t i=0;i<n;i++) {
+        std::print(out, "\t\t{{\"branch\": \"{}\", \"data\": \"",nodes[i]->get_name());
+        for (size_t j=0;j<npat;j++) std::print(out,"{}",Alignment::decode(nodes[i]->get_seq()->at(j)));
+        if (i<n-1) std::println(out, "\"}},"); else std::println(out, "\"}}");
     }
     std::println(out, "\t\t]");
     std::println(out, "\t}},");

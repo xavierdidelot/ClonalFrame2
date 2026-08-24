@@ -19,11 +19,12 @@ decode_recombination <- function(x,iteration,gap) {
 
   #Recover data
   ancseqs=x$ancestral_sequences
-  a=ancseqs$patmatrix$data[1:Ntip(tree)]
-  names(a)=ancseqs$patmatrix$branch[1:Ntip(tree)]
+  a=ancseqs$datamatrix$data
+  names(a)=ancseqs$datamatrix$branch
   l=as.list(a)
   seqs_split=lapply(l, function(x) strsplit(x, "")[[1]])
   seqs=phyDat(seqs_split, type = "DNA")
+  #The three lines below force the indexing of patterns to be the same as in C++
   tmpindex=attr(seqs,'index')
   attr(seqs,'index')=tmpindex[ancseqs$patindex+1]
   attr(seqs,'weight')=tabulate(attr(seqs,'index'), nbins = attr(seqs,'nr'))
@@ -33,7 +34,7 @@ decode_recombination <- function(x,iteration,gap) {
   anc=phangorn:::joint_pml(pml)
 
   #Impute missing data if needed
-  #seqs=resolve_tip_uncertainties(tree,seqs,anc)
+  seqs=resolve_tip_uncertainties(tree,seqs,anc)
 
   #Inference of recombined regions
   ll=0
