@@ -12,13 +12,14 @@ test_that("Testing pattern analysis.", {
       idx <- sample(ncol(ali), round(ncol(ali) * 0.5))
       ali[i, idx] <- as.raw(0xf0)
     }
-    write.FASTA(ali,'tmp.fasta')
-    m=system('../../../build-debug/test_patterns',intern=T)
+    tdir=tempdir()
+    write.FASTA(ali,sprintf('%s/tmp.fasta',tdir))
+    exe=normalizePath('../../../build-debug/test_patterns')
+    m=system(sprintf('cd %s;%s',tdir,exe),intern=T)
     m=as.numeric(m)
-    ali=read.FASTA('tmp.fasta')
+    ali=read.FASTA(sprintf('%s/tmp.fasta',tdir))
     pali=dnabin_to_phydat_collapsing(ali)
     expect_equal(m,attr(pali,'nr'))
-    system('rm tmp.fasta')
   }
 })
 

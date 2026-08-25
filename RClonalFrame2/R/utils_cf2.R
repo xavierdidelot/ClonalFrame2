@@ -54,6 +54,8 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
   iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
 
   if (type=='pars') {
+    panel_state <- new.env(parent = emptyenv())
+    panel_state$i <- 0L
     panel.hist <- function(x,truths,...)
     {
       usr <- par("usr")
@@ -62,13 +64,13 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
       breaks <- h$breaks; nB <- length(breaks)
       y <- h$counts; y <- y/max(y)
       rect(breaks[-nB], 0, breaks[-1], y, ...)
-      pairs_ind<<-pairs_ind+1
-      if (!is.null(truths)) lines(c(truths[pairs_ind],truths[pairs_ind]),c(0,1.5),col='red')
+      panel_state$i <- panel_state$i + 1L
+      i <- panel_state$i
+      if (!is.null(truths)) lines(c(truths[i],truths[i]),c(0,1.5),col='red')
     }
     varnames=c("rho", "delta", "nu")
     truth_values=NULL
     if (!is.null(x$simulation_parameters)) truth_values=x$simulation_parameters[varnames]
-    pairs_ind<<-0
     pairs(x$iterations[iters,varnames],diag.panel=function (x,...) panel.hist(x,truths=truth_values,...))
   }
 
@@ -141,6 +143,7 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
 #' @exportS3Method coda::as.mcmc
 as.mcmc.cf2out <- function(x,burnin,...) {
   stopifnot(inherits(x, "cf2out"))
+  if (!requireNamespace("coda", quietly = TRUE)) stop("Package 'coda' is required for this function.")
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
   iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
   mat=cbind(
@@ -159,6 +162,7 @@ as.mcmc.cf2out <- function(x,burnin,...) {
 #' @export
 as.rwty <- function(x,burnin) {
   stopifnot(inherits(x, "cf2out"))
+  if (!requireNamespace("rwty", quietly = TRUE)) stop("Package 'rwty' is required for this function.")
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
   iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
   filename=tempfile()
@@ -189,16 +193,16 @@ as.multiPhylo <- function(x,burnin) {
 }
 
 #' Find medoid
-#' @param x Output from ClonalFrame2 or a multiPhylo object
+#' @param x Output from ClonalFrame2
 #' @param burnin Proportion of the MCMC output to be discarded as burnin
 #' @param metric Metric to use, can be either wRF or KF
 #' @return Index of the medoid
 #' @export
 medoid <- function(x,burnin,metric='KF') {
-  stopifnot(inherits(x, "cf2out") || inherits(x, "multiPhylo"))
+  stopifnot(inherits(x, "cf2out"))
   if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
   firstiter=max(1,floor((nrow(x$iterations)-1)*burnin)+2)
-  if (inherits(x, "cf2out")) x=as.multiPhylo(x,burnin)
+  x=as.multiPhylo(x,burnin)
   if (metric=='wRF') dmat=wRF.dist(x, rooted = FALSE)
   if (metric=='KF')  dmat=KF.dist(x, rooted = FALSE)
   ind=unname(which.min(rowSums(as.matrix(dmat))))

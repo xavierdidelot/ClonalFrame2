@@ -2,6 +2,7 @@
 context("Testing likelihood functions")
 
 test_that("Testing likelihood functions.", {
+  library(RClonalFrame2)
   source('utils_testing.R')
   for (i in 1:10) {
     set.seed(i)
@@ -14,9 +15,11 @@ test_that("Testing likelihood functions.", {
     }
     if (i%%3==2) tree=unroot(tree)
     if (i%%3==0) tree=midpoint(tree)
-    write.tree(tree,'tmp.nwk')
-    write.FASTA(ali,'tmp.fasta')
-    m=system('../../../build-debug/test_likelihoods',intern=T)
+    tdir=tempdir()
+    write.tree(tree,sprintf('%s/tmp.nwk',tdir))
+    write.FASTA(ali,sprintf('%s/tmp.fasta',tdir))
+    exe=normalizePath('../../../build-debug/test_likelihoods')
+    m=system(sprintf('cd %s;%s',tdir,exe),intern=T)
     a=as.numeric(unlist(strsplit(m,',')))
     pali=dnabin_to_phydat_collapsing(ali)
     ali=as.DNAbin(pali)
@@ -25,12 +28,12 @@ test_that("Testing likelihood functions.", {
     expect_equal(ll,ll2)
     expect_equal(a[1],ll)
 
-    tree2=read.tree('tmp2.nwk')
+    tree2=read.tree(sprintf('%s/tmp2.nwk',tdir))
     expect_equal(path.dist(tree,tree2,use.weight = T),0,tolerance=1e-6)
-    anc2=as.phyDat(read.FASTA('tmp2.fasta'))#contains uncertainties
+    anc2=as.phyDat(read.FASTA(sprintf('%s/tmp2.fasta',tdir)))#contains uncertainties
     tmp=as.DNAbin(anc2)
     for (i in tree$tip.label) expect_equal(all(tmp[i,]==ali[i,]),T)
-    anc2=as.phyDat(read.FASTA('tmp3.fasta'))#does not contain uncertainties
+    anc2=as.phyDat(read.FASTA(sprintf('%s/tmp3.fasta',tdir)))#does not contain uncertainties
     seqs2=anc2[tree2$tip.label]
     anc2=anc2[tree2$node.label]
     b=likelihood_anc(tree2,seqs2,anc2,method='mine')
@@ -42,6 +45,5 @@ test_that("Testing likelihood functions.", {
     expect_equal(a[3],b)
     e=likelihood_anc_rec(tree2,seqs2,anc2,rho=1.1,delta=202,nu=0.055)
     expect_equal(a[4],e)
-    system('rm tmp.fasta tmp.nwk tmp2.fasta tmp2.nwk tmp3.fasta')
   }
 })

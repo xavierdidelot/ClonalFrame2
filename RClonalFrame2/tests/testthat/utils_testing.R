@@ -9,6 +9,6 @@ dnabin_to_phydat_collapsing <- function(ali)
     if (length(uniq)==1) mat[, j]=uniq
     if (length(uniq)==0) mat[, j]='A'
   }
-  pali=phyDat(mat, type = "DNA")
+  pali=phangorn::phyDat(mat, type = "DNA")
   return(pali)
 }

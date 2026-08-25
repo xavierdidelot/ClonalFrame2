@@ -2,7 +2,7 @@
 % Please edit documentation in R/likelihoods.R
 \name{mcmc}
 \alias{mcmc}
-\title{Bayesian inference of the tree given the sequences}
+\title{EXPERIMENTAL Bayesian inference of the tree given the sequences}
 \usage{
 mcmc(seqs, niter = 10000, thin = 100, method = "pruning", showProgress = T)
 }
@@ -21,5 +21,5 @@ mcmc(seqs, niter = 10000, thin = 100, method = "pruning", showProgress = T)
 Result of Bayesian inference
 }
 \description{
-Bayesian inference of the tree given the sequences
+EXPERIMENTAL Bayesian inference of the tree given the sequences
 }

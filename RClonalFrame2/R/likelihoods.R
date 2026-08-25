@@ -1,7 +1,6 @@
 #' Load sequences from FASTA file
 #' @param filename Name of input FASTA file
 #' @returns Sequences in phyDat format
-#' @export
 #'
 loadSeqs <- function(filename) {
   x=phangorn::read.phyDat(filename,format='fasta')
@@ -15,7 +14,6 @@ loadSeqs <- function(filename) {
 #' @param workenv Work environment, optional but useful to speed up
 #' @param method Method to use for calculation, can be either phangorn or mine
 #' @returns Log-likelihood
-#' @export
 #'
 likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
   seqs=resolve_tip_uncertainties(tree,seqs,anc)
@@ -28,7 +26,7 @@ likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
     if (is.null(workenv$pml2)) {
       workenv$pml2=phangorn::pml(new_tree,both,model='JC')
     } else {
-      workenv$pml2=phangorn:::update.pml(workenv$pml2,tree=new_tree,data=both)
+      workenv$pml2=stats::update(workenv$pml2,tree=new_tree,data=both)
     }
     return(workenv$pml2$logLik)
   }
@@ -60,7 +58,6 @@ likelihood_anc <- function(tree,seqs,anc,workenv=NULL,method='mine') {
 #' @param method Which method to use: pruning, joint, marginal or parsimony
 #' @param workenv Work environment, optional but useful to speed up
 #' @returns Log-likelihood
-#' @export
 #'
 likelihood <- function(tree,seqs,method='pruning',workenv=NULL) {
   tree=unroot(tree)
@@ -70,7 +67,7 @@ likelihood <- function(tree,seqs,method='pruning',workenv=NULL) {
       if (is.null(workenv$pml)) {
         workenv$pml=phangorn::pml(tree,seqs,model='JC')
       } else {
-        workenv$pml=phangorn:::update.pml(workenv$pml,tree=tree)
+        workenv$pml=stats::update(workenv$pml,tree=tree)
       }
       return(workenv$pml$logLik)
     }
@@ -84,7 +81,7 @@ likelihood <- function(tree,seqs,method='pruning',workenv=NULL) {
       workenv$pml$tree=tree
     }
     if (method=='joint') {
-      anc=phangorn:::joint_pml(workenv$pml)
+      anc=phangorn::anc_pml(workenv$pml)$state
     } else {
       anc=phangorn::ancestral.pml(workenv$pml,type = "ml",return='ancestral')$state
     }
@@ -102,10 +99,9 @@ likelihood <- function(tree,seqs,method='pruning',workenv=NULL) {
   }
 }
 
-#' Perform MLE inference of the tree given the sequences
+#' EXPERIMENTAL MLE inference of the tree given the sequences
 #' @param seqs Sequences in phangorn::phyDat format
 #' @returns Phylogenetic tree estimated
-#' @export
 #'
 mle <- function(seqs) {
   random_start=rtree(length(seqs),tip.label=names(seqs))
@@ -114,14 +110,13 @@ mle <- function(seqs) {
   return(m$tree)
 }
 
-#' Bayesian inference of the tree given the sequences
+#' EXPERIMENTAL Bayesian inference of the tree given the sequences
 #' @param seqs Sequences in phangorn::phyDat format
 #' @param niter Number of iterations
 #' @param thin Thinin value
 #' @param method Which method to use: pruning, joint, marginal or parsimony
 #' @param showProgress Whether of not to show progress bar
 #' @returns Result of Bayesian inference
-#' @export
 #'
 mcmc <- function(seqs,niter=10000,thin=100,method='pruning',showProgress=T) {
   proposal_probs  = c(NNI = 0.4, SPR = 0.4, branch = 0.2)
@@ -167,7 +162,6 @@ mcmc <- function(seqs,niter=10000,thin=100,method='pruning',showProgress=T) {
 #' @param delta Delta parameter
 #' @param nu Nu parameter
 #' @returns Log-likelihood
-#' @export
 #'
 likelihood_anc_rec <- function(tree,seqs,anc,rho,delta,nu) {
     ll=0

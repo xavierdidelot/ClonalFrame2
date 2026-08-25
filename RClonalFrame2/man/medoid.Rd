@@ -7,7 +7,7 @@
 medoid(x, burnin, metric = "KF")
 }
 \arguments{
-\item{x}{Output from ClonalFrame2 or a multiPhylo object}
+\item{x}{Output from ClonalFrame2}
 
 \item{burnin}{Proportion of the MCMC output to be discarded as burnin}
 

@@ -7,12 +7,13 @@ test_that("Testing NJ algorithm.", {
     tree=rtree(10)
     tree$edge.length=tree$edge.length*0.01
     ali=as.DNAbin(simSeq(tree,10000))
-    write.FASTA(ali,'tmp.fasta')
+    tdir=tempdir()
+    write.FASTA(ali,sprintf('%s/tmp.fasta',tdir))
+    exe=normalizePath('../../../build-debug/test_nj')
+    system(sprintf('cd %s;%s',tdir,exe))
     t2=nj(dist.dna(ali,model = 'JC69',pairwise.deletion = T))
-    system('../../../build-debug/test_nj')
-    t3=read.tree('nj.nwk')
+    t3=read.tree(sprintf('%s/nj.nwk',tdir))
     expect_equal(path.dist(t2,t3,use.weight = T),0,tolerance=1e-4)
-    system('rm tmp.fasta nj.nwk')
   }
 })
 

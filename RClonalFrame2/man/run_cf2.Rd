@@ -40,7 +40,7 @@ run_cf2(
 
 \item{verbose}{Whether to activate verbose mode}
 
-\item{simu_pars}{Vector containing the six simulation parameters}
+\item{simu_pars}{Vector containing the seven simulation parameters}
 
 \item{starting_pars}{Vector containing the three starting parameters}
 

@@ -12,9 +12,11 @@ test_that("Testing jointml algorithm.", {
       idx <- sample(ncol(ali), round(ncol(ali) * 0.5))
       ali[i, idx] <- as.raw(0xf0)
     }
-    write.tree(tree,'tmp.nwk')
-    write.FASTA(ali,'tmp.fasta')
-    m=system('../../../build-debug/test_jointml',intern=T)
+    tdir=tempdir()
+    write.tree(tree,sprintf('%s/tmp.nwk',tdir))
+    write.FASTA(ali,sprintf('%s/tmp.fasta',tdir))
+    exe=normalizePath('../../../build-debug/test_jointml')
+    m=system(sprintf('cd %s;%s',tdir,exe),intern=T)
     m=as.numeric(unlist(strsplit(m,',')))
     expect_equal(m[1],m[2])
     pali=as.phyDat(ali)
@@ -23,7 +25,6 @@ test_that("Testing jointml algorithm.", {
     p2=likelihood(midpoint(tree),pali,method='joint')
     expect_equal(p,p2)
     expect_equal(m[1],p)
-    system('rm tmp.fasta tmp.nwk')
   }
 })
 

@@ -31,7 +31,7 @@ decode_recombination <- function(x,iteration,gap) {
 
   #Perform ancestral state reconstruction
   pml=phangorn::pml(tree,seqs,model='JC')
-  anc=phangorn:::joint_pml(pml)
+  anc=phangorn::anc_pml(pml)$state
 
   #Impute missing data if needed
   seqs=resolve_tip_uncertainties(tree,seqs,anc)

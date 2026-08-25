@@ -2,7 +2,7 @@
 % Please edit documentation in R/likelihoods.R
 \name{mle}
 \alias{mle}
-\title{Perform MLE inference of the tree given the sequences}
+\title{EXPERIMENTAL MLE inference of the tree given the sequences}
 \usage{
 mle(seqs)
 }
@@ -13,5 +13,5 @@ mle(seqs)
 Phylogenetic tree estimated
 }
 \description{
-Perform MLE inference of the tree given the sequences
+EXPERIMENTAL MLE inference of the tree given the sequences
 }

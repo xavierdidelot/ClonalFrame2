@@ -8,7 +8,6 @@
 #' @param showPlot Whether to show a plot of the results
 #' @param showTimes Whether to show the time spent by each method
 #' @returns Matrix of results
-#' @export
 #'
 comparison=function(n=20,l=10000,mu=0.01,niter=100,eps=0.01,showProgress=T,showPlot=T,showTimes=T) {
   tree=rtree(n,br=function (n) rexp(n,rate=1/mu))
@@ -33,7 +32,8 @@ comparison=function(n=20,l=10000,mu=0.01,niter=100,eps=0.01,showProgress=T,showP
   }
   if (showProgress) close(pb)
   if (showTimes) print(tims)
-  if (showPlot) {p=GGally::ggpairs(allres);print(p)}
+  if (showPlot && !requireNamespace("GGally", quietly = TRUE)) message("Package 'GGally' is required to use showPlot")
+  if (showPlot &&  requireNamespace("GGally", quietly = TRUE)) {p=GGally::ggpairs(allres);print(p)}
   return(allres)
 }
 
@@ -42,7 +42,6 @@ comparison=function(n=20,l=10000,mu=0.01,niter=100,eps=0.01,showProgress=T,showP
 #' @param tree Tree to randomise
 #' @param eps Standard deviation of normal noise to apply to distances
 #' @returns Randomised tree
-#' @export
 #'
 tree_noise=function(tree,eps=0.01) {
   d=cophenetic.phylo(tree)
@@ -61,15 +60,16 @@ tree_noise=function(tree,eps=0.01) {
 #' @param niter Number of iterations
 #' @param showPlot Whether to show a plot of the results
 #' @returns Matrix of results
-#' @export
 #'
 comparisonCpp=function(n=20,l=10000,mu=0.01,niter=100,showPlot=T) {
-  system(sprintf('../build-release/comparison %d %d %f %d %d > res.txt',n,l,mu,niter,round(runif(1,min=0,max=1e9))))
-  allres=read.table('res.txt',sep='\t',fill=T)
+  restxt=tempfile()
+  system(sprintf('../build-release/comparison %d %d %f %d %d > %s',n,l,mu,niter,round(runif(1,min=0,max=1e9)),restxt))
+  allres=read.table(restxt,sep='\t',fill=T)
   allres=allres[seq(2,nrow(allres),2),]
-  system('rm res.txt')
+  allres[,1]=as.numeric(allres[,1])
   methods=c('pruning','joint','parsimony')
   colnames(allres)<-methods
-  if (showPlot) {p=GGally::ggpairs(allres);print(p)}
+  if (showPlot && !requireNamespace("GGally", quietly = TRUE)) message("Package 'GGally' is required to use showPlot")
+  if (showPlot &&  requireNamespace("GGally", quietly = TRUE)) {p=GGally::ggpairs(allres);print(p)}
   return(allres)
 }

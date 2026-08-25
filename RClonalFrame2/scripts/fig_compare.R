@@ -6,11 +6,11 @@ l=1000000
 avg_bra_len=1e-4
 niter=100
 seed=round(runif(1,min=0,max=1e9))
-system(sprintf('../build-release/comparison %d %d %f %d %d > res.txt',n,l,avg_bra_len,niter,seed))
-allres=read.table('res.txt',sep='\t',fill=T)
+restxt=tempfile()
+system(sprintf('../build-release/comparison %d %d %f %d %d > %s',n,l,avg_bra_len,niter,seed,restxt))
+allres=read.table(restxt,sep='\t',fill=T)
 trees=allres[seq(1,nrow(allres),2),1]
 allres=allres[seq(2,nrow(allres),2),]
-system('rm res.txt')
 t=read.tree(text=trees[1])
 methods=c('pruning','joint','parsimony')
 colnames(allres)<-methods

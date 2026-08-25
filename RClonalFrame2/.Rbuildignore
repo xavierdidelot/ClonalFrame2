@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^\.positai$
 ^\.claude$
+LICENSE
+README.Rmd
+scripts
