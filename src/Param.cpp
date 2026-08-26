@@ -23,24 +23,24 @@ void Param::print_progress(int current, int total) {
     string bar(filled, '=');
     if (filled < bar_width) bar += '>';
     bar += string(bar_width - bar.size(), ' ');
-    std::print(std::cout, "\r[{}] {}%  ", bar, static_cast<int>(fraction * 100));
-    if (current == total) std::println(std::cout, "");
+    myprint(std::cout, "\r[{}] {}%  ", bar, static_cast<int>(fraction * 100));
+    if (current == total) myprintln(std::cout, "");
     std::flush(std::cout);
 }
 
 void Param::mcmc(int burn, int nbit, int thin) {
     if (verbose) vprint("Starting MCMC...");
     if (profiling) Profiler::prof.start(__func__);
-    std::println(out, "\t\"mcmc_parameters\": {{");
-    std::println(out, "\t\t\"burn\": {},",burn);
-    std::println(out, "\t\t\"nbit\": {},",nbit);
-    std::println(out, "\t\t\"thin\": {}",thin);
-    std::println(out, "\t}},");
+    myprintln(out, "\t\"mcmc_parameters\": {{");
+    myprintln(out, "\t\t\"burn\": {},",burn);
+    myprintln(out, "\t\t\"nbit\": {},",nbit);
+    myprintln(out, "\t\t\"thin\": {}",thin);
+    myprintln(out, "\t}},");
     std::uniform_real_distribution runif(0.0,1.0);
     if (verbose) vprint("Performing initial ancestral state reconstruction...");
     tree->jointml();
     tree->ancestral_to_json_file();
-    std::println(out, "\t\"iterations\": [");
+    myprintln(out, "\t\"iterations\": [");
     if (verbose) vprint("Performing initial likelihood computation...");
     ll=tree->likelihood_anc_rec(rho,delta,nu);
     prior_tree=tree->prior(this);
@@ -178,13 +178,13 @@ void Param::mcmc(int burn, int nbit, int thin) {
 
         //Writing to output file
         if ((i+1)%thin==0) {
-            std::println(out, "\t,");
+            myprintln(out, "\t,");
             state_to_json_file(i+1);
         }
 
     }//End of main MCMC loop
     if (verbose==false && nbit>0) print_progress(nbit,nbit);
-    std::println(out, "\t]");
+    myprintln(out, "\t]");
     if (profiling) Profiler::prof.stop(__func__);
     if (verbose) vprint("Finished MCMC.");
 }
@@ -202,25 +202,25 @@ void Param::adapt(int index,double mh,int i,int rep) {
 }
 
 void Param::state_to_json_file(int iter) {
-    std::println(out, "\t\t{{");
-    std::println(out,"\t\t\t\"likelihood\": {:.6e},",ll);
-    std::println(out,"\t\t\t\"prior_tree\": {:.6e},",prior_tree);
-    std::println(out,"\t\t\t\"prior_rho\": {:.6e},",prior_rho);
-    std::println(out,"\t\t\t\"prior_delta\": {:.6e},",prior_delta);
-    std::println(out,"\t\t\t\"prior_nu\": {:.6e},",prior_nu);
-    std::println(out,"\t\t\t\"sum_bra_len\": {:.6e},",tree->sum_bra_len());
-    std::println(out,"\t\t\t\"tree\": \"{}\",",tree->to_string());
-    std::println(out,"\t\t\t\"rho\": {:.6e},",rho);
-    std::println(out,"\t\t\t\"delta\": {:.6e},",delta);
-    std::println(out,"\t\t\t\"nu\": {:.6e},",nu);
-    std::println(out,"\t\t\t\"sd_rho\": {:.6e},",sd[0]);
-    std::println(out,"\t\t\t\"sd_delta\": {:.6e},",sd[1]);
-    std::println(out,"\t\t\t\"sd_nu\": {:.6e},",sd[2]);
-    std::println(out,"\t\t\t\"sd_lengths\": {:.6e},",sd[3]);
-    std::println(out,"\t\t\t\"paccepted_rho\": {:.6e},",    iter*updates[0]==0?0.0:1.0*naccepted[0]/(iter*updates[0]));
-    std::println(out,"\t\t\t\"paccepted_delta\": {:.6e},",  iter*updates[1]==0?0.0:1.0*naccepted[1]/(iter*updates[1]));
-    std::println(out,"\t\t\t\"paccepted_nu\": {:.6e},",     iter*updates[2]==0?0.0:1.0*naccepted[2]/(iter*updates[2]));
-    std::println(out,"\t\t\t\"paccepted_lengths\": {:.6e},",iter*updates[3]==0?0.0:1.0*naccepted[3]/(iter*updates[3]));
-    std::println(out,"\t\t\t\"paccepted_spr\": {:.6e}",     iter*updates[4]==0?0.0:1.0*naccepted[4]/(iter*updates[4]));
-    std::println(out, "\t\t}}");
+    myprintln(out, "\t\t{{");
+    myprintln(out,"\t\t\t\"likelihood\": {:.6e},",ll);
+    myprintln(out,"\t\t\t\"prior_tree\": {:.6e},",prior_tree);
+    myprintln(out,"\t\t\t\"prior_rho\": {:.6e},",prior_rho);
+    myprintln(out,"\t\t\t\"prior_delta\": {:.6e},",prior_delta);
+    myprintln(out,"\t\t\t\"prior_nu\": {:.6e},",prior_nu);
+    myprintln(out,"\t\t\t\"sum_bra_len\": {:.6e},",tree->sum_bra_len());
+    myprintln(out,"\t\t\t\"tree\": \"{}\",",tree->to_string());
+    myprintln(out,"\t\t\t\"rho\": {:.6e},",rho);
+    myprintln(out,"\t\t\t\"delta\": {:.6e},",delta);
+    myprintln(out,"\t\t\t\"nu\": {:.6e},",nu);
+    myprintln(out,"\t\t\t\"sd_rho\": {:.6e},",sd[0]);
+    myprintln(out,"\t\t\t\"sd_delta\": {:.6e},",sd[1]);
+    myprintln(out,"\t\t\t\"sd_nu\": {:.6e},",sd[2]);
+    myprintln(out,"\t\t\t\"sd_lengths\": {:.6e},",sd[3]);
+    myprintln(out,"\t\t\t\"paccepted_rho\": {:.6e},",    iter*updates[0]==0?0.0:1.0*naccepted[0]/(iter*updates[0]));
+    myprintln(out,"\t\t\t\"paccepted_delta\": {:.6e},",  iter*updates[1]==0?0.0:1.0*naccepted[1]/(iter*updates[1]));
+    myprintln(out,"\t\t\t\"paccepted_nu\": {:.6e},",     iter*updates[2]==0?0.0:1.0*naccepted[2]/(iter*updates[2]));
+    myprintln(out,"\t\t\t\"paccepted_lengths\": {:.6e},",iter*updates[3]==0?0.0:1.0*naccepted[3]/(iter*updates[3]));
+    myprintln(out,"\t\t\t\"paccepted_spr\": {:.6e}",     iter*updates[4]==0?0.0:1.0*naccepted[4]/(iter*updates[4]));
+    myprintln(out, "\t\t}}");
 }

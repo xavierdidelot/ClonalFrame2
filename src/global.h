@@ -2,12 +2,15 @@
 #define CLONALFRAME2_GLOBAL_H
 #include <omp.h>
 #include <random>
-#include <print>
 #include <chrono>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include "Profiler.h"
+
+//Code to emulate print and println from C++23
+//#include <print>
+#include "myprint.h"
 
 inline bool verbose=false; //Verbose mode
 
@@ -19,7 +22,7 @@ void vprint(std::format_string<Args...> fmt, Args&&... args)
 {
     auto now = std::chrono::system_clock::now();
     auto ms = floor<std::chrono::milliseconds>(now);
-    std::println("[{:%H:%M:%S}]  {}", ms, std::format(fmt, std::forward<Args>(args)...));
+    myprintln("[{:%H:%M:%S}]  {}", ms, std::format(fmt, std::forward<Args>(args)...));
 }
 
 inline std::mt19937 rng(std::random_device{}()); // Random number generator, using a non-deterministic seed by default

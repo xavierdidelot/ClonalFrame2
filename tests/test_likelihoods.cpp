@@ -19,5 +19,5 @@ int main() {
     double s3=t->likelihood_anc();
     double s4=t->likelihood_anc_rec(0.0,202,0.055);
     double s5=t->likelihood_anc_rec(1.1,202,0.055);
-    std::println("{},{},{},{}",l,s3,s4,s5);
+    myprintln("{},{},{},{}",l,s3,s4,s5);
 }

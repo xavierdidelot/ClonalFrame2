@@ -23,12 +23,12 @@ int main(int argc, const char *argv[]) {
             t2=Tree::noise_tree(t,avg_bra_len);
             t2->set_sequences(a);
         }
-        std::println("{}",t2->to_string());
+        myprintln("{}",t2->to_string());
         double r1=t2->likelihood();
         double r2=t2->jointml();
         t2->parsimony();
         double r3=t2->likelihood_anc();
-        std::println("{:.10e}\t{:.10e}\t{:.10e}", r1, r2, r3);
+        myprintln("{:.10e}\t{:.10e}\t{:.10e}", r1, r2, r3);
         delete t2;
     }
 }

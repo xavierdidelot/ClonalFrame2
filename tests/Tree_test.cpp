@@ -21,7 +21,7 @@ int main() {
     t = Tree::random_tree(10,0.01,0.01);
     n=t->get_n();assert(n==10);
     b=t->check_structure();assert(b);
-    std::println("Expected number of substitutions: {}",t->sum_bra_len()*10000);
+    myprintln("Expected number of substitutions: {}",t->sum_bra_len()*10000);
 
     //Writing and re-reading a tree
     t->write("true.nwk");
@@ -32,33 +32,33 @@ int main() {
 
     //Generating an alignment from a tree
     int m=t->simulate_sequences_rec(10000,1,100,0.01);
-    std::println("Simulated number of substitutions: {}",m);
+    myprintln("Simulated number of substitutions: {}",m);
     auto a=Alignment::make_from_tree(t,false);
     //a->miss_at_random(0.1);
     a->write("ali.fasta",true);
     a=Alignment::read_fasta("ali.fasta");
 
     //Likelihood calculation
-    std::println("Likelihood: {}",t->likelihood());
+    myprintln("Likelihood: {}",t->likelihood());
 
     //Counting number of substitutions in the tree
     int truth=t->count_subs();
-    std::println("Counted number of substitutions: {}",truth);
+    myprintln("Counted number of substitutions: {}",truth);
 
     //Ancestral reconstruction
     int s1=t->parsimony();
     int s2=t->count_subs();
     int s3=t->parsimony_recursive();
     int s4=t->count_subs();
-    std::println("Parsimonious number of substitutions: {} {} {} {}",s1,s2,s3,s4);
+    myprintln("Parsimonious number of substitutions: {} {} {} {}",s1,s2,s3,s4);
     assert(s1==s2);
     assert(s2==s3);
     assert(s3==s4);
-    std::println("Likelihood given parsimony ancestral sequences: {}",t->likelihood_anc());
+    myprintln("Likelihood given parsimony ancestral sequences: {}",t->likelihood_anc());
     double l1=t->jointml();
     double l2=t->likelihood_anc();
     double l3=t->likelihood_anc_rec(0.0,100,0.01);
-    std::println("Likelihoods given ML ancestral sequences: {} {} {}",l1,l2,l3);
+    myprintln("Likelihoods given ML ancestral sequences: {} {} {}",l1,l2,l3);
     assert(round(l1*1e6)==round(l2*1e6));
     assert(round(l1*1e6)==round(l3*1e6));
 
@@ -98,7 +98,7 @@ int main() {
 
     //Distance matrix
     std::ofstream out("tmp.nwk");
-    std::println(out,"{}","((seq2:1,seq1:2):1,seq0:3);");
+    myprintln(out,"{}","((seq2:1,seq1:2):1,seq0:3);");
     out.close();
     t=Tree::read_newick("tmp.nwk");
     n=t->get_n();assert(n==3);

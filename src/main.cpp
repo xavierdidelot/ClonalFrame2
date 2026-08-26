@@ -67,7 +67,7 @@ int main(int argc, const char *argv[]) {
                 case('v'):verbose = true;break;
                 case('p'):profiling = true;break;
                 case('h'):help=true;break;
-                default:std::println("Ignoring incorrect option -{}",arg[1]);
+                default:myprintln("Ignoring incorrect option -{}",arg[1]);
             }
         } else remainder.push_back(arg);
         i++;
@@ -79,39 +79,39 @@ int main(int argc, const char *argv[]) {
     vprint("This is ClonalFrame2, version {}", VERSION_STRING);
 
     if (help) {
-        std::println("{}", helptxt);
+        myprintln("{}", helptxt);
         return 0;
     }
 
 
     if (remainder.size() != 0) {
-        std::println("Need zero non-option arguments but found {}", remainder.size());
+        myprintln("Need zero non-option arguments but found {}", remainder.size());
         return 0;
     }
 
     if (simu_str.empty() && infile.empty()) {
-        std::println("Need either -i or -S option.");
+        myprintln("Need either -i or -S option.");
         return 0;
     }
 
     if (!simu_str.empty() && !infile.empty()) {
-        std::println("Cannot have both -i and -S options.");
+        myprintln("Cannot have both -i and -S options.");
         return 0;
     }
 
     if (!outfile.empty()) {
         out.open(outfile);
-        if (out.is_open() == false) std::println(std::cerr,"Unable to open output file {}",outfile);
+        if (out.is_open() == false) myprintln(std::cerr,"Unable to open output file {}",outfile);
     }
-    std::println(out, "{{");
+    myprintln(out, "{{");
 
     string cmd;
     for (i = 0; i < argc; i++) {cmd.append(argv[i]);cmd.append(" ");}
-    std::println("Command used: {}", cmd);
-    std::println(out,"\t\"command\": \"{}\",",cmd);
+    myprintln("Command used: {}", cmd);
+    myprintln(out,"\t\"command\": \"{}\",",cmd);
 
     omp_set_num_threads(n_cores);
-    std::println("Using {} cores.",n_cores);
+    myprintln("Using {} cores.",n_cores);
 
     Alignment *a;
     Tree *t=nullptr;
@@ -122,7 +122,7 @@ int main(int argc, const char *argv[]) {
         if (starting_str.empty()) starting_str="0.1,500,0.05";
         a = Alignment::read_fasta(infile);
         if (a->get_n()<3) {
-            std::println("Need a minimum of three genomes.");
+            myprintln("Need a minimum of three genomes.");
             return 0;
         }
     } else {
@@ -130,20 +130,20 @@ int main(int argc, const char *argv[]) {
         std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf,%lf", &n, &l, &rho, &delta, &nu, &b_mean, &b_sd);
         if (starting_str.empty()) start_correct=1;
         if (n<3) {
-            std::println("Need a minimum of three genomes.");
+            myprintln("Need a minimum of three genomes.");
             return 0;
         }
         if (verbose) vprint("Generating true tree with {} leaves and branch length with mean {} and sd {}...", n, b_mean, b_sd);
         t = Tree::random_tree(n, b_mean, b_sd);
         if (verbose) vprint("Generating simulated alignment of length {} with rho={},delta={},nu={}...", l, rho, delta, nu);
-        std::println(out,"\t\"simulation_parameters\": {{");
-        std::println(out,"\t\t\"tree\": \"{}\",",t->to_string());
-        std::println(out,"\t\t\"length\": {},",l);
-        std::println(out,"\t\t\"rho\": {:.6e},",rho);
-        std::println(out,"\t\t\"delta\": {:.6e},",delta);
-        std::println(out,"\t\t\"nu\": {:.6e},",nu);
+        myprintln(out,"\t\"simulation_parameters\": {{");
+        myprintln(out,"\t\t\"tree\": \"{}\",",t->to_string());
+        myprintln(out,"\t\t\"length\": {},",l);
+        myprintln(out,"\t\t\"rho\": {:.6e},",rho);
+        myprintln(out,"\t\t\"delta\": {:.6e},",delta);
+        myprintln(out,"\t\t\"nu\": {:.6e},",nu);
         t->simulate_sequences_rec(l, rho, delta, nu);
-        std::println(out,"\t}},");
+        myprintln(out,"\t}},");
         a = t->get_alignment();
     }
 
@@ -179,7 +179,7 @@ int main(int argc, const char *argv[]) {
     delete(a);
     delete(t);
     delete(p);
-    std::println(out, "}}");
+    myprintln(out, "}}");
     out.close();
 
     auto end = Clock::now();

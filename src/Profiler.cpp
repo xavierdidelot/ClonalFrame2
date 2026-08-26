@@ -58,11 +58,11 @@ void Profiler::print() {
     long long total = std::chrono::duration_cast<std::chrono::microseconds>(
         Clock::now() - total_start).count();
 
-    std::println("\n=== Profiler Results ===");
-    std::println("{:<40} {:<12} {:<16} {:<16}", "Function", "Calls", "Total (ms)", "Percentage");
-    std::println("{}", std::string(84, '-'));
+    myprintln("\n=== Profiler Results ===");
+    myprintln("{:<40} {:<12} {:<16} {:<16}", "Function", "Calls", "Total (ms)", "Percentage");
+    myprintln("{}", std::string(84, '-'));
     for (const Entry* e : sorted) {
-        std::println("{:<40} {:<12} {:<16.2f} {:<16.2f}",
+        myprintln("{:<40} {:<12} {:<16.2f} {:<16.2f}",
             e->name,
             e->calls.load(),
             e->duration.load() / 1000.0,

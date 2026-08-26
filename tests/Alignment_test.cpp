@@ -15,7 +15,7 @@ ACGTACGANNNN
 int main() {
     verbose=true;
     std::ofstream out("tmp.fasta");
-    std::println(out,"{}",fasta);
+    myprintln(out,"{}",fasta);
     out.close();
     auto a = Alignment::read_fasta("tmp.fasta");
     remove("tmp.fasta");
