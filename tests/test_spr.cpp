@@ -16,7 +16,7 @@ int main(int argc, const char *argv[]) {
     t->simulate_sequences(0);
     Param * p=new Param(t);
     for (int i=0;i<niter;i++) {
-        myprintln("{}",t->to_string());
+        std::cout<<t->to_string()<<std::endl;
         string s;
         for (int j=0;j<10;j++) t->rSPR(p,&s);
     }

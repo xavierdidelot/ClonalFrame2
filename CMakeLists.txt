@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(ClonalFrame2 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -19,8 +19,6 @@ add_library(cf2_lib
 add_executable(ClonalFrame2 src/main.cpp)
 target_link_libraries(ClonalFrame2 PRIVATE cf2_lib)
 target_include_directories(ClonalFrame2 PRIVATE ${CMAKE_BINARY_DIR}/generated)
-add_executable(comparison tests/comparison.cpp)
-target_link_libraries(comparison PRIVATE cf2_lib)
 
 if(BUILD_DEBUG_TARGETS)
 	include(CTest)
@@ -46,8 +44,8 @@ if(BUILD_DEBUG_TARGETS)
 	target_link_libraries(test_spr PRIVATE cf2_lib)
 	add_executable(test_jointml tests/test_jointml.cpp)
 	target_link_libraries(test_jointml PRIVATE cf2_lib)
-	add_executable(profile_parsimony tests/profile_parsimony.cpp)
-	target_link_libraries(profile_parsimony PRIVATE cf2_lib)
+	add_executable(comparison tests/comparison.cpp)
+	target_link_libraries(comparison PRIVATE cf2_lib)
 endif()
 
 find_package(OpenMP)

@@ -13,6 +13,6 @@ int main() {
     auto tmp = *pat;
     std::sort(tmp.begin(), tmp.end());
     size_t count = std::unique(tmp.begin(), tmp.end()) - tmp.begin();
-    myprintln("{}",count);
+    std::cout<<count<<std::endl;
     delete(a);
 }

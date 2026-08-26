@@ -6,23 +6,18 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 #include "Profiler.h"
-
-//Code to emulate print and println from C++23
-//#include <print>
-#include "myprint.h"
 
 inline bool verbose=false; //Verbose mode
 
 inline std::ofstream out; //Output file
 
-//Function to write a message
-template<typename... Args>
-void vprint(std::format_string<Args...> fmt, Args&&... args)
+inline std::string vtime()
 {
-    auto now = std::chrono::system_clock::now();
-    auto ms = floor<std::chrono::milliseconds>(now);
-    myprintln("[{:%H:%M:%S}]  {}", ms, std::format(fmt, std::forward<Args>(args)...));
+    auto time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::ostringstream out; out << std::put_time(std::localtime(&time), "[%H:%M:%S] ");
+    return out.str();
 }
 
 inline std::mt19937 rng(std::random_device{}()); // Random number generator, using a non-deterministic seed by default

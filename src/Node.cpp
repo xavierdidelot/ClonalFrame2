@@ -78,8 +78,8 @@ Node::~Node() {
 
 string Node::to_string() {
     std::ostringstream oss;
-    if (left == nullptr) myprint(oss,"{}:{:.10e}",name,get_dist_father());
-    else myprint(oss,"({},{}){}:{:.10e}",left->to_string(),right->to_string(),name,get_dist_father());
+    if (left == nullptr)     oss << name << ':' << std::scientific << std::setprecision(10) << get_dist_father();
+    else oss << '(' << left->to_string() << ',' << right->to_string() << ')' << name << ':' << std::scientific << std::setprecision(10) << get_dist_father();
     return oss.str();
 }
 

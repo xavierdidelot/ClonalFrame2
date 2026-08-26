@@ -12,7 +12,7 @@ int main() {
     t->set_sequences(a);
     double s1=t->jointml();
     double s2=t->likelihood_anc();
-    myprintln("{},{}",s1,s2);
+    std::cout<<std::setprecision(17)<<s1<<","<<s2<<std::endl;
     delete(t);
     delete(a);
 }

@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -fopenmp -std=c++20 -O3
+CXXFLAGS = -fopenmp -std=c++17 -O3
 SRCS = $(wildcard *.cpp)
 OBJS = $(SRCS:.cpp=.o)
 MAKEFLAGS += -j8

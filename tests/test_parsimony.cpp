@@ -13,7 +13,7 @@ int main() {
     int s1=t->parsimony();
     int s2=t->count_subs();
     double s3=t->likelihood_anc();
-    myprintln("{},{},{}",s1,s2,s3);
+    std::cout<<s1<<","<<s2<<","<<s3<<std::endl;
     delete(t);
     delete(a);
 }

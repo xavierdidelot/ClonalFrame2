@@ -58,14 +58,20 @@ void Profiler::print() {
     long long total = std::chrono::duration_cast<std::chrono::microseconds>(
         Clock::now() - total_start).count();
 
-    myprintln("\n=== Profiler Results ===");
-    myprintln("{:<40} {:<12} {:<16} {:<16}", "Function", "Calls", "Total (ms)", "Percentage");
-    myprintln("{}", std::string(84, '-'));
+    std::cout<<"\n=== Profiler Results ===\n";
+    std::cout << std::left
+          << std::setw(40) << "Function" << ' '
+          << std::setw(12) << "Calls" << ' '
+          << std::setw(16) << "Total (ms)" << ' '
+          << std::setw(16) << "Percentage" << '\n';
+    std::cout << std::string(84, '-') << '\n';
+
     for (const Entry* e : sorted) {
-        myprintln("{:<40} {:<12} {:<16.2f} {:<16.2f}",
-            e->name,
-            e->calls.load(),
-            e->duration.load() / 1000.0,
-            static_cast<double>(e->duration.load()) / total * 100.0);
+        std::cout << std::left << std::setw(40) << e->name << ' '
+                  << std::setw(12) << e->calls.load() << ' '
+                  << std::fixed << std::setprecision(2)
+                  << std::setw(16) << e->duration.load() / 1000.0 << ' '
+                  << std::setw(16) << static_cast<double>(e->duration.load()) / total * 100.0
+                  << '\n';
     }
 }

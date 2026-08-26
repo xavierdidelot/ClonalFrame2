@@ -41,10 +41,10 @@ Tree* Tree::read_newick(const string &filename) {
     auto t=new Tree();
     string line;
     std::ifstream file;
-    if (verbose) vprint("Opening file {}",filename);
+    if (verbose) std::cout<<vtime()<<"Opening file "<<filename<<std::endl;
     file.open(filename);
     if (file.is_open() == false) {
-        myprintln(std::cerr,"Error opening file {}",filename);
+        std::cerr << "Error opening file " << filename << std::endl;
         exit(1);
     }
     getline(file, line);
@@ -79,53 +79,53 @@ void Tree::write(const string &filename) {
     std::ofstream file;
     file.open(filename);
     if (file.is_open() == false) {
-        myprintln(std::cerr,"Error opening file {}",filename);
+        std::cerr << "Error opening file " << filename << std::endl;
         return;
     }
-    myprintln(file,"{}",to_string());
+    file<<to_string()<<'\n';
     file.close();
 }
 
 bool Tree::check_structure() {
     if (n * 2 - 1 - nodes.size() != 0) {
-        myprintln(std::cerr,"Incorrect number of nodes");
+        std::cerr<<"Incorrect number of nodes" << std::endl;
         return false;
     }
     if (nodes[2*n-2]->get_father()!=nullptr) {
-        myprintln(std::cerr,"Root is not last");
+        std::cerr<<"Root is not last"<<std::endl;
         return false;
     }
     if (nodes[2*n-2]->get_left()->get_left()==nullptr) {
-        myprintln(std::cerr,"Invalid root");
+        std::cerr<<"Invalid root"<<std::endl;
         return false;
     }
     if (nodes[2*n-2]->get_left()->get_dist_father()!=0.0) {
-        myprintln(std::cerr,"Invalid root distance");
+        std::cerr<<"Invalid root distance"<<std::endl;
         return false;
     }
     if (nodes[2*n-3]!=nodes[2*n-2]->get_left()) {
-        myprintln(std::cerr,"Null node is not penultimate");
+        std::cerr<<"Null node is not penultimate"<<std::endl;
         return false;
     }
     for (size_t i = 0; i < nodes.size(); i++) {
         if (i<nodes.size()-2 && nodes[i]->get_dist_father()==0.0) {
-            myprintln(std::cerr,"Node with distance zero other than root or null node");
+            std::cerr<<"Node with distance zero other than root or null node"<<std::endl;
             return false;
         }
         if (nodes[i]->get_dist_father()<0.0) {
-            myprintln(std::cerr,"Node with negative distance");
+            std::cerr<<"Node with negative distance"<<std::endl;
             return false;
         }
         if (nodes[i]->get_left() != nullptr && nodes[i]->get_left()->get_father() != nodes[i]) {
-            myprintln(std::cerr,"Incorrect left pointer");
+           std::cerr<<"Incorrect left pointer"<<std::endl;
             return false;
         }
         if (nodes[i]->get_right() != nullptr && nodes[i]->get_right()->get_father() != nodes[i]) {
-            myprintln(std::cerr,"Incorrect right pointer");
+            std::cerr<<"Incorrect right pointer"<<std::endl;
             return false;
         }
         if (nodes[i]->get_index() != i) {
-            myprintln(std::cerr,"Incorrect node index");
+            std::cerr<<"Incorrect node index"<<std::endl;
             return false;
         }
     }
@@ -166,7 +166,7 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
         nodes[2*n-2]->get_seq()->at(i) = Alignment::random_nuc();
     }
     int m=0;
-    myprintln(out,"\t\t\"recombination_events\": [");
+    out<<"\t\t\"recombination_events\": [\n";
     bool first_write=true;
     for (int z=2*(int)n-3;z>=0;z--) {
         vector<uint8_t>*above=nodes[z]->get_father()->get_seq();
@@ -196,15 +196,15 @@ int Tree::simulate_sequences_rec(size_t l,double rho,double delta,double nu) {
             m+=m2;
             if (rec) {
                 if (!first_write) {
-                    myprintln(out, ",");
+                    out<<","<<'\n';
                 } else first_write=false;
-                myprint(out, "\t\t{{\"branch\": \"{}\", \"beg\": {}, \"end\": {} }}",nodes[z]->get_name(),curpos,upto-1);
+                out << "\t\t{\"branch\": \"" << nodes[z]->get_name() << "\", \"beg\": " << curpos << ", \"end\": " << upto-1 << " }";
             }
             rec=!rec;
             curpos=upto;
         }
     }
-    myprintln(out,"]");
+    out<<"]\n";
     simulate_pattern_analysis();
     return(m);
 }
@@ -383,7 +383,7 @@ int Tree::parsimony() {
             if (nodes[i]->get_father()==nullptr) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
             else {
                 toset=nodes[i]->get_seq()->at(pos)&nodes[i]->get_father()->get_seq()->at(pos)&0b00001111;
-                if (toset==0u && nodes[i]->get_dist_father()==0) myprintln("Problem: adding a substitution on a branch of length zero!");
+                if (toset==0u && nodes[i]->get_dist_father()==0) std::cerr<<"Problem: adding a substitution on a branch of length zero!"<<std::endl;
                 if (toset==0u) toset=nodes[i]->get_seq()->at(pos)&0b00001111;
             }
             toset=toset&-toset;//pick first common bit
@@ -443,7 +443,7 @@ double Tree::likelihood_anc() {
                     s1+=ali->get_weights()->at(j);
                 else s2+=ali->get_weights()->at(j);
         }
-        if (s2>0  && len==0.0) myprintln("Problem: there are substitutions on a branch of length zero!");
+        if (s2>0  && len==0.0) std::cerr<<"Problem: there are substitutions on a branch of length zero!"<<std::endl;
         if (s2==0 && len==0.0) pnid=0.0;//otherwise get nan below
         ll+=pid*s1+pnid*s2;
     }
@@ -992,27 +992,27 @@ void Tree::ancestral_to_json_file() {
     auto patindex=ali->get_patindex();
     auto npat=ali->get_npat();
     auto l=ali->get_l();
-    myprintln(out, "\t\"ancestral_sequences\": {{");
-    myprintln(out,"\t\t\"tree\": \"{}\",",this->to_string());
-    myprint(out, "\t\t\"patindex\": [");
-    if (l>0) myprint(out, "{}",patindex->at(0));
+    out<<"\t\"ancestral_sequences\": {\n";
+    out << "\t\t\"tree\": \"" << this->to_string() << "\",\n";
+    out<< "\t\t\"patindex\": [";
+    if (l>0) out << patindex->at(0);
     for (size_t i=1;i<l;i++) {
-        myprint(out, ",{}",patindex->at(i));
+        out<< "," << patindex->at(i);
     }
-    myprintln(out, "],");
-    myprintln(out, "\t\t\"patmatrix\": [");
+    out << "],\n";
+    out << "\t\t\"patmatrix\": [\n";
     for (size_t i=0;i<2*n-2;i++) {
-        myprint(out, "\t\t{{\"branch\": \"{}\", \"data\": \"",nodes[i]->get_name());
-        for (size_t j=0;j<npat;j++) myprint(out,"{}",Alignment::decode(0b00001111&nodes[i]->get_seq()->at(j)));
-        if (i<2*n-3) myprintln(out, "\"}},"); else myprintln(out, "\"}}");
+        out << "\t\t{\"branch\": \"" << nodes[i]->get_name() << "\", \"data\": \"";
+        for (size_t j=0;j<npat;j++) out << Alignment::decode(0b00001111&nodes[i]->get_seq()->at(j));
+        if (i<2*n-3) out << "\"},\n"; else out << "\"}\n";
     }
-    myprintln(out, "\t\t],");
-    myprintln(out, "\t\t\"datamatrix\": [");
+    out << "\t\t],\n";
+    out << "\t\t\"datamatrix\": [\n";
     for (size_t i=0;i<n;i++) {
-        myprint(out, "\t\t{{\"branch\": \"{}\", \"data\": \"",nodes[i]->get_name());
-        for (size_t j=0;j<npat;j++) myprint(out,"{}",Alignment::decode(nodes[i]->get_seq()->at(j)));
-        if (i<n-1) myprintln(out, "\"}},"); else myprintln(out, "\"}}");
+        out << "\t\t{\"branch\": \"" << nodes[i]->get_name() << "\", \"data\": \"";
+        for (size_t j=0;j<npat;j++) out<< Alignment::decode(nodes[i]->get_seq()->at(j));
+        if (i<n-1) out << "\"},\n"; else out << "\"}\n";
     }
-    myprintln(out, "\t\t]");
-    myprintln(out, "\t}},");
+    out << "\t\t]\n";
+    out << "\t},\n";
 }

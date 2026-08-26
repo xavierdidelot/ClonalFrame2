@@ -67,7 +67,7 @@ int main(int argc, const char *argv[]) {
                 case('v'):verbose = true;break;
                 case('p'):profiling = true;break;
                 case('h'):help=true;break;
-                default:myprintln("Ignoring incorrect option -{}",arg[1]);
+                default:std::cout<<"Ignoring incorrect option -"<<arg[1]<<std::endl;
             }
         } else remainder.push_back(arg);
         i++;
@@ -76,42 +76,41 @@ int main(int argc, const char *argv[]) {
     if (thin==-1) thin=nbit/2000;
     if (thin==0) thin=1;
 
-    vprint("This is ClonalFrame2, version {}", VERSION_STRING);
+    std::cout<<vtime()<<"This is ClonalFrame2, version "<<VERSION_STRING<<std::endl;
 
     if (help) {
-        myprintln("{}", helptxt);
+        std::cout<<helptxt<<std::endl;
         return 0;
     }
 
 
     if (remainder.size() != 0) {
-        myprintln("Need zero non-option arguments but found {}", remainder.size());
+        std::cerr<<"Need zero non-option arguments but found "<< remainder.size()<<std::endl;
         return 0;
     }
 
     if (simu_str.empty() && infile.empty()) {
-        myprintln("Need either -i or -S option.");
+        std::cerr<<"Need either -i or -S option."<<std::endl;
         return 0;
     }
 
     if (!simu_str.empty() && !infile.empty()) {
-        myprintln("Cannot have both -i and -S options.");
+        std::cerr<<"Cannot have both -i and -S options."<<std::endl;
         return 0;
     }
 
     if (!outfile.empty()) {
         out.open(outfile);
-        if (out.is_open() == false) myprintln(std::cerr,"Unable to open output file {}",outfile);
+        if (out.is_open() == false) std::cerr<<"Unable to open output file "<<outfile<<std::endl;
     }
-    myprintln(out, "{{");
-
+    out<<"{\n";
     string cmd;
     for (i = 0; i < argc; i++) {cmd.append(argv[i]);cmd.append(" ");}
-    myprintln("Command used: {}", cmd);
-    myprintln(out,"\t\"command\": \"{}\",",cmd);
+    std::cout<<vtime()<<"Command used: "<< cmd<<std::endl;
+    out<<"\t\"command\": \""<<cmd<<"\",\n";
 
     omp_set_num_threads(n_cores);
-    myprintln("Using {} cores.",n_cores);
+    std::cout<<vtime()<<"Using "<<n_cores<<" cores."<<std::endl;
 
     Alignment *a;
     Tree *t=nullptr;
@@ -122,7 +121,7 @@ int main(int argc, const char *argv[]) {
         if (starting_str.empty()) starting_str="0.1,500,0.05";
         a = Alignment::read_fasta(infile);
         if (a->get_n()<3) {
-            myprintln("Need a minimum of three genomes.");
+            std::cerr<<"Need a minimum of three genomes."<<std::endl;
             return 0;
         }
     } else {
@@ -130,33 +129,34 @@ int main(int argc, const char *argv[]) {
         std::sscanf(simu_str.c_str(), "%d,%d,%lf,%lf,%lf,%lf,%lf", &n, &l, &rho, &delta, &nu, &b_mean, &b_sd);
         if (starting_str.empty()) start_correct=1;
         if (n<3) {
-            myprintln("Need a minimum of three genomes.");
+            std::cerr<<"Need a minimum of three genomes."<<std::endl;
             return 0;
         }
-        if (verbose) vprint("Generating true tree with {} leaves and branch length with mean {} and sd {}...", n, b_mean, b_sd);
+        if (verbose) std::cout<<vtime()<<"Generating true tree with "<<n<<" leaves and branch length with mean "<<b_mean<<" and sd "<<b_sd<<"..."<<std::endl;
         t = Tree::random_tree(n, b_mean, b_sd);
-        if (verbose) vprint("Generating simulated alignment of length {} with rho={},delta={},nu={}...", l, rho, delta, nu);
-        myprintln(out,"\t\"simulation_parameters\": {{");
-        myprintln(out,"\t\t\"tree\": \"{}\",",t->to_string());
-        myprintln(out,"\t\t\"length\": {},",l);
-        myprintln(out,"\t\t\"rho\": {:.6e},",rho);
-        myprintln(out,"\t\t\"delta\": {:.6e},",delta);
-        myprintln(out,"\t\t\"nu\": {:.6e},",nu);
+        if (verbose) std::cout<<vtime()<<"Generating simulated alignment of length "<<l<<" with rho="<<rho<<",delta="<<delta<<",nu="<<nu<<"..."<<std::endl;
+        out << "\t\"simulation_parameters\": {\n"
+            << "\t\t\"tree\": \"" << t->to_string() << "\",\n"
+            << "\t\t\"length\": " << l << ",\n"
+            << std::scientific << std::setprecision(6)
+            << "\t\t\"rho\": " << rho << ",\n"
+            << "\t\t\"delta\": " << delta << ",\n"
+            << "\t\t\"nu\": " << nu << ",\n";
         t->simulate_sequences_rec(l, rho, delta, nu);
-        myprintln(out,"\t}},");
+        out << "\t},\n";
         a = t->get_alignment();
     }
 
     if (start_correct==1) {
         t->set_sequences(a);
-        if (verbose) vprint("Starting from correct tree and parameters...");
+        if (verbose) std::cout<<vtime()<<"Starting from correct tree and parameters..."<<std::endl;
         p=new Param(t);
         if (rho>0) p->set_rho(rho); else p->set_rho(1e-5);
         if (delta>0) p->set_delta(delta); else p->set_delta(1e-5);
         if (nu>0) p->set_nu(nu); else p->set_nu(1e-5);
     } else {
         delete t;
-        if (verbose) vprint("Building initial tree...");
+        if (verbose) std::cout<<vtime()<<"Building initial tree..."<<std::endl;
         auto mat = a->distmat();
         t = Tree::nj(mat, a->get_names());
         delete mat;
@@ -179,7 +179,7 @@ int main(int argc, const char *argv[]) {
     delete(a);
     delete(t);
     delete(p);
-    myprintln(out, "}}");
+    out << "}\n";
     out.close();
 
     auto end = Clock::now();
@@ -189,7 +189,7 @@ int main(int argc, const char *argv[]) {
     if (time>60) {time=time/60;unit="minutes";}
     if (time>60 && unit=="minutes") {time=time/60;unit="hours";}
     if (time>24 && unit=="hours") {time=time/24;unit="days";}
-    vprint("Time spent running: {:.4f} {}.",time,unit);
-    if (verbose) vprint("End of ClonalFrame2 run.");
+    std::cout<<vtime()<<"Time spent running: "<<std::setprecision(4)<<time<<" "<<unit<<std::endl;
+    if (verbose) std::cout<<vtime()<<"End of ClonalFrame2 run."<<std::endl;
     return 0;
 }

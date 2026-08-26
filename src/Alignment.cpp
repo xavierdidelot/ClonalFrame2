@@ -21,10 +21,10 @@ Alignment * Alignment::read_fasta(const string &filename) {
     auto a = new Alignment();
     string line;
     std::ifstream file;
-    if (verbose) vprint("Opening file {}",filename);
+    if (verbose) std::cout<<vtime()<<"Opening file "<<filename<<std::endl;
     file.open(filename);
     if (file.is_open()==false) {
-        myprintln("Error opening file {}",filename);
+        std::cerr<<"Error opening file "<<filename<<std::endl;
         exit(1);
     }
 
@@ -38,12 +38,20 @@ Alignment * Alignment::read_fasta(const string &filename) {
         if (line.at(0)=='#') continue;
         if (line.at(0)=='>') {
             if (n==1) l1=l;
-            else if (l!=l1) {myprintln("Error in file {}, sequence 1 is of length {} but sequence {} is of length {}.",filename,l1,n,l);file.close();exit(1);}
+            else if (l!=l1) {
+                std::cerr << "Error in file " << filename << ", sequence 1 is of length " << l1 << " but sequence " << n << " is of length " << l << ".\n";
+                file.close();
+                exit(1);
+            }
             n++;l=0;continue;
         }
         l=l+line.length();
     }
-    if (l!=l1) {myprintln("Error in file {}, sequence 1 is of length {} but sequence {} is of length {}.",filename,l1,n,l);file.close();exit(1);}
+    if (l!=l1) {
+        std::cerr << "Error in file " << filename << ", sequence 1 is of length " << l1 << " but sequence " << n << " is of length " << l << ".\n";
+        file.close();
+        exit(1);
+    }
 
     //Second pass to load data
     file.clear();
@@ -64,12 +72,12 @@ Alignment * Alignment::read_fasta(const string &filename) {
             l++;
         }
     }
-    if (verbose) vprint("Finished reading file made of {} genomes of length {}",n,l);
+    if (verbose) std::cout<<vtime()<<"Finished reading file made of "<<n<<" genomes of length "<<l<<std::endl;
     file.close();
 
     //Check names are unique
     std::set<std::string> seen(a->names->begin(), a->names->end());
-    if (seen.size()!=a->names->size()) {myprintln("Error in file {}, sequence names are not unique.",filename);exit(1);}
+    if (seen.size()!=a->names->size()) {std::cerr<<"Error in file "<<filename<<", sequence names are not unique."<<std::endl;;exit(1);}
 
     a->n=n;
     a->l=l;
@@ -119,7 +127,7 @@ Alignment* Alignment::make_from_tree(Tree *t, bool include_ancestors) {
 }
 
 void Alignment::pattern_analysis() {
-    if (verbose) vprint("Starting pattern analysis");
+    if (verbose) std::cout<<vtime()<<"Starting pattern analysis"<<std::endl;
     auto data2=new vector<vector<uint8_t>*>(n);
     size_t lplus=l+100;
     for (size_t i=0;i<n;i++) data2->at(i)=new vector<uint8_t>(lplus);
@@ -183,7 +191,7 @@ void Alignment::pattern_analysis() {
     delete data;
     data=data2;
     make_refsites();
-    if (verbose) vprint("Finished pattern analysis and found {} patterns",npat);
+    if (verbose) std::cout<<vtime()<<"Finished pattern analysis and found "<<npat<<" patterns"<<std::endl;
 }
 
 void Alignment::make_refsites() {
@@ -232,16 +240,16 @@ void Alignment::write(const string &filename, bool include_uncertainty) {
     std::ofstream file;
     file.open(filename);
     if (file.is_open()==false) {
-        myprintln("Error opening file {}",filename);
+        std::cerr<<"Error opening file "<<filename<<std::endl;
         return;
     }
     for (size_t i=0;i<n;i++) {
-        myprintln(file,">{}",names->at(i));
+        file<<">"<<names->at(i)<<'\n';
         for (size_t j=0;j<l;j++) {
-            if (include_uncertainty) myprint(file,"{}",decode(get_data(i,j)));
-            else myprint(file,"{}",decode(get_data(i,j)&0b00001111));
+            if (include_uncertainty) file<<decode(get_data(i,j));
+            else file<<decode(get_data(i,j)&0b00001111);
         }
-        myprintln(file,"");
+        file<<'\n';
     }
     file.close();
 }

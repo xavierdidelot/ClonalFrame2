@@ -23,25 +23,25 @@ void Param::print_progress(int current, int total) {
     string bar(filled, '=');
     if (filled < bar_width) bar += '>';
     bar += string(bar_width - bar.size(), ' ');
-    myprint(std::cout, "\r[{}] {}%  ", bar, static_cast<int>(fraction * 100));
-    if (current == total) myprintln(std::cout, "");
+    std::cout << '\r' << '[' << bar << "] " << static_cast<int>(fraction * 100) << "%  ";
+    if (current == total) std::cout << "" << std::endl;
     std::flush(std::cout);
 }
 
 void Param::mcmc(int burn, int nbit, int thin) {
-    if (verbose) vprint("Starting MCMC...");
+    if (verbose) std::cout<<vtime()<<"Starting MCMC..."<<std::endl;
     if (profiling) Profiler::prof.start(__func__);
-    myprintln(out, "\t\"mcmc_parameters\": {{");
-    myprintln(out, "\t\t\"burn\": {},",burn);
-    myprintln(out, "\t\t\"nbit\": {},",nbit);
-    myprintln(out, "\t\t\"thin\": {}",thin);
-    myprintln(out, "\t}},");
+    out << "\t\"mcmc_parameters\": {\n";
+    out << "\t\t\"burn\": "<<burn<<",\n";
+    out << "\t\t\"nbit\": "<<nbit<<",\n";
+    out << "\t\t\"thin\": "<<thin<<"\n";
+    out << "\t},\n";
     std::uniform_real_distribution runif(0.0,1.0);
-    if (verbose) vprint("Performing initial ancestral state reconstruction...");
+    if (verbose) std::cout<<vtime()<<"Performing initial ancestral state reconstruction..."<<std::endl;
     tree->jointml();
     tree->ancestral_to_json_file();
-    myprintln(out, "\t\"iterations\": [");
-    if (verbose) vprint("Performing initial likelihood computation...");
+    out << "\t\"iterations\": [\n";
+    if (verbose) std::cout<<vtime()<<"Performing initial likelihood computation..."<<std::endl;
     ll=tree->likelihood_anc_rec(rho,delta,nu);
     prior_tree=tree->prior(this);
     prior_rho=dgamma_mean_sd(rho,prior_params[0],prior_params[1]);
@@ -59,7 +59,7 @@ void Param::mcmc(int burn, int nbit, int thin) {
 
     for (int i=0;i<nbit;i++) {//Main MCMC loop
         if (!verbose && nbit > 0 && i > 0 && (100 * i) / nbit != (100 * (i - 1)) / nbit) print_progress(i, nbit);
-        if (verbose) vprint("Starting iteration {}",i);
+        if (verbose) std::cout<<vtime()<<"Starting iteration "<<i<<std::endl;
 
         //#Adaptive MH move for rho using Gamma prior
         for (int rep=0;rep<updates[0];rep++) {
@@ -68,14 +68,15 @@ void Param::mcmc(int burn, int nbit, int thin) {
             double prior_rho2=dgamma_mean_sd(rho2,prior_params[0],prior_params[1]);
             double ll2=tree->likelihood_anc_rec(rho2,delta,nu);
             double mh=ll2-ll+prior_rho2-prior_rho;
+            if (verbose) std::cout<<vtime()<<std::scientific << std::setprecision(6)<<"Rho move proposed rho="<<rho<<" rho2="<<rho2<<" ll="<<ll<<" ll2="<<ll2<<" sd_rho="<<sd[0];
             if (log(runif(rng))<mh) {
                 naccepted[0]++;
-                if (verbose) vprint("Rho move accepted rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sd_rho={:.2e}",rho,rho2,ll,ll2,sd[0]);
+                if (verbose) std::cout<<" accepted\n";
                 ll=ll2;
                 rho=rho2;
                 prior_rho=prior_rho2;
             } else {
-                if (verbose) vprint("Rho move rejected rho={:.2e} rho2={:.2e} ll={:.2e} ll2={:.2e} sd_rho={:.2e}",rho,rho2,ll,ll2,sd[0]);
+                if (verbose) std::cout<<" rejected\n";
             }
             adapt(0,mh,i,rep);
         }
@@ -87,14 +88,15 @@ void Param::mcmc(int burn, int nbit, int thin) {
             double prior_delta2=dgamma_mean_sd(delta2,prior_params[2],prior_params[3]);
             double ll2=tree->likelihood_anc_rec(rho,delta2,nu);
             double mh=ll2-ll+prior_delta2-prior_delta;
+            if (verbose) std::cout<<vtime()<<std::scientific << std::setprecision(6)<<"Delta move proposed delta="<<delta<<" delta2="<<delta2<<" ll="<<ll<<" ll2="<<ll2<<" sd_delta="<<sd[1];
             if (log(runif(rng))<mh) {
                 naccepted[1]++;
-                if (verbose) vprint("Delta move accepted delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sd_delta={:.2e}",delta,delta2,ll,ll2,sd[1]);
+                if (verbose) std::cout<<" accepted\n";
                 ll=ll2;
                 delta=delta2;
                 prior_delta=prior_delta2;
             } else {
-                if (verbose) vprint("Delta move rejected delta={:.2e} delta2={:.2e} ll={:.2e} ll2={:.2e} sd_delta={:.2e}",delta,delta2,ll,ll2,sd[1]);
+                if (verbose) std::cout<<" rejected\n";
             }
             adapt(1,mh,i,rep);
         }
@@ -106,14 +108,15 @@ void Param::mcmc(int burn, int nbit, int thin) {
             double prior_nu2=dgamma_mean_sd(nu2,prior_params[4],prior_params[5]);
             double ll2=tree->likelihood_anc_rec(rho,delta,nu2);
             double mh=ll2-ll+prior_nu2-prior_nu;
+            if (verbose) std::cout<<vtime()<<std::scientific << std::setprecision(6)<<"Nu move proposed nu="<<nu<<" nu2="<<nu2<<" ll="<<ll<<" ll2="<<ll2<<" sd_nu="<<sd[2];
             if (log(runif(rng))<mh) {
                 naccepted[2]++;
-                if (verbose) vprint("Nu move accepted nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sd_nu={:.2e}",nu,nu2,ll,ll2,sd[2]);
+                if (verbose) std::cout<<" accepted\n";
                 ll=ll2;
                 nu=nu2;
                 prior_nu=prior_nu2;
             } else {
-                if (verbose) vprint("Nu move rejected nu={:.2e} nu2={:.2e} ll={:.2e} ll2={:.2e} sd_nu={:.2e}",nu,nu2,ll,ll2,sd[2]);
+                if (verbose) std::cout<<" rejected\n";
             }
             adapt(2,mh,i,rep);
         }
@@ -139,15 +142,16 @@ void Param::mcmc(int burn, int nbit, int thin) {
             double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
             double prior_tree2=tree2->prior(this);
             double mh=ll2-ll+prior_tree2-prior_tree+lqr;
+            if (verbose) std::cout<<vtime()<<std::scientific << std::setprecision(6)<<"Branch lengths move proposed ll="<<ll<<" ll2="<<ll<<" lp="<<prior_tree<<" lp2="<<prior_tree2<<" mh="<<mh;
             if (log(runif(rng))<mh) {
                 naccepted[3]++;
-                if (verbose) vprint("Branch lengths move accepted ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} mh={:2e}",ll,ll2,prior_tree,prior_tree2,mh);
+                if (verbose) std::cout<<" accepted\n";
                 ll=ll2;
                 prior_tree=prior_tree2;
                 delete tree;
                 tree=tree2;
             } else {
-                if (verbose) vprint("Branch lengths move rejected ll={:.2e} ll2={:.2e} lp={:.2e} lp2={:.2e} mh={:2e}",ll,ll2,prior_tree,prior_tree2,mh);
+                if (verbose) std::cout<<" rejected\n";
                 delete tree2;
             }
             adapt(3,mh,i,rep);
@@ -163,30 +167,31 @@ void Param::mcmc(int burn, int nbit, int thin) {
             double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
             double prior_tree2=tree2->prior(this);
             double mh=ll2-ll+prior_tree2-prior_tree+q21-q12;
+            if (verbose) std::cout<<vtime()<<std::scientific << std::setprecision(6)<<"Tree move proposed ll="<<ll<<" ll2="<<ll<<" lp="<<prior_tree<<" lp2="<<prior_tree2<<" mh="<<mh;
             if (log(runif(rng))<mh) {
                 naccepted[4]++;
-                if (verbose) vprint("Tree move accepted ll2-ll={:.2e} lp2-lp={:.2e} lq21-lq12={:.2e} mh={:.2e}",ll2-ll,prior_tree2-prior_tree,q21-q12,mh);
+                if (verbose) std::cout<<" accepted\n";
                 ll=ll2;
                 prior_tree=prior_tree2;
                 delete tree;
                 tree=tree2;
             } else {
-                if (verbose) vprint("Tree move rejected ll2-ll={:.2e} lp2-lp={:.2e} lq21-lq12={:.2e} mh={:.2e}",ll2-ll,prior_tree2-prior_tree,q21-q12,mh);
+                if (verbose) std::cout<<" rejected\n";
                 delete tree2;
             }
         }
 
         //Writing to output file
         if ((i+1)%thin==0) {
-            myprintln(out, "\t,");
+            out << "\t,\n";
             state_to_json_file(i+1);
         }
 
     }//End of main MCMC loop
     if (verbose==false && nbit>0) print_progress(nbit,nbit);
-    myprintln(out, "\t]");
+    out << "\t]\n";
     if (profiling) Profiler::prof.stop(__func__);
-    if (verbose) vprint("Finished MCMC.");
+    if (verbose) std::cout<<vtime()<<"Finished MCMC."<<std::endl;
 }
 
 void Param::adapt(int index,double mh,int i,int rep) {
@@ -202,25 +207,26 @@ void Param::adapt(int index,double mh,int i,int rep) {
 }
 
 void Param::state_to_json_file(int iter) {
-    myprintln(out, "\t\t{{");
-    myprintln(out,"\t\t\t\"likelihood\": {:.6e},",ll);
-    myprintln(out,"\t\t\t\"prior_tree\": {:.6e},",prior_tree);
-    myprintln(out,"\t\t\t\"prior_rho\": {:.6e},",prior_rho);
-    myprintln(out,"\t\t\t\"prior_delta\": {:.6e},",prior_delta);
-    myprintln(out,"\t\t\t\"prior_nu\": {:.6e},",prior_nu);
-    myprintln(out,"\t\t\t\"sum_bra_len\": {:.6e},",tree->sum_bra_len());
-    myprintln(out,"\t\t\t\"tree\": \"{}\",",tree->to_string());
-    myprintln(out,"\t\t\t\"rho\": {:.6e},",rho);
-    myprintln(out,"\t\t\t\"delta\": {:.6e},",delta);
-    myprintln(out,"\t\t\t\"nu\": {:.6e},",nu);
-    myprintln(out,"\t\t\t\"sd_rho\": {:.6e},",sd[0]);
-    myprintln(out,"\t\t\t\"sd_delta\": {:.6e},",sd[1]);
-    myprintln(out,"\t\t\t\"sd_nu\": {:.6e},",sd[2]);
-    myprintln(out,"\t\t\t\"sd_lengths\": {:.6e},",sd[3]);
-    myprintln(out,"\t\t\t\"paccepted_rho\": {:.6e},",    iter*updates[0]==0?0.0:1.0*naccepted[0]/(iter*updates[0]));
-    myprintln(out,"\t\t\t\"paccepted_delta\": {:.6e},",  iter*updates[1]==0?0.0:1.0*naccepted[1]/(iter*updates[1]));
-    myprintln(out,"\t\t\t\"paccepted_nu\": {:.6e},",     iter*updates[2]==0?0.0:1.0*naccepted[2]/(iter*updates[2]));
-    myprintln(out,"\t\t\t\"paccepted_lengths\": {:.6e},",iter*updates[3]==0?0.0:1.0*naccepted[3]/(iter*updates[3]));
-    myprintln(out,"\t\t\t\"paccepted_spr\": {:.6e}",     iter*updates[4]==0?0.0:1.0*naccepted[4]/(iter*updates[4]));
-    myprintln(out, "\t\t}}");
+    out << "\t\t{\n"
+        << std::scientific << std::setprecision(6)
+        << "\t\t\t\"likelihood\": "        << ll                    << ",\n"
+        << "\t\t\t\"prior_tree\": "        << prior_tree            << ",\n"
+        << "\t\t\t\"prior_rho\": "         << prior_rho             << ",\n"
+        << "\t\t\t\"prior_delta\": "       << prior_delta           << ",\n"
+        << "\t\t\t\"prior_nu\": "          << prior_nu              << ",\n"
+        << "\t\t\t\"sum_bra_len\": "       << tree->sum_bra_len()   << ",\n"
+        << "\t\t\t\"tree\": \""           << tree->to_string()      << "\",\n"
+        << "\t\t\t\"rho\": "               << rho                   << ",\n"
+        << "\t\t\t\"delta\": "             << delta                 << ",\n"
+        << "\t\t\t\"nu\": "                << nu                    << ",\n"
+        << "\t\t\t\"sd_rho\": "            << sd[0]                 << ",\n"
+        << "\t\t\t\"sd_delta\": "          << sd[1]                 << ",\n"
+        << "\t\t\t\"sd_nu\": "             << sd[2]                 << ",\n"
+        << "\t\t\t\"sd_lengths\": "        << sd[3]                 << ",\n"
+        << "\t\t\t\"paccepted_rho\": "     << (iter * updates[0] == 0 ? 0.0 : 1.0 * naccepted[0] / (iter * updates[0])) << ",\n"
+        << "\t\t\t\"paccepted_delta\": "   << (iter * updates[1] == 0 ? 0.0 : 1.0 * naccepted[1] / (iter * updates[1])) << ",\n"
+        << "\t\t\t\"paccepted_nu\": "      << (iter * updates[2] == 0 ? 0.0 : 1.0 * naccepted[2] / (iter * updates[2])) << ",\n"
+        << "\t\t\t\"paccepted_lengths\": " << (iter * updates[3] == 0 ? 0.0 : 1.0 * naccepted[3] / (iter * updates[3])) << ",\n"
+        << "\t\t\t\"paccepted_spr\": "     << (iter * updates[4] == 0 ? 0.0 : 1.0 * naccepted[4] / (iter * updates[4])) << '\n'
+        << "\t\t}\n";
 }

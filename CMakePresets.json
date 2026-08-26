@@ -9,11 +9,11 @@
     {
       "name": "debug",
       "displayName": "Debug Config",
-      "description": "Debug build using Unix Makefiles and C++20",
+      "description": "Debug build using Unix Makefiles and C++17",
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build-debug",
       "cacheVariables": {
-        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD": "17",
         "CMAKE_CXX_STANDARD_REQUIRED": "ON",
         "CMAKE_CXX_EXTENSIONS": "OFF",
         "CMAKE_BUILD_TYPE": "Debug",
@@ -25,11 +25,11 @@
     {
       "name": "release",
       "displayName": "Release Config",
-      "description": "Release build with optimization using Unix Makefiles and C++20",
+      "description": "Release build with optimization using Unix Makefiles and C++17",
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build-release",
       "cacheVariables": {
-        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD": "17",
         "CMAKE_CXX_STANDARD_REQUIRED": "ON",
         "CMAKE_CXX_EXTENSIONS": "OFF",
         "CMAKE_BUILD_TYPE": "Release",
