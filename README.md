@@ -1,10 +1,23 @@
 # ClonalFrame2
 
-## Installation
+## Compilation
 
-In the directory where the source was downloaded, simply run:
+The recommended method of compilation is to run the following
+command in the directory where the repository was downloaded:
 ```
 make
+```
+
+The command above uses make and cmake for configuration. 
+Alternatively compilation can be achieved directly with:
+```
+g++ -fopenmp -std=c++17 -O3 src/*.cpp -o ClonalFrame2
+```
+
+If OpenMP is not available, ClonalFrame2 can be compiled
+for non-parallel usage with:
+```
+g++ -std=c++17 -O3 src/*.cpp -o ClonalFrame2
 ```
 
 ## Usage
@@ -15,9 +28,8 @@ Usage: ClonalFrame2 [OPTIONS]
     Options:
     -i FILE     Select the input file
     -o FILE     Select the output file
-    -x NUM      Sets the number of burn-in iterations (default is y/2)
-    -y NUM      Sets the total number of iterations (default is 10000)
-    -z NUM      Sets the number of iterations between samples (default is y/2000)
+    -x NUM      Sets the total number of iterations (default is 10000)
+    -y NUM      Sets the number of iterations between samples (default is x/2000)
     -s NUM      Use given seed to initiate random number generator
     -c NUM      Number of cores to use (default is all available)
     -S STR      Generate a simulated dataset and run on it

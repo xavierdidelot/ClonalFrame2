@@ -14,7 +14,7 @@ int main() {
     auto t = Tree::random_tree(10,0.01,0.01);
     t->simulate_sequences_rec(1000,0,500,0.05);
     auto p = new Param(t);
-    p->mcmc(10,10,1);
+    p->mcmc(10,1);
     t=p->get_tree();
     delete(p);
     delete(t);

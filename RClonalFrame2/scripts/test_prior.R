@@ -6,7 +6,7 @@ n=100#Number of sequences
 topology_test=(n<10)#Slow if n>10
 niter=10000#Number of iterations
 prior_pars=c(1,0.5,500,250,0.05,0.025,0.001,0.0005)
-x=run_cf2(simu_pars=c(n,0,prior_pars[1],prior_pars[3],prior_pars[5],prior_pars[7],prior_pars[8]),update_pars=c(10,10,10,10,10),burn=0,iter=niter,thin=1,prior_pars = prior_pars)
+x=run_cf2(simu_pars=c(n,0,prior_pars[1],prior_pars[3],prior_pars[5],prior_pars[7],prior_pars[8]),update_pars=c(10,10,10,10,10),iter=niter,thin=1,prior_pars = prior_pars)
 
 trees=vector("list",niter)
 b1=rep(0,niter)

@@ -17,7 +17,7 @@ load_cf2 <- function(filename) {
 #' @export
 print.cf2out <- function(x, burnin, ...) {
   stopifnot(inherits(x, "cf2out"))
-  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  if (missing(burnin)) burnin=0.5
   cat(sprintf('ClonalFrame2 output with %d recorded iterations and %.0f%% burnin\n',nrow(x$iterations)-1,round(100*burnin)))
   iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
   for (nam in c('rho','delta','nu','r/m')) {
@@ -49,7 +49,7 @@ summary.cf2out <- function(object, ...) {
 #' @return Plot of ClonalFrame2 results
 #' @export
 plot.cf2out = function(x, type='pars', burnin, ...) {
-  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  if (missing(burnin)) burnin=0.5
   old.par=par(no.readonly = T)
   iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
 
@@ -144,7 +144,7 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
 as.mcmc.cf2out <- function(x,burnin,...) {
   stopifnot(inherits(x, "cf2out"))
   if (!requireNamespace("coda", quietly = TRUE)) stop("Package 'coda' is required for this function.")
-  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  if (missing(burnin)) burnin=0.5
   iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
   mat=cbind(
     x$iterations[iters,'rho'],
@@ -163,7 +163,7 @@ as.mcmc.cf2out <- function(x,burnin,...) {
 as.rwty <- function(x,burnin) {
   stopifnot(inherits(x, "cf2out"))
   if (!requireNamespace("rwty", quietly = TRUE)) stop("Package 'rwty' is required for this function.")
-  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  if (missing(burnin)) burnin=0.5
   iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
   filename=tempfile()
   f=file(filename,'w')
@@ -182,7 +182,7 @@ as.rwty <- function(x,burnin) {
 #' @export
 as.multiPhylo <- function(x,burnin) {
   stopifnot(inherits(x, "cf2out"))
-  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  if (missing(burnin)) burnin=0.5
   iters=max(1,floor((nrow(x$iterations)-1)*burnin)+2):nrow(x$iterations)
   trees=vector("list", length(iters))
   for (i in 1:length(iters)) {
@@ -200,7 +200,7 @@ as.multiPhylo <- function(x,burnin) {
 #' @export
 medoid <- function(x,burnin,metric='KF') {
   stopifnot(inherits(x, "cf2out"))
-  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  if (missing(burnin)) burnin=0.5
   firstiter=max(1,floor((nrow(x$iterations)-1)*burnin)+2)
   x=as.multiPhylo(x,burnin)
   if (metric=='wRF') dmat=wRF.dist(x, rooted = FALSE)

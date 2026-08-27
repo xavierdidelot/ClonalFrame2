@@ -48,10 +48,10 @@ if(BUILD_DEBUG_TARGETS)
 	target_link_libraries(comparison PRIVATE cf2_lib)
 endif()
 
-find_package(OpenMP)
+find_package(OpenMP QUIET)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(cf2_lib PUBLIC OpenMP::OpenMP_CXX)
 else()
-    message(WARNING "OpenMP not found - building without parallelisation")
+    message(STATUS "OpenMP not found - building without parallelisation")
 endif()
 

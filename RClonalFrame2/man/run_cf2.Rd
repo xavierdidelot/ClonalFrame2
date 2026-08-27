@@ -7,7 +7,6 @@
 run_cf2(
   inputfile,
   outputfile,
-  burn,
   iter,
   thin,
   seed,
@@ -25,8 +24,6 @@ run_cf2(
 \item{inputfile}{Name of input FASTA file}
 
 \item{outputfile}{Name of output CF2 file}
-
-\item{burn}{Number of burn-in iterations}
 
 \item{iter}{Total number of iterations}
 

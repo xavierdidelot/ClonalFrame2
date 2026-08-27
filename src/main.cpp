@@ -14,9 +14,8 @@ static string helptxt =
     Options:
     -i FILE     Select the input file
     -o FILE     Select the output file
-    -x NUM      Sets the number of burn-in iterations (default is y/2)
-    -y NUM      Sets the total number of iterations (default is 10000)
-    -z NUM      Sets the number of iterations between samples (default is y/2000)
+    -x NUM      Sets the total number of iterations (default is 10000)
+    -y NUM      Sets the number of iterations between samples (default is x/2000)
     -s NUM      Use given seed to initiate random number generator
     -c NUM      Number of cores to use (default is all available)
     -S STR      Generate a simulated dataset and run on it
@@ -37,9 +36,11 @@ static string helptxt =
 int main(int argc, const char *argv[]) {
     using Clock = std::chrono::steady_clock;
     auto start = Clock::now();
-    auto *orphan = new Node();orphan->set_dist_father(1.0); //just to test leak detection is working
-
-    int burn = -1, nbit = 20000, thin = -1;
+    #ifdef TESTLEAK
+        //to test leak detection is working, need to compile with -DTESTLEAK for this to be included
+        auto *orphan = new Node();orphan->set_dist_father(1.0);
+    #endif
+    int nbit = 20000, thin = -1;
     int i=1;
     string infile="";
     string outfile="";
@@ -55,9 +56,8 @@ int main(int argc, const char *argv[]) {
             switch (arg[1]) {
                 case('i'):infile=argv[++i];break;
                 case('o'):outfile=argv[++i];break;
-                case('x'):burn =  std::stoi(argv[++i]) ;break;
-                case('y'):nbit =  std::stoi(argv[++i]) ;break;
-                case('z'):thin =  std::stoi(argv[++i]) ;break;
+                case('x'):nbit =  std::stoi(argv[++i]) ;break;
+                case('y'):thin =  std::stoi(argv[++i]) ;break;
                 case('s'):setSeed(std::stoi(argv[++i]));break;
                 case('c'):n_cores =  std::stoi(argv[++i]);break;
                 case('S'):simu_str=argv[++i];break;
@@ -72,7 +72,6 @@ int main(int argc, const char *argv[]) {
         } else remainder.push_back(arg);
         i++;
     }
-    if (burn==-1) burn=nbit/2;
     if (thin==-1) thin=nbit/2000;
     if (thin==0) thin=1;
 
@@ -109,7 +108,7 @@ int main(int argc, const char *argv[]) {
     std::cout<<vtime()<<"Command used: "<< cmd<<std::endl;
     out<<"\t\"command\": \""<<cmd<<"\",\n";
 
-    omp_set_num_threads(n_cores);
+    n_cores=set_num_threads(n_cores);
     std::cout<<vtime()<<"Using "<<n_cores<<" cores."<<std::endl;
 
     Alignment *a;
@@ -174,7 +173,7 @@ int main(int argc, const char *argv[]) {
     }
     vector<int> * updates=p->get_updates();
     std::sscanf(update_str.c_str(), "%d,%d,%d,%d,%d", &updates->at(0),&updates->at(1),&updates->at(2),&updates->at(3),&updates->at(4));
-    p->mcmc(burn, nbit, thin);
+    p->mcmc(nbit, thin);
     t = p->get_tree();
     delete(a);
     delete(t);

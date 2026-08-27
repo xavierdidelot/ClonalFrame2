@@ -28,11 +28,10 @@ void Param::print_progress(int current, int total) {
     std::flush(std::cout);
 }
 
-void Param::mcmc(int burn, int nbit, int thin) {
+void Param::mcmc(int nbit, int thin) {
     if (verbose) std::cout<<vtime()<<"Starting MCMC..."<<std::endl;
     if (profiling) Profiler::prof.start(__func__);
     out << "\t\"mcmc_parameters\": {\n";
-    out << "\t\t\"burn\": "<<burn<<",\n";
     out << "\t\t\"nbit\": "<<nbit<<",\n";
     out << "\t\t\"thin\": "<<thin<<"\n";
     out << "\t},\n";

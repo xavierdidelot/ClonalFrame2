@@ -1,6 +1,8 @@
 #ifndef CLONALFRAME2_GLOBAL_H
 #define CLONALFRAME2_GLOBAL_H
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include <random>
 #include <chrono>
 #include <fstream>
@@ -27,20 +29,39 @@ inline void setSeed(unsigned int seed) {
     rng.seed(seed);
 }
 
-inline int n_cores = omp_get_max_threads();//Number of cores to use, defaulting to OpenMP default
+inline int max_available_threads() {
+    #ifdef _OPENMP
+        return omp_get_max_threads();
+    #else
+        return 1;
+    #endif
+}
+
+inline int set_num_threads(int count) {
+    #ifdef _OPENMP
+        omp_set_num_threads(count);
+        return omp_get_num_threads();
+    #else
+        return 1;
+    #endif
+}
+
+inline int n_cores = max_available_threads();//Number of cores to use, defaulting to OpenMP default or OpenMP is available or zero otherwise
 
 inline bool profiling=false;//Profiling mode
 
 inline const size_t maxskip=1000;
 
 ///dgamma functions, returning log(pdf)
-inline double dgamma_shape_scale(double x,double shape,double scale)
-{return (shape - 1.0) * log(x) - x / scale - shape * log(scale) - lgamma(shape);}
+inline double dgamma_shape_scale(double x,double shape,double scale) {
+    if (x==0) return 0.0;//this is not generally correct but will cancel out in calculations
+    return (shape - 1.0) * log(x) - x / scale - shape * log(scale) - lgamma(shape);
+}
 
 inline double dgamma_mean_sd(double x,double mean,double sd) {
     double shape=mean*mean/sd/sd;
     double scale=sd*sd/mean;
-    if (x==0) return 0.0;
+    if (x==0) return 0.0;//this is not generally correct but will cancel out in calculations
     return (shape - 1.0) * log(x) - x / scale - shape * log(scale) - lgamma(shape);
 }
 

@@ -9,7 +9,7 @@
 #'
 plot_recombination = function(x,iteration,gap=100,burnin,show_truth=T,...) {
   stopifnot(inherits(x, "cf2out"))
-  if (missing(burnin)) burnin=x$mcmc_parameters$burn/x$mcmc_parameters$nbit
+  if (missing(burnin)) burnin=0.5
   if (missing(iteration)) {
     message("Computing medoid...")
     iteration=medoid(x,burnin)

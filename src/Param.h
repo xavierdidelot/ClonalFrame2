@@ -24,12 +24,10 @@ public:
     ~Param();
     /**
      * Run the main MCMC
-     * @param burn Number of iterations to do before sampling
      * @param nbit Total number of iterations to do
      * @param thin Interval between sampling
-     * @param outfile File to which output is written
      */
-    void mcmc(int burn,int nbit,int thin);
+    void mcmc(int nbit,int thin);
     void adapt(int index,double mh,int i,int rep);
 
     ///Write to json file

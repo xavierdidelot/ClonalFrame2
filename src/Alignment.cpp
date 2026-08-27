@@ -8,7 +8,7 @@
 #include <regex>
 
 Alignment::~Alignment() {
-    for (size_t i=0;i<data->size();i++) delete data->at(i);
+    if (data!=nullptr) for (size_t i=0;i<data->size();i++) delete data->at(i);
     delete data;
     delete names;
     delete patindex;
@@ -47,6 +47,7 @@ Alignment * Alignment::read_fasta(const string &filename) {
         }
         l=l+line.length();
     }
+    if (n==1) l1=l;
     if (l!=l1) {
         std::cerr << "Error in file " << filename << ", sequence 1 is of length " << l1 << " but sequence " << n << " is of length " << l << ".\n";
         file.close();
@@ -91,6 +92,8 @@ Alignment* Alignment::make_nonpoly(size_t n, size_t l) {
     a->l=l;
     a->data=new vector<vector<uint8_t>*>(n);
     for (size_t i=0;i<n;i++) a->data->at(i)=new vector<uint8_t>(l,1);
+    a->names=new vector<string>(n);
+    for (size_t i=0;i<n;i++) a->names->at(i)="seq"+std::to_string(i+1);
     a->pattern_analysis();
     return a;
 }
@@ -262,6 +265,8 @@ double Alignment::dist(size_t i, size_t j) {
         den+=weights->at(a);
         if (data->at(i)->at(a)!=data->at(j)->at(a)) num+=weights->at(a);
     }
+    if (den==0) return 1e-4;
+    if (1.0*num/den>=0.75) return 1e-4;
     return(-0.75*log(1.0-4.0/3.0*num/den));
 }
 

@@ -82,18 +82,15 @@ public:
 
 private:
     Alignment() = default;
-    size_t n;
-    size_t l;
-
-
-private:
-    vector<vector<uint8_t>*>* data;
-    vector<string>* names;
-    size_t npat;
-    vector<size_t>* patindex;
-    vector<size_t>* weights;
-    vector<size_t>* refsites;
-    vector<size_t>* refsites_diff;
+    size_t n=0;
+    size_t l=0;
+    vector<vector<uint8_t>*>* data=nullptr;
+    vector<string>* names=nullptr;
+    size_t npat=0;
+    vector<size_t>* patindex=nullptr;
+    vector<size_t>* weights=nullptr;
+    vector<size_t>* refsites=nullptr;
+    vector<size_t>* refsites_diff=nullptr;
 };
 
 
