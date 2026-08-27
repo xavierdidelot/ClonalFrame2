@@ -34,9 +34,9 @@ public:
     ///Create a copy of a tree
     static Tree* copy_tree(Tree * t);
     ///Return the tree as a newick string
-    string to_string();
+    const string to_string();
     ///Return the tree as a newick string, revealing internal formating
-    string to_string_internal();
+    const string to_string_internal();
     ///Destructor for a tree
     ~Tree();
     ///Return number of leaves in the tree

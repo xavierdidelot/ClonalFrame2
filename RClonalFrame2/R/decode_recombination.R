@@ -118,6 +118,7 @@ decode_recombination <- function(x,iteration,gap) {
   #Check that all four likelihoods agree
   #d=likelihood_anc_rec(tree,seqs,anc,rho=rho,delta=delta,nu=nu)#slow
   #print(c(likelihood,d,ll,ll2))
+  if (abs(ll - ll2) > 1e-6) warning('Inconsistent forward and backward likelihoods')
 
   return(res)
 }

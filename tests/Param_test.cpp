@@ -15,6 +15,7 @@ int main() {
     t->simulate_sequences_rec(1000,0,500,0.05);
     auto p = new Param(t);
     p->mcmc(10,1);
+    assert(std::isfinite(p->get_ll()));
     t=p->get_tree();
     delete(p);
     delete(t);

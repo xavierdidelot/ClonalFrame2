@@ -43,9 +43,9 @@ void Param::mcmc(int nbit, int thin) {
     if (verbose) std::cout<<vtime()<<"Performing initial likelihood computation..."<<std::endl;
     ll=tree->likelihood_anc_rec(rho,delta,nu);
     prior_tree=tree->prior(this);
-    prior_rho=dgamma_mean_sd(rho,prior_params[0],prior_params[1]);
-    prior_delta=dgamma_mean_sd(delta,prior_params[2],prior_params[3]);
-    prior_nu=dgamma_mean_sd(nu,prior_params[4],prior_params[5]);
+    if (rho<=0.0) prior_rho=0.0; else prior_rho=dgamma_mean_sd(rho,prior_params[0],prior_params[1]);
+    if (delta<=0.0) prior_delta=0.0; else prior_delta=dgamma_mean_sd(delta,prior_params[2],prior_params[3]);
+    if (nu<=0.0) prior_nu=0.0; else prior_nu=dgamma_mean_sd(nu,prior_params[4],prior_params[5]);
     sd=vector<double> {0.1,10.0,1e-3,1e-3};
     adapt_nstart=vector(4,5.0*adapt_scale);
     adapt_lambda=vector(4,1.0);

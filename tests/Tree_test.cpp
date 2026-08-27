@@ -83,7 +83,7 @@ int main() {
         b=t->check_structure();
         assert(b);
         double q2=t->lq_rSPR(t2,p,name_moving);
-        assert(q1==q2);
+        assert(std::fabs(q1-q2) < 1e-10);
         delete t;
         t=t2;
     }

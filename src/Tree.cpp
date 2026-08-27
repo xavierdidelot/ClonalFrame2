@@ -20,6 +20,7 @@ Tree * Tree::deterministic_tree(size_t n) {
 
     for (size_t i = 0; i < n-1; i++) {
         auto node = new Node();
+        node->set_name("NODE" + std::to_string(i));
         t->nodes[n+i]=node;
         node->set_left(t->nodes[i]);
         t->nodes[i]->set_father(t->nodes[n+i]);
@@ -55,18 +56,17 @@ Tree* Tree::read_newick(const string &filename) {
     root->set_father(nullptr);
     t->n=(t->nodes.size()+1)/2;
     std::swap(t->nodes[t->n*2-2],t->nodes[t->n]);
+    for (size_t i=t->n;i<t->nodes.size();i++) t->nodes[i]->set_name("NODE"+std::to_string(i));
     t->reorder();
     return t;
 }
 
-string Tree::to_string() {
-    for (size_t i=n;i<nodes.size();i++) nodes[i]->set_name("NODE"+std::to_string(i));
+const string Tree::to_string() {
     Node * root=nodes[2*n-2];
     return "("+root->get_left()->get_left()->to_string() +","+root->get_left()->get_right()->to_string()+","+root->get_right()->to_string() + ")"+root->get_name()+";";
 }
 
-string Tree::to_string_internal() {
-    for (size_t i=n;i<nodes.size();i++) nodes[i]->set_name("NODE"+std::to_string(i));
+const string Tree::to_string_internal() {
     Node * root=nodes[2*n-2];
     return "("+root->get_left()->to_string() +","+root->get_right()->to_string() + ")"+root->get_name()+";";
 }
@@ -232,6 +232,7 @@ Tree* Tree::random_tree(size_t n,double b_mean, double b_sd) {
     for (size_t i = 0; i < 2*n-1; i++) {
         t->nodes[i]=new Node();
         if (i<n) t->nodes[i]->set_name("seq" + std::to_string(i + 1));
+        else t->nodes[i]->set_name("NODE" + std::to_string(i));
     }
     auto to_merge = vector<Node *>(n);
     std::gamma_distribution rgamma(b_mean*b_mean/b_sd/b_sd,b_sd*b_sd/b_mean);
@@ -332,7 +333,6 @@ Tree* Tree::nj(vector<vector<double>> * d,vector<string> * names) {
     t->nodes[n+m+1]->set_right(t->nodes[n+m]);
     t->nodes[to_merge[2]]->set_father(t->nodes[n+m+1]);
     t->nodes[n+m]->set_father(t->nodes[n+m+1]);
-    t->nodes[n+m]->set_dist_father(0.0);
     t->nodes[n+m]->set_dist_father(t->nodes[to_merge[2]]->get_dist_father());
     t->nodes[to_merge[2]]->set_dist_father(0.0);
     t->nodes[n+m+1]->set_father(nullptr);

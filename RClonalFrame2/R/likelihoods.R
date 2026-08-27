@@ -103,7 +103,7 @@ likelihood <- function(tree,seqs,method='pruning',workenv=NULL) {
 #' @param seqs Sequences in phangorn::phyDat format
 #' @returns Phylogenetic tree estimated
 #'
-mle <- function(seqs) {
+experimental_mle <- function(seqs) {
   random_start=rtree(length(seqs),tip.label=names(seqs))
   random_start$edge.length=random_start$edge.length*0.01
   o=capture.output(m<-phangorn::pml_bb(seqs,model='JC',start=unroot(random_start)))
@@ -118,7 +118,7 @@ mle <- function(seqs) {
 #' @param showProgress Whether of not to show progress bar
 #' @returns Result of Bayesian inference
 #'
-mcmc <- function(seqs,niter=10000,thin=100,method='pruning',showProgress=T) {
+experimental_mcmc <- function(seqs,niter=10000,thin=100,method='pruning',showProgress=T) {
   proposal_probs  = c(NNI = 0.4, SPR = 0.4, branch = 0.2)
   tree=rtree(length(seqs),tip.label=names(seqs))
   tree$edge.length=tree$edge.length*0.01

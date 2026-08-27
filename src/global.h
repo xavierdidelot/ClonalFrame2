@@ -55,14 +55,12 @@ inline const size_t maxskip=1000;
 
 ///dgamma functions, returning log(pdf)
 inline double dgamma_shape_scale(double x,double shape,double scale) {
-    if (x==0) return 0.0;//this is not generally correct but will cancel out in calculations
     return (shape - 1.0) * log(x) - x / scale - shape * log(scale) - lgamma(shape);
 }
 
 inline double dgamma_mean_sd(double x,double mean,double sd) {
     double shape=mean*mean/sd/sd;
     double scale=sd*sd/mean;
-    if (x==0) return 0.0;//this is not generally correct but will cancel out in calculations
     return (shape - 1.0) * log(x) - x / scale - shape * log(scale) - lgamma(shape);
 }
 

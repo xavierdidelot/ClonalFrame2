@@ -103,7 +103,6 @@ Alignment* Alignment::make_from_tree(Tree *t, bool include_ancestors) {
     size_t n=t->get_n();
     if (include_ancestors) {
         n=n*2-1;
-        for (size_t i=t->get_n();i<n;i++) t->get_node(i)->set_name("NODE"+std::to_string(i));
     }
     a->n=n;
     a->names=new vector<string>(n);
