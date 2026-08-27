@@ -9,3 +9,5 @@ RClonalFrame2/scripts/*.pdf
 /build-debug
 ClonalFrame2
 *.RData
+src/*.sh
+src/Makefile

@@ -141,7 +141,7 @@ void Param::mcmc(int nbit, int thin) {
             double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
             double prior_tree2=tree2->prior(this);
             double mh=ll2-ll+prior_tree2-prior_tree+lqr;
-            if (verbose) std::cout<<vtime()<<std::scientific << std::setprecision(6)<<"Branch lengths move proposed ll="<<ll<<" ll2="<<ll<<" lp="<<prior_tree<<" lp2="<<prior_tree2<<" mh="<<mh;
+            if (verbose) std::cout<<vtime()<<std::scientific << std::setprecision(6)<<"Branch lengths move proposed ll="<<ll<<" ll2="<<ll2<<" lp="<<prior_tree<<" lp2="<<prior_tree2<<" mh="<<mh;
             if (log(runif(rng))<mh) {
                 naccepted[3]++;
                 if (verbose) std::cout<<" accepted\n";
@@ -166,7 +166,7 @@ void Param::mcmc(int nbit, int thin) {
             double ll2=tree2->likelihood_anc_rec(rho,delta,nu);
             double prior_tree2=tree2->prior(this);
             double mh=ll2-ll+prior_tree2-prior_tree+q21-q12;
-            if (verbose) std::cout<<vtime()<<std::scientific << std::setprecision(6)<<"Tree move proposed ll="<<ll<<" ll2="<<ll<<" lp="<<prior_tree<<" lp2="<<prior_tree2<<" mh="<<mh;
+            if (verbose) std::cout<<vtime()<<std::scientific << std::setprecision(6)<<"Tree move proposed ll="<<ll<<" ll2="<<ll2<<" lp="<<prior_tree<<" lp2="<<prior_tree2<<" mh="<<mh;
             if (log(runif(rng))<mh) {
                 naccepted[4]++;
                 if (verbose) std::cout<<" accepted\n";

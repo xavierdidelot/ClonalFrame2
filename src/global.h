@@ -37,16 +37,17 @@ inline int max_available_threads() {
     #endif
 }
 
-inline int set_num_threads(int count) {
+inline int n_cores = max_available_threads();//Number of cores to use, defaulting to OpenMP default or OpenMP is available or zero otherwise
+
+inline void set_num_threads(int count) {
     #ifdef _OPENMP
         omp_set_num_threads(count);
-        return omp_get_num_threads();
+        n_cores=count;
     #else
-        return 1;
+       std::cout<<"Ignoring requested number of cores since OpenMP is not available"<<std::endl;
     #endif
 }
 
-inline int n_cores = max_available_threads();//Number of cores to use, defaulting to OpenMP default or OpenMP is available or zero otherwise
 
 inline bool profiling=false;//Profiling mode
 

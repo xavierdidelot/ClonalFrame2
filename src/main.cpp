@@ -40,8 +40,9 @@ int main(int argc, const char *argv[]) {
         //to test leak detection is working, need to compile with -DTESTLEAK for this to be included
         auto *orphan = new Node();orphan->set_dist_father(1.0);
     #endif
-    int nbit = 20000, thin = -1;
+    int nbit = 10000, thin = -1;
     int i=1;
+    int n_cores_requested=-1;
     string infile="";
     string outfile="";
     string simu_str="";
@@ -59,7 +60,7 @@ int main(int argc, const char *argv[]) {
                 case('x'):nbit =  std::stoi(argv[++i]) ;break;
                 case('y'):thin =  std::stoi(argv[++i]) ;break;
                 case('s'):setSeed(std::stoi(argv[++i]));break;
-                case('c'):n_cores =  std::stoi(argv[++i]);break;
+                case('c'):n_cores_requested =  std::stoi(argv[++i]);break;
                 case('S'):simu_str=argv[++i];break;
                 case('I'):starting_str=argv[++i];break;
                 case('U'):update_str=argv[++i];break;
@@ -108,7 +109,7 @@ int main(int argc, const char *argv[]) {
     std::cout<<vtime()<<"Command used: "<< cmd<<std::endl;
     out<<"\t\"command\": \""<<cmd<<"\",\n";
 
-    n_cores=set_num_threads(n_cores);
+    if (n_cores_requested>0) set_num_threads(n_cores_requested);
     std::cout<<vtime()<<"Using "<<n_cores<<" cores."<<std::endl;
 
     Alignment *a;

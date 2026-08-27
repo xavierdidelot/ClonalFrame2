@@ -266,7 +266,7 @@ double Alignment::dist(size_t i, size_t j) {
         if (data->at(i)->at(a)!=data->at(j)->at(a)) num+=weights->at(a);
     }
     if (den==0) return 1e-4;
-    if (1.0*num/den>=0.75) return 1e-4;
+    if (1.0*num/den>=0.75) return 0.1;//This is already huge given intended use
     return(-0.75*log(1.0-4.0/3.0*num/den));
 }
 
