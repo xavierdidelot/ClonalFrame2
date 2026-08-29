@@ -46,7 +46,7 @@ Tree* Tree::read_newick(const string &filename) {
     file.open(filename);
     if (file.is_open() == false) {
         std::cerr << "Error opening file " << filename << std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     getline(file, line);
     file.close();

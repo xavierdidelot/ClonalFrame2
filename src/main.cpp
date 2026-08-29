@@ -80,29 +80,35 @@ int main(int argc, const char *argv[]) {
 
     if (help) {
         std::cout<<helptxt<<std::endl;
-        return 0;
+        return EXIT_SUCCESS;
     }
 
 
     if (remainder.size() != 0) {
         std::cerr<<"Need zero non-option arguments but found "<< remainder.size()<<std::endl;
-        return 0;
+        return EXIT_FAILURE;
     }
 
     if (simu_str.empty() && infile.empty()) {
         std::cerr<<"Need either -i or -S option."<<std::endl;
-        return 0;
+        return EXIT_FAILURE;
     }
 
     if (!simu_str.empty() && !infile.empty()) {
         std::cerr<<"Cannot have both -i and -S options."<<std::endl;
-        return 0;
+        return EXIT_FAILURE;
     }
 
-    if (!outfile.empty()) {
-        out.open(outfile);
-        if (out.is_open() == false) std::cerr<<"Unable to open output file "<<outfile<<std::endl;
+    if (outfile.empty()) {
+        std::cerr<<"Need to use -o option to specify output file."<<std::endl;
+        return EXIT_FAILURE;
     }
+    out.open(outfile);
+    if (out.is_open() == false) {
+        std::cerr<<"Unable to open output file "<<outfile<<std::endl;
+        return EXIT_FAILURE;
+    }
+
     out<<"{\n";
     string cmd;
     for (i = 0; i < argc; i++) {cmd.append(argv[i]);cmd.append(" ");}
@@ -122,7 +128,7 @@ int main(int argc, const char *argv[]) {
         a = Alignment::read_fasta(infile);
         if (a->get_n()<3) {
             std::cerr<<"Need a minimum of three genomes."<<std::endl;
-            return 0;
+            return EXIT_FAILURE;
         }
     } else {
         int n, l;
@@ -130,7 +136,7 @@ int main(int argc, const char *argv[]) {
         if (starting_str.empty()) start_correct=1;
         if (n<3) {
             std::cerr<<"Need a minimum of three genomes."<<std::endl;
-            return 0;
+            return EXIT_FAILURE;
         }
         if (verbose) std::cout<<vtime()<<"Generating true tree with "<<n<<" leaves and branch length with mean "<<b_mean<<" and sd "<<b_sd<<"..."<<std::endl;
         t = Tree::random_tree(n, b_mean, b_sd);
@@ -191,5 +197,5 @@ int main(int argc, const char *argv[]) {
     if (time>24 && unit=="hours") {time=time/24;unit="days";}
     std::cout<<vtime()<<"Time spent running: "<<std::setprecision(4)<<time<<" "<<unit<<std::endl;
     if (verbose) std::cout<<vtime()<<"End of ClonalFrame2 run."<<std::endl;
-    return 0;
+    return EXIT_SUCCESS;
 }

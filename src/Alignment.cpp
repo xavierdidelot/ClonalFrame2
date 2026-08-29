@@ -25,7 +25,7 @@ Alignment * Alignment::read_fasta(const string &filename) {
     file.open(filename);
     if (file.is_open()==false) {
         std::cerr<<"Error opening file "<<filename<<std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     //First pass to check consistency and determine size
@@ -41,7 +41,7 @@ Alignment * Alignment::read_fasta(const string &filename) {
             else if (l!=l1) {
                 std::cerr << "Error in file " << filename << ", sequence 1 is of length " << l1 << " but sequence " << n << " is of length " << l << ".\n";
                 file.close();
-                exit(1);
+                exit(EXIT_FAILURE);
             }
             n++;l=0;continue;
         }
@@ -51,7 +51,7 @@ Alignment * Alignment::read_fasta(const string &filename) {
     if (l!=l1) {
         std::cerr << "Error in file " << filename << ", sequence 1 is of length " << l1 << " but sequence " << n << " is of length " << l << ".\n";
         file.close();
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     //Second pass to load data
@@ -78,7 +78,7 @@ Alignment * Alignment::read_fasta(const string &filename) {
 
     //Check names are unique
     std::set<std::string> seen(a->names->begin(), a->names->end());
-    if (seen.size()!=a->names->size()) {std::cerr<<"Error in file "<<filename<<", sequence names are not unique."<<std::endl;;exit(1);}
+    if (seen.size()!=a->names->size()) {std::cerr<<"Error in file "<<filename<<", sequence names are not unique."<<std::endl;;exit(EXIT_FAILURE);}
 
     a->n=n;
     a->l=l;

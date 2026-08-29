@@ -27,7 +27,7 @@ run_cf2(
 
 \item{iter}{Total number of iterations}
 
-\item{thin}{Thining interval}
+\item{thin}{Thinning interval}
 
 \item{seed}{Seed for random number generator}
 
