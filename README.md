@@ -42,10 +42,11 @@ using:
 ```
 make install
 ```
+or by copying it to a location included in your `$PATH`.
 
 ## Usage from the command line
 
-The ClonalFrame2 executable has the following options:
+The `ClonalFrame2` executable has the following options:
 
 ```
     -i FILE     Select the input file
@@ -84,15 +85,17 @@ ClonalFrame2 -i data.fasta -o out.json
 ```
 
 All results are stored in the json output file. The format
-is relatively straightforward, and most users
-will want to analyse results using the R package RClonalFrame2 
+is relatively straightforward, but most users
+will want to analyse results using the R package `RClonalFrame2` 
 described below.
 
 ## The RClonalFrame2 package
 
-ClonalFrame2 comes with a R package called RClonalFrame2 which
+ClonalFrame2 comes with an R package called `RClonalFrame2` which
 provides functions to run from R and analyse results.
-You can install it using the following command from the directory
+You need to install `ClonalFrame2` as described above
+before you install the R package.
+You can then install `RClonalFrame2` using the following command from the directory
 where you copied the repository:
 
 ```
