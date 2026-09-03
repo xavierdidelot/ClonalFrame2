@@ -23,7 +23,7 @@ run_cf2 <- function(inputfile,outputfile,iter,thin,seed,ncpu,profile,verbose,sim
   path=Sys.which(path)
   if (nchar(path)==0) stop('Could not find ClonalFrame2 executable')
   args=c()
-  if (!missing(inputfile)) args=c(args,'-i',shQuote(inputfile))
+  if (!missing(inputfile)) args=c(args,'-i',shQuote(path.expand(inputfile)))
   if (missing(outputfile)) outputfile=tempfile()
   args=c(args,'-o',shQuote(outputfile))
   if (!missing(iter)) args=c(args,'-x',iter)

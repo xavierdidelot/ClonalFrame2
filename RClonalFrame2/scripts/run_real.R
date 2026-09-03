@@ -1,7 +1,9 @@
 rm(list=ls())
 library(RClonalFrame2)
 #alifile='~/data/st239/ali.fasta'
-alifile='~/data/harris2010/core.full.aln'
+#alifile='~/data/harris2010/core.full.aln'
+#alifile='~/github/ClonalFrame2/data/simu.fasta'
+alifile='~/data/mrsn/noref.aln'
 iter=1e6
 x=vector('list',4)
 x[[1]]=run_cf2(alifile,iter=iter,starting_pars=c(0,0,0),update_pars=c(0,0,0,1,1),seed=1)

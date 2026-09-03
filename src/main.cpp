@@ -57,10 +57,10 @@ int main(int argc, const char *argv[]) {
             switch (arg[1]) {
                 case('i'):infile=argv[++i];break;
                 case('o'):outfile=argv[++i];break;
-                case('x'):nbit =  std::stoi(argv[++i]) ;break;
-                case('y'):thin =  std::stoi(argv[++i]) ;break;
-                case('s'):setSeed(std::stoi(argv[++i]));break;
-                case('c'):n_cores_requested =  std::stoi(argv[++i]);break;
+                case('x'):nbit = static_cast<int>(std::stod(argv[++i]));break;
+                case('y'):thin = static_cast<int>(std::stod(argv[++i]));break;
+                case('s'):setSeed(static_cast<int>(std::stod(argv[++i])));break;
+                case('c'):n_cores_requested = static_cast<int>(std::stod(argv[++i]));break;
                 case('S'):simu_str=argv[++i];break;
                 case('I'):starting_str=argv[++i];break;
                 case('U'):update_str=argv[++i];break;
