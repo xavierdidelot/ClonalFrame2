@@ -130,8 +130,7 @@ for example:
 print(x)                #shows parameters
 plot(x)                 #plots parameters
 plot(x,'trace')         #plots traces
-m=medoid(x)             #return index of medoid tree
-x$iterations$tree[m]    #newick string of medoid tree
+plot(x,'medoid')        #plots the medoid tree
 plot(x,'recombination') #plots recombination events on medoid tree
 ```
 

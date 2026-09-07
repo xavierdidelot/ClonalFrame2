@@ -131,6 +131,12 @@ plot.cf2out = function(x, type='pars', burnin, ...) {
     plot_recombination(x,...)
   }
 
+  if (type=='medoid') {
+    m=medoid(x,burnin=burnin)
+    t=read.tree(text=x$iterations$tree[m])
+    plot(t,...)
+  }
+
   par(old.par)
 }
 

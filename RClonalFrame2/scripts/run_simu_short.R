@@ -15,6 +15,7 @@ plot(x,'trace_acceptance',burnin=0)
 plot(x,'trace_trees')
 plot(x,'simulation')
 print(tail(x$iterations$paccepted_spr,1))
+plot(x,'medoid')
 
 filename=tempfile(fileext="pdf")
 pdf(filename,14,7)

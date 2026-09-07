@@ -35,7 +35,7 @@ for (i in 1:4) {
 }
 
 #pdf(sprintf('%s.pdf',alifile),10,8)
-#plot(x[[3]],'recombination')
+#plot(x[[4]],'recombination')
 #dev.off()
 
 library(BactDating)
