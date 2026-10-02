@@ -1,11 +1,10 @@
-#' Side-by-side plot but without any event shown
+#' Side-by-side plot without any event shown
 #' @param newick Newick string of tree to show
 #' @param genome_length Genome length
 #' @returns Phylo object with extra leaves for nodes
 #'
-plot_tree_aligned=function(newick,genome_length) {
-  par(xpd=NA,mai=c(0.8,0.2,0.2,0.2),las=1)
-  layout(matrix(c(1,2,2,2,2),nrow=1))
+plot_tree_aligned=function(newick,genome_length,show.tip.label=T) {
+  par(fig=c(0.05,0.3,0.1,0.9),mai=c(0,0,0,0), xaxs="i", yaxs="i",las=1,xpd=NA)
 
   #Add leaves corresponding to nodes
   original_newick=newick
@@ -49,10 +48,12 @@ plot_tree_aligned=function(newick,genome_length) {
   for (i in 1:length(tree$tip.label)) tree$tip.label_strings[i]=strings[tree$tip.label[i]]
 
   #Prepare right hand side of plot
+  par(fig=c(0.23+0.07*show.tip.label,0.95,0.1,0.9),mai=c(0,0,0,0), xaxs="i", yaxs="i",las=1,xpd=NA,new=T)
   plot(c(),c(),xaxs="i",xlim=c(0,genome_length),ylim=c(1,Ntip(tree)),xlab='Genomic Position',ylab='',yaxt='n')
   labs=tree$tip.label
   labs=gsub("NODE[0-9]+","",labs)
-  axis(2,at=1:Ntip(tree),labels=labs,gap.axis=-100)
+  if (show.tip.label) axis(2,at=1:Ntip(tree),labels=labs,gap.axis=-100)
+  else axis(2,at=1:Ntip(tree),labels=rep('',Ntip(tree)),gap.axis=-100)
 
   return(tree)
 }

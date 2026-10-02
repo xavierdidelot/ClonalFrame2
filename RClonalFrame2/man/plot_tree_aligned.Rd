@@ -2,9 +2,9 @@
 % Please edit documentation in R/plot_tree_aligned.R
 \name{plot_tree_aligned}
 \alias{plot_tree_aligned}
-\title{Side-by-side plot but without any event shown}
+\title{Side-by-side plot without any event shown}
 \usage{
-plot_tree_aligned(newick, genome_length)
+plot_tree_aligned(newick, genome_length, show.tip.label = T)
 }
 \arguments{
 \item{newick}{Newick string of tree to show}
@@ -15,5 +15,5 @@ plot_tree_aligned(newick, genome_length)
 Phylo object with extra leaves for nodes
 }
 \description{
-Side-by-side plot but without any event shown
+Side-by-side plot without any event shown
 }
