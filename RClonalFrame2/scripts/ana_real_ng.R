@@ -1,5 +1,5 @@
 library(ape)
-if (F) {
+
 rm(list=ls())
 library(RClonalFrame2)
 alifile='~/data/grad2014/clade1.fasta'
@@ -8,7 +8,6 @@ allx=x
 x=x[[3]]
 iteration=medoid(x)
 r=decode_recombination(x,iteration)
-}
 
 #pdf(sprintf('%s.pdf',alifile),20,10)
 png(sprintf('%s.png',alifile), width = 5000, height = 3000, res = 300)
