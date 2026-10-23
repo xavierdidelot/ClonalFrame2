@@ -6,7 +6,7 @@
 #include "Param.h"
 #include "global.h"
 
-constexpr const char* VERSION_STRING = "0.1";
+constexpr const char* VERSION_STRING = "0.9";
 
 static string helptxt =
         R"(Usage: ClonalFrame2 [OPTIONS]
@@ -21,7 +21,7 @@ static string helptxt =
     -S STR      Generate a simulated dataset and run on it
                 STR is 7 comma-separated values for number of sequences,
                 length of sequences, rho, delta, nu, branch length mean and sd
-    -I STR      Specify starting parameter values (default is 1,500,0.05)
+    -I STR      Specify starting parameter values (default is 0.1,500,0.05)
                 STR is 3 comma-separated values for rho, delta and nu
                 If -S is used without -I then start from correct values and tree
     -U STR      Indicates number of updates to use per iteration for each move
